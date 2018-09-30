@@ -1,7 +1,7 @@
 {
-  "name": "nexustate",
-  "version": "1.0.46",
-  "description": "State management with listeners",
+  "name": "mutastate",
+  "version": "1.0.0",
+  "description": "Mutable state management",
   "main": "./dist/src/index.js",
   "typings": "./src/index.d.ts",
   "scripts": {
@@ -12,7 +12,7 @@
   "keywords": [
     "nexuscript",
     "object",
-    "nexustate",
+    "mutastate",
     "nexusoft",
     "wizebin"
   ],
@@ -20,7 +20,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wizebin/nexustate.git"
+    "url": "git+https://github.com/wizebin/mutastate.git"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
