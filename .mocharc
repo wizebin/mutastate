@@ -1,0 +1,6 @@
+--colors
+--full-trace
+--require ./mocha_babel_hook.js
+--require mock-local-storage
+--recursive
+./src/**/*.test.js
