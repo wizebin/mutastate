@@ -4,7 +4,7 @@
  * this allows us to listen to a deeply nested key and change the resulting data easily
  */
 
-import { set, get, assassinate } from 'objer';
+import { set, get, assassinate, has } from 'objer';
 import changeWrapper from './changeWrapper';
 
 export default class ProxyAgent {
@@ -12,17 +12,19 @@ export default class ProxyAgent {
     this.mutastate = mutastate;
     this.data = changeWrapper({}, this.proxyChange);
     this.onChange = onChange;
-    // this.aliasObject = {};
+    this.aliasObject = {};
+    this.reverseAliasObject = {};
   }
 
+  // TODO manage push, pop, shift, unshift, splice, etc
   proxyChange = (data) => {
     if (!this.ignoreChange) {
       const { type, key, value } = data;
+      const passKey = has(this.aliasObject, key) ? get(this.aliasObject, key) : key;
       if (type === 'set') {
-        console.log('proxy agent set', JSON.stringify(data, null, 2), this.data)
-        this.mutastate.set(key, value);
+        this.mutastate.set(passKey, value);
       } else if (type === 'delete') {
-        this.mutastate.delete(key);
+        this.mutastate.delete(passKey);
       }
     }
   }
@@ -33,12 +35,18 @@ export default class ProxyAgent {
 
   unlisten = (key) => {
     const result = this.mutastate.unlisten(key, this.handleChange);
-    // assassinate(this.aliasObject, key);
+    const alias = get(this.reverseAliasObject, key);
+    if (alias) {
+      assassinate(this.reverseAliasObject, key);
+      assassinate(this.aliasObject, alias);
+    }
     return result;
   }
 
   unlistenFromAll = () => {
     this.mutastate.unlistenComponent(this);
+    this.aliasObject = {};
+    this.reverseAliasObject = {};
   }
 
   getComposedState = (initialData, key, value) => {
@@ -64,6 +72,10 @@ export default class ProxyAgent {
     };
     this.mutastate.listen(key, modifiedListener);
 
+    if (alias) {
+      set(this.aliasObject, alias, key);
+      set(this.reverseAliasObject, key, alias);
+    }
     if (initialLoad) {
       this.ignoreChange = true;
       const listenData = this.mutastate.getForListener(key, modifiedListener);

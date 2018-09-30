@@ -103,11 +103,20 @@ describe('Mutastate', () => {
         updateCount += 1;
       });
       agent.listen('first', { alias: 'flipper' });
+      agent.listen('second');
       manager.set('first', 'bingo');
-      expect(updateCount).to.equal(2);
-      agentData.flipper = 'johnny'; //Doesn't currently work, changing to johnny and removing the alias does work
-      expect(updateCount).to.equal(3);
+      manager.set('second', 'bongo');
+
+      updateCount = 0;
+      agentData.flipper = 'johnny';
+      expect(updateCount).to.equal(1);
+
+      updateCount = 0;
+      agentData.second = 'bango';
+      expect(updateCount).to.equal(1);
+
       expect(manager.get('first')).to.equal('johnny');
+      expect(manager.get('second')).to.equal('bango');
     });
   });
 });
