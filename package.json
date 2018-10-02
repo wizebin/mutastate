@@ -2,12 +2,15 @@
   "name": "mutastate",
   "version": "1.0.0",
   "description": "Mutable state management",
-  "main": "./index.js",
-  "typings": "./index.d.ts",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
   "scripts": {
     "test": "./node_modules/.bin/mocha --opts ./.mocharc",
     "dev": "webpack --mode development",
-    "build": "webpack --mode production && cp ./package.json ./dist/package.json && cp ./src/index.d.ts ./dist/index.d.ts"
+    "build": "webpack --mode production && cp ./src/index.d.ts ./dist/index.d.ts"
   },
   "keywords": [
     "nexuscript",

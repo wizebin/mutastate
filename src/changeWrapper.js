@@ -58,10 +58,15 @@ function getHandler(onChange, keyInput) {
 	const key = getObjectPath(keyInput);
   const handler = {
 		get(target, property, receiver) {
+			const desc = Object.getOwnPropertyDescriptor(target, property)
+			const value = Reflect.get(target, property, receiver)
+
+			if (desc && !desc.writable && !desc.configurable) return value
+
 			try {
 				return new Proxy(target[property], getHandler(onChange, key.concat(property)));
 			} catch (err) {
-				return Reflect.get(target, property, receiver);
+				return value
 			}
 		},
 		set(target, property, value) {

@@ -13,7 +13,7 @@ class Assignment extends React.Component {
       <div>
         <div>{assignment.name}</div>
         <div>{assignment.count}</div>
-        <div>{JSON.stringify(assignment.list)}</div>
+        <div>{assignment.list.map(item => <div>{item}</div>)}</div>
         <button onClick={() => assignment.count += 1}>Add To Count</button>
         <button onClick={() => assignment.name = ['a', 'b', 'c'][Math.floor(Math.random() * 3)]}>Change Name</button>
         <button onClick={() => assignment.list.push('another')}>Add To List</button>

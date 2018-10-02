@@ -11,7 +11,7 @@
     "react-dom": "^16.4.1",
     "react-request": "^3.1.1",
     "react-scripts": "1.1.4",
-    "mutastate": "../dist"
+    "mutastate": "../"
   },
   "scripts": {
     "start": "react-scripts start",
