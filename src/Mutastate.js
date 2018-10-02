@@ -56,6 +56,7 @@ export default class Mutastate {
   /**
    * Set save and load functionality, as well as indicate shards we need to load and save
    */
+  // TODO: consider adding persistData option here
   initialize = ({ shards, save, load }) => {
     this.saveData = save !== undefined ? save : missingCallback;
     this.loadData = load !== undefined ? load : missingCallback;
@@ -149,7 +150,7 @@ export default class Mutastate {
   /**
    * Add a path listener, dedupes by callback function, careful with anonymous functions!
    */
-  listen = (key, listener = { callback: () => {}, alias: null, component: null, transform: null, defaultValue: undefined }) => {
+  listen = (key, listener = { callback: () => {}, alias: null, batch: null, transform: null, defaultValue: undefined }) => {
     const listeners = this.getListenersAtPath(key);
     const matchedListeners = listeners.reduce((results, existingListener, dex) => {
       if (existingListener.callback === listener.callback) results.push(dex);
@@ -181,20 +182,20 @@ export default class Mutastate {
   }
 
   /**
-   * Unlisten by the component parameter passed into the options of the listen function
+   * Unlisten by the batch parameter passed into the options of the listen function
    */
-  unlistenComponent = (component, basePath) => {
+  unlistenBatch = (batch, basePath) => {
     const patharray = (basePath || []);
     const subkeypath = (basePath || []).concat('subkeys');
     const subKeys = keys(get(this.listenerObject, subkeypath));
     for (let keydex = 0; keydex < subKeys.length; keydex += 1) {
-      this.unlistenComponent(component, subkeypath.concat([subKeys[keydex]]));
+      this.unlistenBatch(batch, subkeypath.concat([subKeys[keydex]]));
     }
 
     const listeners = get(this.listenerObject, patharray.concat('listeners'));
 
     const matchedListeners = (listeners || []).reduce((results, existingListener, dex) => {
-      if (existingListener.component === component) results.push(dex);
+      if (existingListener.batch === batch) results.push(dex);
       return results;
     }, []);
 
@@ -213,7 +214,9 @@ export default class Mutastate {
     if (has(this.data, key)) {
       value = get(this.data, key);
     } else {
-      set(this.data, key, defaultValue);
+      if (defaultValue !== undefined) {
+        set(this.data, key, defaultValue);
+      }
       value = defaultValue;
     }
 

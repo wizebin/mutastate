@@ -45,7 +45,7 @@ export default class ProxyAgent {
   }
 
   unlistenFromAll = () => {
-    this.mutastate.unlistenComponent(this);
+    this.mutastate.unlistenBatch(this);
     this.aliasObject = {};
     this.reverseAliasObject = {};
   }
@@ -69,7 +69,7 @@ export default class ProxyAgent {
       initialLoad,
       defaultValue,
       callback: this.handleChange,
-      component: this,
+      batch: this,
     };
     this.mutastate.listen(key, modifiedListener);
 

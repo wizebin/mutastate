@@ -48,12 +48,12 @@ console.log(mutastate.get('foghorn')) // returns leghorn
     * Force an immediate data save
 * `load()`
     * Force an immediate data load
-* `listen(key, listener = { callback: () => {}}, alias: null, component: null, transform: null, defaultValue: undefined })`
-    * listen for changes, notify callback when they occur, defaultValue will directly affect the current data if nothing exists! use component for easy batch unlistening
+* `listen(key, listener = { callback: () => {}}, alias: null, batch: null, transform: null, defaultValue: undefined })`
+    * listen for changes, notify callback when they occur, defaultValue will directly affect the current data if nothing exists! use batch for easy batch unlistening
 * `unlisten(key, callback)`
     * Unlisten from a single key with a single known callback function
-* `unlistenComponent(component, basePath)`
-    * Unlisten from all associated triggers for one given component which was passed into listen
+* `unlistenBatch(batch, basePath)`
+    * Unlisten from all associated triggers for one given batch which was passed into listen
 * `getForListener(key, listener, keyChange)`
     * Get data for a given key and listener, this is used by agents to get initial data, and internally to get relevant data upon updating
 * `get(key)`
@@ -125,15 +125,15 @@ The use of `useProxy` will limit your browser availability due to use of the Pro
 * UC android 11.8
 
 If you must avoid `useProxy`, the following mutastate methods are available:
-* get(key)
-* set(key, value)
-* delete(key)
-* assign(key, value)
-* push(key, value)
-* pop(key, value)
-* has(key)
-* getEverything(key)
-* setEverything(key)
+* `get(key)`
+* `set(key, value)`
+* `delete(key)`
+* `assign(key, value)`
+* `push(key, value)`
+* `pop(key, value)`
+* `has(key)`
+* `getEverything(key)`
+* `setEverything(key)`
 
 These functions are accessible throught the agent props object (this can be modified by passing agentName into your withMutastateCreator function) like so:
 `this.props.agent.set('default.bobby', 'tables');`

@@ -17,7 +17,7 @@ export default class MutastateAgent {
   }
 
   unlistenFromAll = () => {
-    this.mutastate.unlistenComponent(this);
+    this.mutastate.unlistenBatch(this);
   }
 
   getComposedState = (initialData, key, value) => {
@@ -38,7 +38,7 @@ export default class MutastateAgent {
       initialLoad,
       defaultValue,
       callback: this.handleChange,
-      component: this,
+      batch: this,
     };
     this.mutastate.listen(key, modifiedListener);
 
