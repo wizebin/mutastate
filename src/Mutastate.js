@@ -6,7 +6,7 @@ import getPromiseFunction from './utility/promise';
 import ProxyAgent from './ProxyAgent';
 
 function missingCallback() {
-  console.error('Nexustate missing save or load callback', new Error().stack);
+  console.error('Mutastate missing save or load callback', new Error().stack);
   return {};
 }
 
@@ -45,11 +45,11 @@ export default class Mutastate {
    * An agent is a listener with alias and transform capabilities
    * @param {function} onChange
    */
-  getAgent(onChange) {
+  getAgent = (onChange) => {
     return new MutastateAgent(this, onChange);
   }
 
-  getProxyAgent(onChange) {
+  getProxyAgent = (onChange) => {
     return new ProxyAgent(this, onChange);
   }
 
@@ -60,7 +60,7 @@ export default class Mutastate {
     this.saveData = save !== undefined ? save : missingCallback;
     this.loadData = load !== undefined ? load : missingCallback;
     this.persistShards = shards;
-    this.load();
+    return this.load();
   }
 
   /**
@@ -122,7 +122,7 @@ export default class Mutastate {
     }
 
     this.data = result;
-    return this.data;
+    return Promise.resolve(this.data);
   };
 
   throttledSave = throttle(this.save, SAVE_THROTTLE_TIME);
@@ -206,9 +206,16 @@ export default class Mutastate {
   /**
    * Get data for a particular listener, apply transformation to the value
    */
-  getForListener = (listener, key, keyChange) => {
+  getForListener = (key, listener, keyChange) => {
     const { alias, callback, transform, defaultValue } = listener;
-    const value = has(this.data, key) ? get(this.data, key) : defaultValue;
+    let value = null;
+
+    if (has(this.data, key)) {
+      value = get(this.data, key);
+    } else {
+      set(this.data, key, defaultValue);
+      value = defaultValue;
+    }
 
     return { keyChange, alias, callback, key, value: transform ? transform(value) : value };
   }
@@ -331,9 +338,9 @@ export default class Mutastate {
       const listenerIndex = findIndex(callbackBatches, callbackBatch => callbackBatch.callback === keyChange.listener.callback);
 
       if (listenerIndex !== -1) {
-        callbackBatches[listenerIndex].changes.push(this.getForListener(keyChange.listener, keyChange.key));
+        callbackBatches[listenerIndex].changes.push(this.getForListener(keyChange.key, keyChange.listener));
       } else {
-        callbackBatches.push({ callback: keyChange.listener.callback, changes: [this.getForListener(keyChange.listener, keyChange.key)] });
+        callbackBatches.push({ callback: keyChange.listener.callback, changes: [this.getForListener(keyChange.key, keyChange.listener)] });
       }
     }
 
@@ -349,13 +356,16 @@ export default class Mutastate {
     return get(this.data, key);
   }
 
-  set = (key, value, { notify = true, immediate = false } = {}) => {
+  set = (key, value, { notify = true, immediate = false, save = true } = {}) => {
     const keyArray = getObjectPath(key);
     const listeners = this.getRelevantListeners(keyArray, value);
     // Consider a pre-notify here
     set(this.data, key, value);
     if (notify) this.notify(listeners);
-    if (immediate) this.save();
+    if (save) {
+      if (immediate) this.save();
+      else this.throttledSave();
+    }
   }
 
   delete = (key) => {
@@ -375,7 +385,7 @@ export default class Mutastate {
     }
   }
 
-  push = (key, value, { notify = true, immediate = false } = {}) => {
+  push = (key, value, { notify = true, immediate = false, save = true } = {}) => {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
@@ -385,11 +395,14 @@ export default class Mutastate {
       // Consider a pre-notify here
       original.push(value);
       if (notify) this.notify(listeners);
+      if (save) {
       if (immediate) this.save();
+        else this.throttledSave();
+      }
     }
   }
 
-  pop = (key, { notify = true, immediate = false } = {}) => {
+  pop = (key, { notify = true, immediate = false, save = true } = {}) => {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
@@ -399,7 +412,10 @@ export default class Mutastate {
       // Consider a pre-notify here
       original.pop();
       if (notify) this.notify(listeners);
+      if (save) {
       if (immediate) this.save();
+        else this.throttledSave();
+      }
     }
   }
 

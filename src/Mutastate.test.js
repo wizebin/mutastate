@@ -1,8 +1,5 @@
-import Mutastate, { getLocalStorageLoadFunc, getLocalStorageSaveFunc } from './Mutastate';
-import { set } from 'objer';
+import Mutastate from './Mutastate';
 import { expect } from 'chai';
-import { equal } from 'assert';
-const TEST_STORAGE_KEY = 'TESTTESTTEST';
 
 function getTestFunctions() {
   let lambdaData = {};
@@ -102,10 +99,15 @@ describe('Mutastate', () => {
         agentData = data;
         updateCount += 1;
       });
+      let agentData2 = {};
+      const agent2 = manager.getProxyAgent(data => { agentData2 = data; });
       agent.listen('first', { alias: 'flipper' });
       agent.listen('second');
+      agent.listen('third');
+      agent2.listen('third');
       manager.set('first', 'bingo');
       manager.set('second', 'bongo');
+      manager.set('third', []);
 
       updateCount = 0;
       agentData.flipper = 'johnny';
@@ -115,8 +117,14 @@ describe('Mutastate', () => {
       agentData.second = 'bango';
       expect(updateCount).to.equal(1);
 
+      updateCount = 0;
+      agentData.third.push('another');
+      expect(updateCount).to.equal(1);
+
       expect(manager.get('first')).to.equal('johnny');
       expect(manager.get('second')).to.equal('bango');
+      expect(manager.get('third')).to.deep.equal(['another']);
+      expect(agentData2.third).to.deep.equal(['another']);
     });
   });
 });

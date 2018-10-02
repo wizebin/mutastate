@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import mutastate from 'mutastate';
+import { initializeSingleton, getLocalStorageLoadFunc, getLocalStorageSaveFunc } from 'mutastate';
 
-mutastate.initialize({
+initializeSingleton({
   shards: [ // anything not in this list will not be persisted
     'default',
   ],
-  save: () => {},
-  load: () => ({}),
+  save: getLocalStorageSaveFunc(),
+  load: getLocalStorageLoadFunc(),
 }).then(() => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.render(<App id={1} />, document.getElementById('root'));
 });

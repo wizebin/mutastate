@@ -5,8 +5,8 @@ module.exports = {
   entry: './src/index.js',
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist/src'),
-    library: 'nexusdk',
+    path: path.resolve(__dirname, 'dist'),
+    library: 'mutastate',
     libraryTarget: 'umd',
     umdNamedDefine: true
   },

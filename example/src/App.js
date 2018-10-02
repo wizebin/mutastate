@@ -1,30 +1,20 @@
 import React from 'react';
-import { withMutastate } from 'mutastate';
+import Assignment from './Assignment';
 
-class Assignment extends React.Component {
-  constructor(props) {
-    super(props);
-    // this.nexus.copy(['default', 'assignments', props.id], ['cache', 'assignments', props.id]); // for one time
-    const defaultKey = ['default', 'assignments', props.id];
-    const cacheKey = ['cache', 'assignments', props.id];
-
-    this.nexus.proxy(defaultKey, cacheKey); // for future changes, only update changed values
-    this.nexus.listen(cacheKey, { alias: 'assignment', defaultValue: { name: 'john' } });
-  }
+export default class App extends React.Component {
   render() {
-    const { assignment } = this.props.data;
-
     return (
       <div>
-        <div>{assignment.name}</div>
-        <div>{assignment.count}</div>
-        <div>{(assignment.list || []).length}</div>
-        <button onClick={() => assignment.count + 1}>Add To Count</button>
-        <button onClick={() => assignment.name = ['a', 'b', 'c'][Math.floor(Math.random() * 3)]}>Change Name</button>
-        <button onClick={() => assignment.list.push('another')}>Add To List</button>
+        <Assignment id={0} />
+        <Assignment id={1} />
+        <Assignment id={2} />
+        <Assignment id={3} />
+        <Assignment id={0} />
+        <Assignment id={1} />
+        <Assignment id={2} />
+        <Assignment id={3} />
+        <Assignment id={4} />
       </div>
     );
   }
 }
-
-export default withMutastate(Assignment);

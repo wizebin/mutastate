@@ -1,93 +1,69 @@
 ## Description
 
-Nexustate is designed to manage state and send notifications to listeners when state changes.
+Mutastate is designed to manage state and send notifications to listeners when state changes.
 
 ## install
 
-`npm install --save nexustate`
+`npm install --save mutastate`
 
-## API Reference
+## Use with React
 
-### Nexustate({ saveCallback = null, loadCallback = null, storageKey = 'default', persist = false })
+This example demonstrates how to create a connected react component, this particular component listens for data in the default shard, under the key `['default', 'assignments', props.id]`. This means if the data at that key is updated, this component will receive new an update indicating the new data.
 
-*parameters:*
+It is important to note that the common pattern of incoming props checking for component updating when using mutastate will not apply, unless you make a deep copy of your incoming props for comparison yourself. The data passed into your component will be the original data.
 
-* `persist`: Save and load this state? Changes will be loaded using the `load()` function and saved after changes occur or with the `save()` function
-* `saveCallback`: This function will be called on a throttled interval when your state changes if persist is true
-* `loadCallback`: This function is called when the `load()` function is called, `load()` must be called manually unless using `getNexustate()`
-* `storageKey`: When calling the `saveCallback` and `loadCallback`, this key is the root key
+Indicating `{ useProxy: true }` will allow you to modify the data directly (only simple data, objects, arrays, strings, numbers, no custom classes or functions) as we do in this example (see `assignment.count += 1`). The data will not, in fact, be modified; the modification will be captured and converted into function calls to the current mutastate. (the previous `assignment.count += 1` becomes `mutastate.set('default.assignments[1].count', assignment.count + 1)`)
 
-*response:*
-
-New instance of Nexustate
-
-*example:*
-
-    import { Nexustate } from 'nexustate';
-
-    const saveState = {};
-    const state = new Nexustate({ saveCallback: (key, value) => { saveState[key] = value; }, loadCallback: (key) => saveState[key] });
-    const logChange = (data) => console.log;
-
-    state.listen({ key: ['some', 'key'], callback: logChange });
-
-    state.set({ some: { key: 'hello' } });
-
-    // logChange is called with the value 'hello'
-    // saveState['default'] is changed to { some: { key: 'hello' } };
-
-### Nexustate.set(object, options = { immediatePersist: false, noNotify: false })
-
-*parameters:*
-
-* `object`: Apply this object into the current state
-* `options.immediatePersist`: Don't throttle the save function, call it immediately. Useful for tests
-* `options.noNotify`: Don't send notifications to listeners
-
-*response:*
-
-Current full state
-
-*example:*
-
-    state.set({ some: { key: 'hello' } }, { immediatePersist: true });
-
-### Nexustate.setKey(key, object, options = { immediatePersist: false, noNotify: false })
-
-*parameters:*
-
-* `key`: String or array representing the location we want to change, this value does not have to already exist for set to work
-* `object`: Apply this object into the current state
-* `options.immediatePersist`: Don't throttle the save function, call it immediately. Useful for tests
-* `options.noNotify`: Don't send notifications to listeners
-
-*response:*
-
-Current full state
-
-*example:*
-
-    state.setKey(['a', 'b', 'c'], 'hi');
-
-    state.get(null) // returns { a: { b: { c: 'hi' } } };
-
-### Nexustate.listen({ key: null, callback: () => {}, alias: null, component: null, transform: null, noChildUpdates: false })
-
-*parameters:*
-
-* `key`: String or array for the path we want to listen for changes in
-* `callback`: When something changes in that path, run this callback with the new data
-* `alias`: Send this alias along with the change to callback
-* `component`: Used as a reference to remove all callbacks for a given entity using unlistenComponent
-* `transform`: Function to transform the incoming data before executing callback
-* `noChildUpdates`: Don't listen for any updates to nested child records
-
-*response:*
-
-Success boolean
-
-*example:*
-
-    state.listen({ key: 'a.b.c', data => console.log , alias: 'boop', transform: value => `+++${value}` });
+Also please note that the function is `withMutastateCreator` instead of `withMutastate`, this is to avoid the ambiguity of having a separate repository for react, this is subject to change in a major version far in the future, currently if you want a `withMutastate` function you can create one by executing: `const withMutastate = withMutastateCreator(React, { useProxy: true });`;
 
 
+        import React from 'react';
+        import { withMutastateCreator } from 'mutastate';
+
+        class Assignment extends React.Component {
+            constructor(props) {
+                super(props);
+                props.agent.listen(['default', 'assignments', props.id], { alias: 'assignment', defaultValue: { name: 'john', count: 0, list: [] } });
+            }
+            render() {
+                const { assignment } = this.props.data;
+
+                return (
+                    <div>
+                        <div>{assignment.name}</div>
+                        <div>{assignment.count}</div>
+                        <div>{JSON.stringify(assignment.list)}</div>
+                        <button onClick={() => assignment.count += 1}>Add To Count</button>
+                        <button onClick={() => assignment.name = ['a', 'b', 'c'][Math.floor(Math.random() * 3)]}>Change Name</button>
+                        <button onClick={() => assignment.list.push('another')}>Add To List</button>
+                    </div>
+                );
+            }
+        }
+
+        export default withMutastateCreator(React, { useProxy: true })(Assignment);
+
+The use of `useProxy` will limit your browser availability due to use of the Proxy es6 feature:
+* No internet explorer
+* No opera mini
+* Edge 17
+* Firefox 18
+* Chrome 49
+* Safari 10
+* Samsung mobile 5
+* Chrome android 69
+* UC android 11.8
+
+If you must avoid `useProxy`, the following mutastate methods are available:
+* get(key)
+* set(key, value)
+* delete(key)
+* assign(key, value)
+* push(key, value)
+* pop(key, value)
+* has(key)
+* getEverything(key)
+* setEverything(key)
+
+These functions are accessible throught the agent props object (this can be modified by passing agentName into your withMutastateCreator function) like so:
+`this.props.agent.set('default.bobby', 'tables');`

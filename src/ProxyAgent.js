@@ -4,7 +4,7 @@
  * this allows us to listen to a deeply nested key and change the resulting data easily
  */
 
-import { set, get, assassinate, has } from 'objer';
+import { set, get, assassinate, has, getTypeString } from 'objer';
 import changeWrapper from './changeWrapper';
 
 export default class ProxyAgent {
@@ -20,7 +20,8 @@ export default class ProxyAgent {
   proxyChange = (data) => {
     if (!this.ignoreChange) {
       const { type, key, value } = data;
-      const passKey = has(this.aliasObject, key) ? get(this.aliasObject, key) : key;
+      const firstKey = key instanceof Array ? key[0] : key;
+      const passKey = has(this.aliasObject, firstKey) ? [].concat(get(this.aliasObject, firstKey)).concat(key.slice(1)) : key;
       if (type === 'set') {
         this.mutastate.set(passKey, value);
       } else if (type === 'delete') {

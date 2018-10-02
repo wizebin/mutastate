@@ -36,8 +36,11 @@ describe('changeWrapper', () => {
   it('wraps arrays', () => {
     let original = [1];
     let change = []
-    const proxd = changeWrapper(original, (data) => { change.push(data) });
+    let proxd = changeWrapper(original, (data) => { change.push(data) });
     proxd.push(5);
-    expect(change).to.deep.equal([{key: ['1'], type: 'set', value: 5 }, { key: ['length'], type: 'set', value: 2 }]);
+    expect(change).to.deep.equal([{key: ['1'], type: 'set', value: 5 }]);
+    change = []
+    proxd.pop();
+    expect(change).to.deep.equal([{key: ['1'], type: 'delete' }]);
   });
 })

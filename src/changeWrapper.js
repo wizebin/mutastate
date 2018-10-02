@@ -65,7 +65,10 @@ function getHandler(onChange, keyInput) {
 			}
 		},
 		set(target, property, value) {
-			onChange({ type: 'set', key: key.concat(property), value });
+			if (!(target instanceof Array && property === 'length')) { // ignore length changes
+				onChange({ type: 'set', key: key.concat(property), value });
+			}
+
 			return Reflect.set(target, property, value);
 		},
 		// defineProperty(target, property, descriptor) {

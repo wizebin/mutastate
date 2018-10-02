@@ -84,4 +84,14 @@ export default class MutastateAgent {
       this.onChange(this.data);
     }
   }
+
+  get = (key) => this.mutastate.get(key);
+  set = (key, value, options) => this.mutastate.set(key, value, options);
+  delete = (key) => this.mutastate.delete(key);
+  assign = (key, value) => this.mutastate.assign(key, value);
+  push = (key, value, options) => this.mutastate.push(key, value, options);
+  pop = (key, options) => this.mutastate.pop(key, options);
+  has = (key) => this.mutastate.has(key);
+  getEverything = () => this.mutastate.getEverything();
+  setEverything = (data) => this.mutastate.setEverything(data);
 }
