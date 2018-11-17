@@ -6,7 +6,7 @@ import { initializeSingleton, getLocalStorageLoadFunc, getLocalStorageSaveFunc }
 
 initializeSingleton({
   shards: [ // anything not in this list will not be persisted
-    'default',
+    'permanent',
   ],
   save: getLocalStorageSaveFunc(),
   load: getLocalStorageLoadFunc(),

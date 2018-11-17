@@ -1,7 +1,9 @@
 import { set, get } from 'objer';
+import BaseAgent from './BaseAgent';
 
-export default class MutastateAgent {
+export default class MutastateAgent extends BaseAgent {
   constructor(mutastate, onChange) {
+    super(mutastate, onChange);
     this.mutastate = mutastate;
     this.data = {};
     this.onChange = onChange;
@@ -18,17 +20,6 @@ export default class MutastateAgent {
 
   unlistenFromAll = () => {
     this.mutastate.unlistenBatch(this);
-  }
-
-  getComposedState = (initialData, key, value) => {
-    if ((key instanceof Array && key.length === 0) || key === null) return value;
-
-    set(initialData, key, value);
-    return initialData;
-  }
-
-  setComposedState = (key, value) => {
-    this.data = this.getComposedState(this.data, key, value);
   }
 
   listen = (key, { alias, transform, initialLoad = true, defaultValue, partOfMultiListen = false } = {}) => {
@@ -84,14 +75,4 @@ export default class MutastateAgent {
       this.onChange(this.data);
     }
   }
-
-  get = (key) => this.mutastate.get(key);
-  set = (key, value, options) => this.mutastate.set(key, value, options);
-  delete = (key) => this.mutastate.delete(key);
-  assign = (key, value) => this.mutastate.assign(key, value);
-  push = (key, value, options) => this.mutastate.push(key, value, options);
-  pop = (key, options) => this.mutastate.pop(key, options);
-  has = (key) => this.mutastate.has(key);
-  getEverything = () => this.mutastate.getEverything();
-  setEverything = (data) => this.mutastate.setEverything(data);
 }

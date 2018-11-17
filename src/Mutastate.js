@@ -456,4 +456,20 @@ export default class Mutastate {
 
   getEverything = () => this.data;
   setEverything = (data) => (this.data = data);
+
+  // TODO: deduplicate translations!!
+  translate = (inputKey, outputKey, translationFunction, { batch, throttleTime = null } = {}) => {
+    const callback = (input) => {
+      if (input.length > 0) {
+        const output = translationFunction(input[input.length - 1].value, get(this.data, inputKey));
+        if (output instanceof Promise) {
+          output.then(result => this.set(outputKey, result));
+        } else {
+          this.set(outputKey, output);
+        }
+      }
+    };
+    const shouldThrottle = getTypeString(throttleTime) === 'number' && throttleTime > 0;
+    this.listen(inputKey, { initialLoad: true, batch, callback: shouldThrottle ? throttle(callback, throttleTime) : callback });
+  }
 }

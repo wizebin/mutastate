@@ -6,9 +6,11 @@
 
 import { set, get, assassinate, has, getTypeString } from 'objer';
 import changeWrapper from './changeWrapper';
+import BaseAgent from './BaseAgent';
 
-export default class ProxyAgent {
+export default class ProxyAgent extends BaseAgent{
   constructor(mutastate, onChange) {
+    super(mutastate, onChange);
     this.mutastate = mutastate;
     this.data = changeWrapper({}, this.proxyChange);
     this.onChange = onChange;
