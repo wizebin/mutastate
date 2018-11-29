@@ -1,662 +1,1254 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define("mutastate", [], factory);
-	else if(typeof exports === 'object')
-		exports["mutastate"] = factory();
-	else
-		root["mutastate"] = factory();
-})(global, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.js");
-/******/ })
-/************************************************************************/
-/******/ ({
-
-/***/ "./node_modules/bluebird/js/release/any.js":
-/*!*************************************************!*\
-  !*** ./node_modules/bluebird/js/release/any.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise) {\nvar SomePromiseArray = Promise._SomePromiseArray;\nfunction any(promises) {\n    var ret = new SomePromiseArray(promises);\n    var promise = ret.promise();\n    ret.setHowMany(1);\n    ret.setUnwrap();\n    ret.init();\n    return promise;\n}\n\nPromise.any = function (promises) {\n    return any(promises);\n};\n\nPromise.prototype.any = function () {\n    return any(this);\n};\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/any.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/async.js":
-/*!***************************************************!*\
-  !*** ./node_modules/bluebird/js/release/async.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar firstLineError;\ntry {throw new Error(); } catch (e) {firstLineError = e;}\nvar schedule = __webpack_require__(/*! ./schedule */ \"./node_modules/bluebird/js/release/schedule.js\");\nvar Queue = __webpack_require__(/*! ./queue */ \"./node_modules/bluebird/js/release/queue.js\");\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\n\nfunction Async() {\n    this._customScheduler = false;\n    this._isTickUsed = false;\n    this._lateQueue = new Queue(16);\n    this._normalQueue = new Queue(16);\n    this._haveDrainedQueues = false;\n    this._trampolineEnabled = true;\n    var self = this;\n    this.drainQueues = function () {\n        self._drainQueues();\n    };\n    this._schedule = schedule;\n}\n\nAsync.prototype.setScheduler = function(fn) {\n    var prev = this._schedule;\n    this._schedule = fn;\n    this._customScheduler = true;\n    return prev;\n};\n\nAsync.prototype.hasCustomScheduler = function() {\n    return this._customScheduler;\n};\n\nAsync.prototype.enableTrampoline = function() {\n    this._trampolineEnabled = true;\n};\n\nAsync.prototype.disableTrampolineIfNecessary = function() {\n    if (util.hasDevTools) {\n        this._trampolineEnabled = false;\n    }\n};\n\nAsync.prototype.haveItemsQueued = function () {\n    return this._isTickUsed || this._haveDrainedQueues;\n};\n\n\nAsync.prototype.fatalError = function(e, isNode) {\n    if (isNode) {\n        process.stderr.write(\"Fatal \" + (e instanceof Error ? e.stack : e) +\n            \"\\n\");\n        process.exit(2);\n    } else {\n        this.throwLater(e);\n    }\n};\n\nAsync.prototype.throwLater = function(fn, arg) {\n    if (arguments.length === 1) {\n        arg = fn;\n        fn = function () { throw arg; };\n    }\n    if (typeof setTimeout !== \"undefined\") {\n        setTimeout(function() {\n            fn(arg);\n        }, 0);\n    } else try {\n        this._schedule(function() {\n            fn(arg);\n        });\n    } catch (e) {\n        throw new Error(\"No async scheduler available\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n};\n\nfunction AsyncInvokeLater(fn, receiver, arg) {\n    this._lateQueue.push(fn, receiver, arg);\n    this._queueTick();\n}\n\nfunction AsyncInvoke(fn, receiver, arg) {\n    this._normalQueue.push(fn, receiver, arg);\n    this._queueTick();\n}\n\nfunction AsyncSettlePromises(promise) {\n    this._normalQueue._pushOne(promise);\n    this._queueTick();\n}\n\nif (!util.hasDevTools) {\n    Async.prototype.invokeLater = AsyncInvokeLater;\n    Async.prototype.invoke = AsyncInvoke;\n    Async.prototype.settlePromises = AsyncSettlePromises;\n} else {\n    Async.prototype.invokeLater = function (fn, receiver, arg) {\n        if (this._trampolineEnabled) {\n            AsyncInvokeLater.call(this, fn, receiver, arg);\n        } else {\n            this._schedule(function() {\n                setTimeout(function() {\n                    fn.call(receiver, arg);\n                }, 100);\n            });\n        }\n    };\n\n    Async.prototype.invoke = function (fn, receiver, arg) {\n        if (this._trampolineEnabled) {\n            AsyncInvoke.call(this, fn, receiver, arg);\n        } else {\n            this._schedule(function() {\n                fn.call(receiver, arg);\n            });\n        }\n    };\n\n    Async.prototype.settlePromises = function(promise) {\n        if (this._trampolineEnabled) {\n            AsyncSettlePromises.call(this, promise);\n        } else {\n            this._schedule(function() {\n                promise._settlePromises();\n            });\n        }\n    };\n}\n\nAsync.prototype._drainQueue = function(queue) {\n    while (queue.length() > 0) {\n        var fn = queue.shift();\n        if (typeof fn !== \"function\") {\n            fn._settlePromises();\n            continue;\n        }\n        var receiver = queue.shift();\n        var arg = queue.shift();\n        fn.call(receiver, arg);\n    }\n};\n\nAsync.prototype._drainQueues = function () {\n    this._drainQueue(this._normalQueue);\n    this._reset();\n    this._haveDrainedQueues = true;\n    this._drainQueue(this._lateQueue);\n};\n\nAsync.prototype._queueTick = function () {\n    if (!this._isTickUsed) {\n        this._isTickUsed = true;\n        this._schedule(this.drainQueues);\n    }\n};\n\nAsync.prototype._reset = function () {\n    this._isTickUsed = false;\n};\n\nmodule.exports = Async;\nmodule.exports.firstLineError = firstLineError;\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/async.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/bind.js":
-/*!**************************************************!*\
-  !*** ./node_modules/bluebird/js/release/bind.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL, tryConvertToPromise, debug) {\nvar calledBind = false;\nvar rejectThis = function(_, e) {\n    this._reject(e);\n};\n\nvar targetRejected = function(e, context) {\n    context.promiseRejectionQueued = true;\n    context.bindingPromise._then(rejectThis, rejectThis, null, this, e);\n};\n\nvar bindingResolved = function(thisArg, context) {\n    if (((this._bitField & 50397184) === 0)) {\n        this._resolveCallback(context.target);\n    }\n};\n\nvar bindingRejected = function(e, context) {\n    if (!context.promiseRejectionQueued) this._reject(e);\n};\n\nPromise.prototype.bind = function (thisArg) {\n    if (!calledBind) {\n        calledBind = true;\n        Promise.prototype._propagateFrom = debug.propagateFromFunction();\n        Promise.prototype._boundValue = debug.boundValueFunction();\n    }\n    var maybePromise = tryConvertToPromise(thisArg);\n    var ret = new Promise(INTERNAL);\n    ret._propagateFrom(this, 1);\n    var target = this._target();\n    ret._setBoundTo(maybePromise);\n    if (maybePromise instanceof Promise) {\n        var context = {\n            promiseRejectionQueued: false,\n            promise: ret,\n            target: target,\n            bindingPromise: maybePromise\n        };\n        target._then(INTERNAL, targetRejected, undefined, ret, context);\n        maybePromise._then(\n            bindingResolved, bindingRejected, undefined, ret, context);\n        ret._setOnCancel(maybePromise);\n    } else {\n        ret._resolveCallback(target);\n    }\n    return ret;\n};\n\nPromise.prototype._setBoundTo = function (obj) {\n    if (obj !== undefined) {\n        this._bitField = this._bitField | 2097152;\n        this._boundTo = obj;\n    } else {\n        this._bitField = this._bitField & (~2097152);\n    }\n};\n\nPromise.prototype._isBound = function () {\n    return (this._bitField & 2097152) === 2097152;\n};\n\nPromise.bind = function (thisArg, value) {\n    return Promise.resolve(value).bind(thisArg);\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/bind.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/bluebird.js":
-/*!******************************************************!*\
-  !*** ./node_modules/bluebird/js/release/bluebird.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar old;\nif (typeof Promise !== \"undefined\") old = Promise;\nfunction noConflict() {\n    try { if (Promise === bluebird) Promise = old; }\n    catch (e) {}\n    return bluebird;\n}\nvar bluebird = __webpack_require__(/*! ./promise */ \"./node_modules/bluebird/js/release/promise.js\")();\nbluebird.noConflict = noConflict;\nmodule.exports = bluebird;\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/bluebird.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/call_get.js":
-/*!******************************************************!*\
-  !*** ./node_modules/bluebird/js/release/call_get.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar cr = Object.create;\nif (cr) {\n    var callerCache = cr(null);\n    var getterCache = cr(null);\n    callerCache[\" size\"] = getterCache[\" size\"] = 0;\n}\n\nmodule.exports = function(Promise) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar canEvaluate = util.canEvaluate;\nvar isIdentifier = util.isIdentifier;\n\nvar getMethodCaller;\nvar getGetter;\nif (true) {\nvar makeMethodCaller = function (methodName) {\n    return new Function(\"ensureMethod\", \"                                    \\n\\\n        return function(obj) {                                               \\n\\\n            'use strict'                                                     \\n\\\n            var len = this.length;                                           \\n\\\n            ensureMethod(obj, 'methodName');                                 \\n\\\n            switch(len) {                                                    \\n\\\n                case 1: return obj.methodName(this[0]);                      \\n\\\n                case 2: return obj.methodName(this[0], this[1]);             \\n\\\n                case 3: return obj.methodName(this[0], this[1], this[2]);    \\n\\\n                case 0: return obj.methodName();                             \\n\\\n                default:                                                     \\n\\\n                    return obj.methodName.apply(obj, this);                  \\n\\\n            }                                                                \\n\\\n        };                                                                   \\n\\\n        \".replace(/methodName/g, methodName))(ensureMethod);\n};\n\nvar makeGetter = function (propertyName) {\n    return new Function(\"obj\", \"                                             \\n\\\n        'use strict';                                                        \\n\\\n        return obj.propertyName;                                             \\n\\\n        \".replace(\"propertyName\", propertyName));\n};\n\nvar getCompiled = function(name, compiler, cache) {\n    var ret = cache[name];\n    if (typeof ret !== \"function\") {\n        if (!isIdentifier(name)) {\n            return null;\n        }\n        ret = compiler(name);\n        cache[name] = ret;\n        cache[\" size\"]++;\n        if (cache[\" size\"] > 512) {\n            var keys = Object.keys(cache);\n            for (var i = 0; i < 256; ++i) delete cache[keys[i]];\n            cache[\" size\"] = keys.length - 256;\n        }\n    }\n    return ret;\n};\n\ngetMethodCaller = function(name) {\n    return getCompiled(name, makeMethodCaller, callerCache);\n};\n\ngetGetter = function(name) {\n    return getCompiled(name, makeGetter, getterCache);\n};\n}\n\nfunction ensureMethod(obj, methodName) {\n    var fn;\n    if (obj != null) fn = obj[methodName];\n    if (typeof fn !== \"function\") {\n        var message = \"Object \" + util.classString(obj) + \" has no method '\" +\n            util.toString(methodName) + \"'\";\n        throw new Promise.TypeError(message);\n    }\n    return fn;\n}\n\nfunction caller(obj) {\n    var methodName = this.pop();\n    var fn = ensureMethod(obj, methodName);\n    return fn.apply(obj, this);\n}\nPromise.prototype.call = function (methodName) {\n    var $_len = arguments.length;var args = new Array(Math.max($_len - 1, 0)); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];};\n    if (true) {\n        if (canEvaluate) {\n            var maybeCaller = getMethodCaller(methodName);\n            if (maybeCaller !== null) {\n                return this._then(\n                    maybeCaller, undefined, undefined, args, undefined);\n            }\n        }\n    }\n    args.push(methodName);\n    return this._then(caller, undefined, undefined, args, undefined);\n};\n\nfunction namedGetter(obj) {\n    return obj[this];\n}\nfunction indexedGetter(obj) {\n    var index = +this;\n    if (index < 0) index = Math.max(0, index + obj.length);\n    return obj[index];\n}\nPromise.prototype.get = function (propertyName) {\n    var isIndex = (typeof propertyName === \"number\");\n    var getter;\n    if (!isIndex) {\n        if (canEvaluate) {\n            var maybeGetter = getGetter(propertyName);\n            getter = maybeGetter !== null ? maybeGetter : namedGetter;\n        } else {\n            getter = namedGetter;\n        }\n    } else {\n        getter = indexedGetter;\n    }\n    return this._then(getter, undefined, undefined, propertyName, undefined);\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/call_get.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/cancel.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/cancel.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, PromiseArray, apiRejection, debug) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar tryCatch = util.tryCatch;\nvar errorObj = util.errorObj;\nvar async = Promise._async;\n\nPromise.prototype[\"break\"] = Promise.prototype.cancel = function() {\n    if (!debug.cancellation()) return this._warn(\"cancellation is disabled\");\n\n    var promise = this;\n    var child = promise;\n    while (promise._isCancellable()) {\n        if (!promise._cancelBy(child)) {\n            if (child._isFollowing()) {\n                child._followee().cancel();\n            } else {\n                child._cancelBranched();\n            }\n            break;\n        }\n\n        var parent = promise._cancellationParent;\n        if (parent == null || !parent._isCancellable()) {\n            if (promise._isFollowing()) {\n                promise._followee().cancel();\n            } else {\n                promise._cancelBranched();\n            }\n            break;\n        } else {\n            if (promise._isFollowing()) promise._followee().cancel();\n            promise._setWillBeCancelled();\n            child = promise;\n            promise = parent;\n        }\n    }\n};\n\nPromise.prototype._branchHasCancelled = function() {\n    this._branchesRemainingToCancel--;\n};\n\nPromise.prototype._enoughBranchesHaveCancelled = function() {\n    return this._branchesRemainingToCancel === undefined ||\n           this._branchesRemainingToCancel <= 0;\n};\n\nPromise.prototype._cancelBy = function(canceller) {\n    if (canceller === this) {\n        this._branchesRemainingToCancel = 0;\n        this._invokeOnCancel();\n        return true;\n    } else {\n        this._branchHasCancelled();\n        if (this._enoughBranchesHaveCancelled()) {\n            this._invokeOnCancel();\n            return true;\n        }\n    }\n    return false;\n};\n\nPromise.prototype._cancelBranched = function() {\n    if (this._enoughBranchesHaveCancelled()) {\n        this._cancel();\n    }\n};\n\nPromise.prototype._cancel = function() {\n    if (!this._isCancellable()) return;\n    this._setCancelled();\n    async.invoke(this._cancelPromises, this, undefined);\n};\n\nPromise.prototype._cancelPromises = function() {\n    if (this._length() > 0) this._settlePromises();\n};\n\nPromise.prototype._unsetOnCancel = function() {\n    this._onCancelField = undefined;\n};\n\nPromise.prototype._isCancellable = function() {\n    return this.isPending() && !this._isCancelled();\n};\n\nPromise.prototype.isCancellable = function() {\n    return this.isPending() && !this.isCancelled();\n};\n\nPromise.prototype._doInvokeOnCancel = function(onCancelCallback, internalOnly) {\n    if (util.isArray(onCancelCallback)) {\n        for (var i = 0; i < onCancelCallback.length; ++i) {\n            this._doInvokeOnCancel(onCancelCallback[i], internalOnly);\n        }\n    } else if (onCancelCallback !== undefined) {\n        if (typeof onCancelCallback === \"function\") {\n            if (!internalOnly) {\n                var e = tryCatch(onCancelCallback).call(this._boundValue());\n                if (e === errorObj) {\n                    this._attachExtraTrace(e.e);\n                    async.throwLater(e.e);\n                }\n            }\n        } else {\n            onCancelCallback._resultCancelled(this);\n        }\n    }\n};\n\nPromise.prototype._invokeOnCancel = function() {\n    var onCancelCallback = this._onCancel();\n    this._unsetOnCancel();\n    async.invoke(this._doInvokeOnCancel, this, onCancelCallback);\n};\n\nPromise.prototype._invokeInternalOnCancel = function() {\n    if (this._isCancellable()) {\n        this._doInvokeOnCancel(this._onCancel(), true);\n        this._unsetOnCancel();\n    }\n};\n\nPromise.prototype._resultCancelled = function() {\n    this.cancel();\n};\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/cancel.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/catch_filter.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/bluebird/js/release/catch_filter.js ***!
-  \**********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(NEXT_FILTER) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar getKeys = __webpack_require__(/*! ./es5 */ \"./node_modules/bluebird/js/release/es5.js\").keys;\nvar tryCatch = util.tryCatch;\nvar errorObj = util.errorObj;\n\nfunction catchFilter(instances, cb, promise) {\n    return function(e) {\n        var boundTo = promise._boundValue();\n        predicateLoop: for (var i = 0; i < instances.length; ++i) {\n            var item = instances[i];\n\n            if (item === Error ||\n                (item != null && item.prototype instanceof Error)) {\n                if (e instanceof item) {\n                    return tryCatch(cb).call(boundTo, e);\n                }\n            } else if (typeof item === \"function\") {\n                var matchesPredicate = tryCatch(item).call(boundTo, e);\n                if (matchesPredicate === errorObj) {\n                    return matchesPredicate;\n                } else if (matchesPredicate) {\n                    return tryCatch(cb).call(boundTo, e);\n                }\n            } else if (util.isObject(e)) {\n                var keys = getKeys(item);\n                for (var j = 0; j < keys.length; ++j) {\n                    var key = keys[j];\n                    if (item[key] != e[key]) {\n                        continue predicateLoop;\n                    }\n                }\n                return tryCatch(cb).call(boundTo, e);\n            }\n        }\n        return NEXT_FILTER;\n    };\n}\n\nreturn catchFilter;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/catch_filter.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/context.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/context.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise) {\nvar longStackTraces = false;\nvar contextStack = [];\n\nPromise.prototype._promiseCreated = function() {};\nPromise.prototype._pushContext = function() {};\nPromise.prototype._popContext = function() {return null;};\nPromise._peekContext = Promise.prototype._peekContext = function() {};\n\nfunction Context() {\n    this._trace = new Context.CapturedTrace(peekContext());\n}\nContext.prototype._pushContext = function () {\n    if (this._trace !== undefined) {\n        this._trace._promiseCreated = null;\n        contextStack.push(this._trace);\n    }\n};\n\nContext.prototype._popContext = function () {\n    if (this._trace !== undefined) {\n        var trace = contextStack.pop();\n        var ret = trace._promiseCreated;\n        trace._promiseCreated = null;\n        return ret;\n    }\n    return null;\n};\n\nfunction createContext() {\n    if (longStackTraces) return new Context();\n}\n\nfunction peekContext() {\n    var lastIndex = contextStack.length - 1;\n    if (lastIndex >= 0) {\n        return contextStack[lastIndex];\n    }\n    return undefined;\n}\nContext.CapturedTrace = null;\nContext.create = createContext;\nContext.deactivateLongStackTraces = function() {};\nContext.activateLongStackTraces = function() {\n    var Promise_pushContext = Promise.prototype._pushContext;\n    var Promise_popContext = Promise.prototype._popContext;\n    var Promise_PeekContext = Promise._peekContext;\n    var Promise_peekContext = Promise.prototype._peekContext;\n    var Promise_promiseCreated = Promise.prototype._promiseCreated;\n    Context.deactivateLongStackTraces = function() {\n        Promise.prototype._pushContext = Promise_pushContext;\n        Promise.prototype._popContext = Promise_popContext;\n        Promise._peekContext = Promise_PeekContext;\n        Promise.prototype._peekContext = Promise_peekContext;\n        Promise.prototype._promiseCreated = Promise_promiseCreated;\n        longStackTraces = false;\n    };\n    longStackTraces = true;\n    Promise.prototype._pushContext = Context.prototype._pushContext;\n    Promise.prototype._popContext = Context.prototype._popContext;\n    Promise._peekContext = Promise.prototype._peekContext = peekContext;\n    Promise.prototype._promiseCreated = function() {\n        var ctx = this._peekContext();\n        if (ctx && ctx._promiseCreated == null) ctx._promiseCreated = this;\n    };\n};\nreturn Context;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/context.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/debuggability.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/bluebird/js/release/debuggability.js ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, Context) {\nvar getDomain = Promise._getDomain;\nvar async = Promise._async;\nvar Warning = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\").Warning;\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar canAttachTrace = util.canAttachTrace;\nvar unhandledRejectionHandled;\nvar possiblyUnhandledRejection;\nvar bluebirdFramePattern =\n    /[\\\\\\/]bluebird[\\\\\\/]js[\\\\\\/](release|debug|instrumented)/;\nvar nodeFramePattern = /\\((?:timers\\.js):\\d+:\\d+\\)/;\nvar parseLinePattern = /[\\/<\\(](.+?):(\\d+):(\\d+)\\)?\\s*$/;\nvar stackFramePattern = null;\nvar formatStack = null;\nvar indentStackFrames = false;\nvar printWarning;\nvar debugging = !!(util.env(\"BLUEBIRD_DEBUG\") != 0 &&\n                        (false ||\n                         util.env(\"BLUEBIRD_DEBUG\") ||\n                         util.env(\"NODE_ENV\") === \"development\"));\n\nvar warnings = !!(util.env(\"BLUEBIRD_WARNINGS\") != 0 &&\n    (debugging || util.env(\"BLUEBIRD_WARNINGS\")));\n\nvar longStackTraces = !!(util.env(\"BLUEBIRD_LONG_STACK_TRACES\") != 0 &&\n    (debugging || util.env(\"BLUEBIRD_LONG_STACK_TRACES\")));\n\nvar wForgottenReturn = util.env(\"BLUEBIRD_W_FORGOTTEN_RETURN\") != 0 &&\n    (warnings || !!util.env(\"BLUEBIRD_W_FORGOTTEN_RETURN\"));\n\nPromise.prototype.suppressUnhandledRejections = function() {\n    var target = this._target();\n    target._bitField = ((target._bitField & (~1048576)) |\n                      524288);\n};\n\nPromise.prototype._ensurePossibleRejectionHandled = function () {\n    if ((this._bitField & 524288) !== 0) return;\n    this._setRejectionIsUnhandled();\n    var self = this;\n    setTimeout(function() {\n        self._notifyUnhandledRejection();\n    }, 1);\n};\n\nPromise.prototype._notifyUnhandledRejectionIsHandled = function () {\n    fireRejectionEvent(\"rejectionHandled\",\n                                  unhandledRejectionHandled, undefined, this);\n};\n\nPromise.prototype._setReturnedNonUndefined = function() {\n    this._bitField = this._bitField | 268435456;\n};\n\nPromise.prototype._returnedNonUndefined = function() {\n    return (this._bitField & 268435456) !== 0;\n};\n\nPromise.prototype._notifyUnhandledRejection = function () {\n    if (this._isRejectionUnhandled()) {\n        var reason = this._settledValue();\n        this._setUnhandledRejectionIsNotified();\n        fireRejectionEvent(\"unhandledRejection\",\n                                      possiblyUnhandledRejection, reason, this);\n    }\n};\n\nPromise.prototype._setUnhandledRejectionIsNotified = function () {\n    this._bitField = this._bitField | 262144;\n};\n\nPromise.prototype._unsetUnhandledRejectionIsNotified = function () {\n    this._bitField = this._bitField & (~262144);\n};\n\nPromise.prototype._isUnhandledRejectionNotified = function () {\n    return (this._bitField & 262144) > 0;\n};\n\nPromise.prototype._setRejectionIsUnhandled = function () {\n    this._bitField = this._bitField | 1048576;\n};\n\nPromise.prototype._unsetRejectionIsUnhandled = function () {\n    this._bitField = this._bitField & (~1048576);\n    if (this._isUnhandledRejectionNotified()) {\n        this._unsetUnhandledRejectionIsNotified();\n        this._notifyUnhandledRejectionIsHandled();\n    }\n};\n\nPromise.prototype._isRejectionUnhandled = function () {\n    return (this._bitField & 1048576) > 0;\n};\n\nPromise.prototype._warn = function(message, shouldUseOwnTrace, promise) {\n    return warn(message, shouldUseOwnTrace, promise || this);\n};\n\nPromise.onPossiblyUnhandledRejection = function (fn) {\n    var domain = getDomain();\n    possiblyUnhandledRejection =\n        typeof fn === \"function\" ? (domain === null ?\n                                            fn : util.domainBind(domain, fn))\n                                 : undefined;\n};\n\nPromise.onUnhandledRejectionHandled = function (fn) {\n    var domain = getDomain();\n    unhandledRejectionHandled =\n        typeof fn === \"function\" ? (domain === null ?\n                                            fn : util.domainBind(domain, fn))\n                                 : undefined;\n};\n\nvar disableLongStackTraces = function() {};\nPromise.longStackTraces = function () {\n    if (async.haveItemsQueued() && !config.longStackTraces) {\n        throw new Error(\"cannot enable long stack traces after promises have been created\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    if (!config.longStackTraces && longStackTracesIsSupported()) {\n        var Promise_captureStackTrace = Promise.prototype._captureStackTrace;\n        var Promise_attachExtraTrace = Promise.prototype._attachExtraTrace;\n        config.longStackTraces = true;\n        disableLongStackTraces = function() {\n            if (async.haveItemsQueued() && !config.longStackTraces) {\n                throw new Error(\"cannot enable long stack traces after promises have been created\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n            }\n            Promise.prototype._captureStackTrace = Promise_captureStackTrace;\n            Promise.prototype._attachExtraTrace = Promise_attachExtraTrace;\n            Context.deactivateLongStackTraces();\n            async.enableTrampoline();\n            config.longStackTraces = false;\n        };\n        Promise.prototype._captureStackTrace = longStackTracesCaptureStackTrace;\n        Promise.prototype._attachExtraTrace = longStackTracesAttachExtraTrace;\n        Context.activateLongStackTraces();\n        async.disableTrampolineIfNecessary();\n    }\n};\n\nPromise.hasLongStackTraces = function () {\n    return config.longStackTraces && longStackTracesIsSupported();\n};\n\nvar fireDomEvent = (function() {\n    try {\n        if (typeof CustomEvent === \"function\") {\n            var event = new CustomEvent(\"CustomEvent\");\n            util.global.dispatchEvent(event);\n            return function(name, event) {\n                var domEvent = new CustomEvent(name.toLowerCase(), {\n                    detail: event,\n                    cancelable: true\n                });\n                return !util.global.dispatchEvent(domEvent);\n            };\n        } else if (typeof Event === \"function\") {\n            var event = new Event(\"CustomEvent\");\n            util.global.dispatchEvent(event);\n            return function(name, event) {\n                var domEvent = new Event(name.toLowerCase(), {\n                    cancelable: true\n                });\n                domEvent.detail = event;\n                return !util.global.dispatchEvent(domEvent);\n            };\n        } else {\n            var event = document.createEvent(\"CustomEvent\");\n            event.initCustomEvent(\"testingtheevent\", false, true, {});\n            util.global.dispatchEvent(event);\n            return function(name, event) {\n                var domEvent = document.createEvent(\"CustomEvent\");\n                domEvent.initCustomEvent(name.toLowerCase(), false, true,\n                    event);\n                return !util.global.dispatchEvent(domEvent);\n            };\n        }\n    } catch (e) {}\n    return function() {\n        return false;\n    };\n})();\n\nvar fireGlobalEvent = (function() {\n    if (util.isNode) {\n        return function() {\n            return process.emit.apply(process, arguments);\n        };\n    } else {\n        if (!util.global) {\n            return function() {\n                return false;\n            };\n        }\n        return function(name) {\n            var methodName = \"on\" + name.toLowerCase();\n            var method = util.global[methodName];\n            if (!method) return false;\n            method.apply(util.global, [].slice.call(arguments, 1));\n            return true;\n        };\n    }\n})();\n\nfunction generatePromiseLifecycleEventObject(name, promise) {\n    return {promise: promise};\n}\n\nvar eventToObjectGenerator = {\n    promiseCreated: generatePromiseLifecycleEventObject,\n    promiseFulfilled: generatePromiseLifecycleEventObject,\n    promiseRejected: generatePromiseLifecycleEventObject,\n    promiseResolved: generatePromiseLifecycleEventObject,\n    promiseCancelled: generatePromiseLifecycleEventObject,\n    promiseChained: function(name, promise, child) {\n        return {promise: promise, child: child};\n    },\n    warning: function(name, warning) {\n        return {warning: warning};\n    },\n    unhandledRejection: function (name, reason, promise) {\n        return {reason: reason, promise: promise};\n    },\n    rejectionHandled: generatePromiseLifecycleEventObject\n};\n\nvar activeFireEvent = function (name) {\n    var globalEventFired = false;\n    try {\n        globalEventFired = fireGlobalEvent.apply(null, arguments);\n    } catch (e) {\n        async.throwLater(e);\n        globalEventFired = true;\n    }\n\n    var domEventFired = false;\n    try {\n        domEventFired = fireDomEvent(name,\n                    eventToObjectGenerator[name].apply(null, arguments));\n    } catch (e) {\n        async.throwLater(e);\n        domEventFired = true;\n    }\n\n    return domEventFired || globalEventFired;\n};\n\nPromise.config = function(opts) {\n    opts = Object(opts);\n    if (\"longStackTraces\" in opts) {\n        if (opts.longStackTraces) {\n            Promise.longStackTraces();\n        } else if (!opts.longStackTraces && Promise.hasLongStackTraces()) {\n            disableLongStackTraces();\n        }\n    }\n    if (\"warnings\" in opts) {\n        var warningsOption = opts.warnings;\n        config.warnings = !!warningsOption;\n        wForgottenReturn = config.warnings;\n\n        if (util.isObject(warningsOption)) {\n            if (\"wForgottenReturn\" in warningsOption) {\n                wForgottenReturn = !!warningsOption.wForgottenReturn;\n            }\n        }\n    }\n    if (\"cancellation\" in opts && opts.cancellation && !config.cancellation) {\n        if (async.haveItemsQueued()) {\n            throw new Error(\n                \"cannot enable cancellation after promises are in use\");\n        }\n        Promise.prototype._clearCancellationData =\n            cancellationClearCancellationData;\n        Promise.prototype._propagateFrom = cancellationPropagateFrom;\n        Promise.prototype._onCancel = cancellationOnCancel;\n        Promise.prototype._setOnCancel = cancellationSetOnCancel;\n        Promise.prototype._attachCancellationCallback =\n            cancellationAttachCancellationCallback;\n        Promise.prototype._execute = cancellationExecute;\n        propagateFromFunction = cancellationPropagateFrom;\n        config.cancellation = true;\n    }\n    if (\"monitoring\" in opts) {\n        if (opts.monitoring && !config.monitoring) {\n            config.monitoring = true;\n            Promise.prototype._fireEvent = activeFireEvent;\n        } else if (!opts.monitoring && config.monitoring) {\n            config.monitoring = false;\n            Promise.prototype._fireEvent = defaultFireEvent;\n        }\n    }\n    return Promise;\n};\n\nfunction defaultFireEvent() { return false; }\n\nPromise.prototype._fireEvent = defaultFireEvent;\nPromise.prototype._execute = function(executor, resolve, reject) {\n    try {\n        executor(resolve, reject);\n    } catch (e) {\n        return e;\n    }\n};\nPromise.prototype._onCancel = function () {};\nPromise.prototype._setOnCancel = function (handler) { ; };\nPromise.prototype._attachCancellationCallback = function(onCancel) {\n    ;\n};\nPromise.prototype._captureStackTrace = function () {};\nPromise.prototype._attachExtraTrace = function () {};\nPromise.prototype._clearCancellationData = function() {};\nPromise.prototype._propagateFrom = function (parent, flags) {\n    ;\n    ;\n};\n\nfunction cancellationExecute(executor, resolve, reject) {\n    var promise = this;\n    try {\n        executor(resolve, reject, function(onCancel) {\n            if (typeof onCancel !== \"function\") {\n                throw new TypeError(\"onCancel must be a function, got: \" +\n                                    util.toString(onCancel));\n            }\n            promise._attachCancellationCallback(onCancel);\n        });\n    } catch (e) {\n        return e;\n    }\n}\n\nfunction cancellationAttachCancellationCallback(onCancel) {\n    if (!this._isCancellable()) return this;\n\n    var previousOnCancel = this._onCancel();\n    if (previousOnCancel !== undefined) {\n        if (util.isArray(previousOnCancel)) {\n            previousOnCancel.push(onCancel);\n        } else {\n            this._setOnCancel([previousOnCancel, onCancel]);\n        }\n    } else {\n        this._setOnCancel(onCancel);\n    }\n}\n\nfunction cancellationOnCancel() {\n    return this._onCancelField;\n}\n\nfunction cancellationSetOnCancel(onCancel) {\n    this._onCancelField = onCancel;\n}\n\nfunction cancellationClearCancellationData() {\n    this._cancellationParent = undefined;\n    this._onCancelField = undefined;\n}\n\nfunction cancellationPropagateFrom(parent, flags) {\n    if ((flags & 1) !== 0) {\n        this._cancellationParent = parent;\n        var branchesRemainingToCancel = parent._branchesRemainingToCancel;\n        if (branchesRemainingToCancel === undefined) {\n            branchesRemainingToCancel = 0;\n        }\n        parent._branchesRemainingToCancel = branchesRemainingToCancel + 1;\n    }\n    if ((flags & 2) !== 0 && parent._isBound()) {\n        this._setBoundTo(parent._boundTo);\n    }\n}\n\nfunction bindingPropagateFrom(parent, flags) {\n    if ((flags & 2) !== 0 && parent._isBound()) {\n        this._setBoundTo(parent._boundTo);\n    }\n}\nvar propagateFromFunction = bindingPropagateFrom;\n\nfunction boundValueFunction() {\n    var ret = this._boundTo;\n    if (ret !== undefined) {\n        if (ret instanceof Promise) {\n            if (ret.isFulfilled()) {\n                return ret.value();\n            } else {\n                return undefined;\n            }\n        }\n    }\n    return ret;\n}\n\nfunction longStackTracesCaptureStackTrace() {\n    this._trace = new CapturedTrace(this._peekContext());\n}\n\nfunction longStackTracesAttachExtraTrace(error, ignoreSelf) {\n    if (canAttachTrace(error)) {\n        var trace = this._trace;\n        if (trace !== undefined) {\n            if (ignoreSelf) trace = trace._parent;\n        }\n        if (trace !== undefined) {\n            trace.attachExtraTrace(error);\n        } else if (!error.__stackCleaned__) {\n            var parsed = parseStackAndMessage(error);\n            util.notEnumerableProp(error, \"stack\",\n                parsed.message + \"\\n\" + parsed.stack.join(\"\\n\"));\n            util.notEnumerableProp(error, \"__stackCleaned__\", true);\n        }\n    }\n}\n\nfunction checkForgottenReturns(returnValue, promiseCreated, name, promise,\n                               parent) {\n    if (returnValue === undefined && promiseCreated !== null &&\n        wForgottenReturn) {\n        if (parent !== undefined && parent._returnedNonUndefined()) return;\n        if ((promise._bitField & 65535) === 0) return;\n\n        if (name) name = name + \" \";\n        var handlerLine = \"\";\n        var creatorLine = \"\";\n        if (promiseCreated._trace) {\n            var traceLines = promiseCreated._trace.stack.split(\"\\n\");\n            var stack = cleanStack(traceLines);\n            for (var i = stack.length - 1; i >= 0; --i) {\n                var line = stack[i];\n                if (!nodeFramePattern.test(line)) {\n                    var lineMatches = line.match(parseLinePattern);\n                    if (lineMatches) {\n                        handlerLine  = \"at \" + lineMatches[1] +\n                            \":\" + lineMatches[2] + \":\" + lineMatches[3] + \" \";\n                    }\n                    break;\n                }\n            }\n\n            if (stack.length > 0) {\n                var firstUserLine = stack[0];\n                for (var i = 0; i < traceLines.length; ++i) {\n\n                    if (traceLines[i] === firstUserLine) {\n                        if (i > 0) {\n                            creatorLine = \"\\n\" + traceLines[i - 1];\n                        }\n                        break;\n                    }\n                }\n\n            }\n        }\n        var msg = \"a promise was created in a \" + name +\n            \"handler \" + handlerLine + \"but was not returned from it, \" +\n            \"see http://goo.gl/rRqMUw\" +\n            creatorLine;\n        promise._warn(msg, true, promiseCreated);\n    }\n}\n\nfunction deprecated(name, replacement) {\n    var message = name +\n        \" is deprecated and will be removed in a future version.\";\n    if (replacement) message += \" Use \" + replacement + \" instead.\";\n    return warn(message);\n}\n\nfunction warn(message, shouldUseOwnTrace, promise) {\n    if (!config.warnings) return;\n    var warning = new Warning(message);\n    var ctx;\n    if (shouldUseOwnTrace) {\n        promise._attachExtraTrace(warning);\n    } else if (config.longStackTraces && (ctx = Promise._peekContext())) {\n        ctx.attachExtraTrace(warning);\n    } else {\n        var parsed = parseStackAndMessage(warning);\n        warning.stack = parsed.message + \"\\n\" + parsed.stack.join(\"\\n\");\n    }\n\n    if (!activeFireEvent(\"warning\", warning)) {\n        formatAndLogError(warning, \"\", true);\n    }\n}\n\nfunction reconstructStack(message, stacks) {\n    for (var i = 0; i < stacks.length - 1; ++i) {\n        stacks[i].push(\"From previous event:\");\n        stacks[i] = stacks[i].join(\"\\n\");\n    }\n    if (i < stacks.length) {\n        stacks[i] = stacks[i].join(\"\\n\");\n    }\n    return message + \"\\n\" + stacks.join(\"\\n\");\n}\n\nfunction removeDuplicateOrEmptyJumps(stacks) {\n    for (var i = 0; i < stacks.length; ++i) {\n        if (stacks[i].length === 0 ||\n            ((i + 1 < stacks.length) && stacks[i][0] === stacks[i+1][0])) {\n            stacks.splice(i, 1);\n            i--;\n        }\n    }\n}\n\nfunction removeCommonRoots(stacks) {\n    var current = stacks[0];\n    for (var i = 1; i < stacks.length; ++i) {\n        var prev = stacks[i];\n        var currentLastIndex = current.length - 1;\n        var currentLastLine = current[currentLastIndex];\n        var commonRootMeetPoint = -1;\n\n        for (var j = prev.length - 1; j >= 0; --j) {\n            if (prev[j] === currentLastLine) {\n                commonRootMeetPoint = j;\n                break;\n            }\n        }\n\n        for (var j = commonRootMeetPoint; j >= 0; --j) {\n            var line = prev[j];\n            if (current[currentLastIndex] === line) {\n                current.pop();\n                currentLastIndex--;\n            } else {\n                break;\n            }\n        }\n        current = prev;\n    }\n}\n\nfunction cleanStack(stack) {\n    var ret = [];\n    for (var i = 0; i < stack.length; ++i) {\n        var line = stack[i];\n        var isTraceLine = \"    (No stack trace)\" === line ||\n            stackFramePattern.test(line);\n        var isInternalFrame = isTraceLine && shouldIgnore(line);\n        if (isTraceLine && !isInternalFrame) {\n            if (indentStackFrames && line.charAt(0) !== \" \") {\n                line = \"    \" + line;\n            }\n            ret.push(line);\n        }\n    }\n    return ret;\n}\n\nfunction stackFramesAsArray(error) {\n    var stack = error.stack.replace(/\\s+$/g, \"\").split(\"\\n\");\n    for (var i = 0; i < stack.length; ++i) {\n        var line = stack[i];\n        if (\"    (No stack trace)\" === line || stackFramePattern.test(line)) {\n            break;\n        }\n    }\n    if (i > 0 && error.name != \"SyntaxError\") {\n        stack = stack.slice(i);\n    }\n    return stack;\n}\n\nfunction parseStackAndMessage(error) {\n    var stack = error.stack;\n    var message = error.toString();\n    stack = typeof stack === \"string\" && stack.length > 0\n                ? stackFramesAsArray(error) : [\"    (No stack trace)\"];\n    return {\n        message: message,\n        stack: error.name == \"SyntaxError\" ? stack : cleanStack(stack)\n    };\n}\n\nfunction formatAndLogError(error, title, isSoft) {\n    if (typeof console !== \"undefined\") {\n        var message;\n        if (util.isObject(error)) {\n            var stack = error.stack;\n            message = title + formatStack(stack, error);\n        } else {\n            message = title + String(error);\n        }\n        if (typeof printWarning === \"function\") {\n            printWarning(message, isSoft);\n        } else if (typeof console.log === \"function\" ||\n            typeof console.log === \"object\") {\n            console.log(message);\n        }\n    }\n}\n\nfunction fireRejectionEvent(name, localHandler, reason, promise) {\n    var localEventFired = false;\n    try {\n        if (typeof localHandler === \"function\") {\n            localEventFired = true;\n            if (name === \"rejectionHandled\") {\n                localHandler(promise);\n            } else {\n                localHandler(reason, promise);\n            }\n        }\n    } catch (e) {\n        async.throwLater(e);\n    }\n\n    if (name === \"unhandledRejection\") {\n        if (!activeFireEvent(name, reason, promise) && !localEventFired) {\n            formatAndLogError(reason, \"Unhandled rejection \");\n        }\n    } else {\n        activeFireEvent(name, promise);\n    }\n}\n\nfunction formatNonError(obj) {\n    var str;\n    if (typeof obj === \"function\") {\n        str = \"[function \" +\n            (obj.name || \"anonymous\") +\n            \"]\";\n    } else {\n        str = obj && typeof obj.toString === \"function\"\n            ? obj.toString() : util.toString(obj);\n        var ruselessToString = /\\[object [a-zA-Z0-9$_]+\\]/;\n        if (ruselessToString.test(str)) {\n            try {\n                var newStr = JSON.stringify(obj);\n                str = newStr;\n            }\n            catch(e) {\n\n            }\n        }\n        if (str.length === 0) {\n            str = \"(empty array)\";\n        }\n    }\n    return (\"(<\" + snip(str) + \">, no stack trace)\");\n}\n\nfunction snip(str) {\n    var maxChars = 41;\n    if (str.length < maxChars) {\n        return str;\n    }\n    return str.substr(0, maxChars - 3) + \"...\";\n}\n\nfunction longStackTracesIsSupported() {\n    return typeof captureStackTrace === \"function\";\n}\n\nvar shouldIgnore = function() { return false; };\nvar parseLineInfoRegex = /[\\/<\\(]([^:\\/]+):(\\d+):(?:\\d+)\\)?\\s*$/;\nfunction parseLineInfo(line) {\n    var matches = line.match(parseLineInfoRegex);\n    if (matches) {\n        return {\n            fileName: matches[1],\n            line: parseInt(matches[2], 10)\n        };\n    }\n}\n\nfunction setBounds(firstLineError, lastLineError) {\n    if (!longStackTracesIsSupported()) return;\n    var firstStackLines = firstLineError.stack.split(\"\\n\");\n    var lastStackLines = lastLineError.stack.split(\"\\n\");\n    var firstIndex = -1;\n    var lastIndex = -1;\n    var firstFileName;\n    var lastFileName;\n    for (var i = 0; i < firstStackLines.length; ++i) {\n        var result = parseLineInfo(firstStackLines[i]);\n        if (result) {\n            firstFileName = result.fileName;\n            firstIndex = result.line;\n            break;\n        }\n    }\n    for (var i = 0; i < lastStackLines.length; ++i) {\n        var result = parseLineInfo(lastStackLines[i]);\n        if (result) {\n            lastFileName = result.fileName;\n            lastIndex = result.line;\n            break;\n        }\n    }\n    if (firstIndex < 0 || lastIndex < 0 || !firstFileName || !lastFileName ||\n        firstFileName !== lastFileName || firstIndex >= lastIndex) {\n        return;\n    }\n\n    shouldIgnore = function(line) {\n        if (bluebirdFramePattern.test(line)) return true;\n        var info = parseLineInfo(line);\n        if (info) {\n            if (info.fileName === firstFileName &&\n                (firstIndex <= info.line && info.line <= lastIndex)) {\n                return true;\n            }\n        }\n        return false;\n    };\n}\n\nfunction CapturedTrace(parent) {\n    this._parent = parent;\n    this._promisesCreated = 0;\n    var length = this._length = 1 + (parent === undefined ? 0 : parent._length);\n    captureStackTrace(this, CapturedTrace);\n    if (length > 32) this.uncycle();\n}\nutil.inherits(CapturedTrace, Error);\nContext.CapturedTrace = CapturedTrace;\n\nCapturedTrace.prototype.uncycle = function() {\n    var length = this._length;\n    if (length < 2) return;\n    var nodes = [];\n    var stackToIndex = {};\n\n    for (var i = 0, node = this; node !== undefined; ++i) {\n        nodes.push(node);\n        node = node._parent;\n    }\n    length = this._length = i;\n    for (var i = length - 1; i >= 0; --i) {\n        var stack = nodes[i].stack;\n        if (stackToIndex[stack] === undefined) {\n            stackToIndex[stack] = i;\n        }\n    }\n    for (var i = 0; i < length; ++i) {\n        var currentStack = nodes[i].stack;\n        var index = stackToIndex[currentStack];\n        if (index !== undefined && index !== i) {\n            if (index > 0) {\n                nodes[index - 1]._parent = undefined;\n                nodes[index - 1]._length = 1;\n            }\n            nodes[i]._parent = undefined;\n            nodes[i]._length = 1;\n            var cycleEdgeNode = i > 0 ? nodes[i - 1] : this;\n\n            if (index < length - 1) {\n                cycleEdgeNode._parent = nodes[index + 1];\n                cycleEdgeNode._parent.uncycle();\n                cycleEdgeNode._length =\n                    cycleEdgeNode._parent._length + 1;\n            } else {\n                cycleEdgeNode._parent = undefined;\n                cycleEdgeNode._length = 1;\n            }\n            var currentChildLength = cycleEdgeNode._length + 1;\n            for (var j = i - 2; j >= 0; --j) {\n                nodes[j]._length = currentChildLength;\n                currentChildLength++;\n            }\n            return;\n        }\n    }\n};\n\nCapturedTrace.prototype.attachExtraTrace = function(error) {\n    if (error.__stackCleaned__) return;\n    this.uncycle();\n    var parsed = parseStackAndMessage(error);\n    var message = parsed.message;\n    var stacks = [parsed.stack];\n\n    var trace = this;\n    while (trace !== undefined) {\n        stacks.push(cleanStack(trace.stack.split(\"\\n\")));\n        trace = trace._parent;\n    }\n    removeCommonRoots(stacks);\n    removeDuplicateOrEmptyJumps(stacks);\n    util.notEnumerableProp(error, \"stack\", reconstructStack(message, stacks));\n    util.notEnumerableProp(error, \"__stackCleaned__\", true);\n};\n\nvar captureStackTrace = (function stackDetection() {\n    var v8stackFramePattern = /^\\s*at\\s*/;\n    var v8stackFormatter = function(stack, error) {\n        if (typeof stack === \"string\") return stack;\n\n        if (error.name !== undefined &&\n            error.message !== undefined) {\n            return error.toString();\n        }\n        return formatNonError(error);\n    };\n\n    if (typeof Error.stackTraceLimit === \"number\" &&\n        typeof Error.captureStackTrace === \"function\") {\n        Error.stackTraceLimit += 6;\n        stackFramePattern = v8stackFramePattern;\n        formatStack = v8stackFormatter;\n        var captureStackTrace = Error.captureStackTrace;\n\n        shouldIgnore = function(line) {\n            return bluebirdFramePattern.test(line);\n        };\n        return function(receiver, ignoreUntil) {\n            Error.stackTraceLimit += 6;\n            captureStackTrace(receiver, ignoreUntil);\n            Error.stackTraceLimit -= 6;\n        };\n    }\n    var err = new Error();\n\n    if (typeof err.stack === \"string\" &&\n        err.stack.split(\"\\n\")[0].indexOf(\"stackDetection@\") >= 0) {\n        stackFramePattern = /@/;\n        formatStack = v8stackFormatter;\n        indentStackFrames = true;\n        return function captureStackTrace(o) {\n            o.stack = new Error().stack;\n        };\n    }\n\n    var hasStackAfterThrow;\n    try { throw new Error(); }\n    catch(e) {\n        hasStackAfterThrow = (\"stack\" in e);\n    }\n    if (!(\"stack\" in err) && hasStackAfterThrow &&\n        typeof Error.stackTraceLimit === \"number\") {\n        stackFramePattern = v8stackFramePattern;\n        formatStack = v8stackFormatter;\n        return function captureStackTrace(o) {\n            Error.stackTraceLimit += 6;\n            try { throw new Error(); }\n            catch(e) { o.stack = e.stack; }\n            Error.stackTraceLimit -= 6;\n        };\n    }\n\n    formatStack = function(stack, error) {\n        if (typeof stack === \"string\") return stack;\n\n        if ((typeof error === \"object\" ||\n            typeof error === \"function\") &&\n            error.name !== undefined &&\n            error.message !== undefined) {\n            return error.toString();\n        }\n        return formatNonError(error);\n    };\n\n    return null;\n\n})([]);\n\nif (typeof console !== \"undefined\" && typeof console.warn !== \"undefined\") {\n    printWarning = function (message) {\n        console.warn(message);\n    };\n    if (util.isNode && process.stderr.isTTY) {\n        printWarning = function(message, isSoft) {\n            var color = isSoft ? \"\\u001b[33m\" : \"\\u001b[31m\";\n            console.warn(color + message + \"\\u001b[0m\\n\");\n        };\n    } else if (!util.isNode && typeof (new Error().stack) === \"string\") {\n        printWarning = function(message, isSoft) {\n            console.warn(\"%c\" + message,\n                        isSoft ? \"color: darkorange\" : \"color: red\");\n        };\n    }\n}\n\nvar config = {\n    warnings: warnings,\n    longStackTraces: false,\n    cancellation: false,\n    monitoring: false\n};\n\nif (longStackTraces) Promise.longStackTraces();\n\nreturn {\n    longStackTraces: function() {\n        return config.longStackTraces;\n    },\n    warnings: function() {\n        return config.warnings;\n    },\n    cancellation: function() {\n        return config.cancellation;\n    },\n    monitoring: function() {\n        return config.monitoring;\n    },\n    propagateFromFunction: function() {\n        return propagateFromFunction;\n    },\n    boundValueFunction: function() {\n        return boundValueFunction;\n    },\n    checkForgottenReturns: checkForgottenReturns,\n    setBounds: setBounds,\n    warn: warn,\n    deprecated: deprecated,\n    CapturedTrace: CapturedTrace,\n    fireDomEvent: fireDomEvent,\n    fireGlobalEvent: fireGlobalEvent\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/debuggability.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/direct_resolve.js":
-/*!************************************************************!*\
-  !*** ./node_modules/bluebird/js/release/direct_resolve.js ***!
-  \************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise) {\nfunction returner() {\n    return this.value;\n}\nfunction thrower() {\n    throw this.reason;\n}\n\nPromise.prototype[\"return\"] =\nPromise.prototype.thenReturn = function (value) {\n    if (value instanceof Promise) value.suppressUnhandledRejections();\n    return this._then(\n        returner, undefined, undefined, {value: value}, undefined);\n};\n\nPromise.prototype[\"throw\"] =\nPromise.prototype.thenThrow = function (reason) {\n    return this._then(\n        thrower, undefined, undefined, {reason: reason}, undefined);\n};\n\nPromise.prototype.catchThrow = function (reason) {\n    if (arguments.length <= 1) {\n        return this._then(\n            undefined, thrower, undefined, {reason: reason}, undefined);\n    } else {\n        var _reason = arguments[1];\n        var handler = function() {throw _reason;};\n        return this.caught(reason, handler);\n    }\n};\n\nPromise.prototype.catchReturn = function (value) {\n    if (arguments.length <= 1) {\n        if (value instanceof Promise) value.suppressUnhandledRejections();\n        return this._then(\n            undefined, returner, undefined, {value: value}, undefined);\n    } else {\n        var _value = arguments[1];\n        if (_value instanceof Promise) _value.suppressUnhandledRejections();\n        var handler = function() {return _value;};\n        return this.caught(value, handler);\n    }\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/direct_resolve.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/each.js":
-/*!**************************************************!*\
-  !*** ./node_modules/bluebird/js/release/each.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL) {\nvar PromiseReduce = Promise.reduce;\nvar PromiseAll = Promise.all;\n\nfunction promiseAllThis() {\n    return PromiseAll(this);\n}\n\nfunction PromiseMapSeries(promises, fn) {\n    return PromiseReduce(promises, fn, INTERNAL, INTERNAL);\n}\n\nPromise.prototype.each = function (fn) {\n    return PromiseReduce(this, fn, INTERNAL, 0)\n              ._then(promiseAllThis, undefined, undefined, this, undefined);\n};\n\nPromise.prototype.mapSeries = function (fn) {\n    return PromiseReduce(this, fn, INTERNAL, INTERNAL);\n};\n\nPromise.each = function (promises, fn) {\n    return PromiseReduce(promises, fn, INTERNAL, 0)\n              ._then(promiseAllThis, undefined, undefined, promises, undefined);\n};\n\nPromise.mapSeries = PromiseMapSeries;\n};\n\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/each.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/errors.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/errors.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar es5 = __webpack_require__(/*! ./es5 */ \"./node_modules/bluebird/js/release/es5.js\");\nvar Objectfreeze = es5.freeze;\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar inherits = util.inherits;\nvar notEnumerableProp = util.notEnumerableProp;\n\nfunction subError(nameProperty, defaultMessage) {\n    function SubError(message) {\n        if (!(this instanceof SubError)) return new SubError(message);\n        notEnumerableProp(this, \"message\",\n            typeof message === \"string\" ? message : defaultMessage);\n        notEnumerableProp(this, \"name\", nameProperty);\n        if (Error.captureStackTrace) {\n            Error.captureStackTrace(this, this.constructor);\n        } else {\n            Error.call(this);\n        }\n    }\n    inherits(SubError, Error);\n    return SubError;\n}\n\nvar _TypeError, _RangeError;\nvar Warning = subError(\"Warning\", \"warning\");\nvar CancellationError = subError(\"CancellationError\", \"cancellation error\");\nvar TimeoutError = subError(\"TimeoutError\", \"timeout error\");\nvar AggregateError = subError(\"AggregateError\", \"aggregate error\");\ntry {\n    _TypeError = TypeError;\n    _RangeError = RangeError;\n} catch(e) {\n    _TypeError = subError(\"TypeError\", \"type error\");\n    _RangeError = subError(\"RangeError\", \"range error\");\n}\n\nvar methods = (\"join pop push shift unshift slice filter forEach some \" +\n    \"every map indexOf lastIndexOf reduce reduceRight sort reverse\").split(\" \");\n\nfor (var i = 0; i < methods.length; ++i) {\n    if (typeof Array.prototype[methods[i]] === \"function\") {\n        AggregateError.prototype[methods[i]] = Array.prototype[methods[i]];\n    }\n}\n\nes5.defineProperty(AggregateError.prototype, \"length\", {\n    value: 0,\n    configurable: false,\n    writable: true,\n    enumerable: true\n});\nAggregateError.prototype[\"isOperational\"] = true;\nvar level = 0;\nAggregateError.prototype.toString = function() {\n    var indent = Array(level * 4 + 1).join(\" \");\n    var ret = \"\\n\" + indent + \"AggregateError of:\" + \"\\n\";\n    level++;\n    indent = Array(level * 4 + 1).join(\" \");\n    for (var i = 0; i < this.length; ++i) {\n        var str = this[i] === this ? \"[Circular AggregateError]\" : this[i] + \"\";\n        var lines = str.split(\"\\n\");\n        for (var j = 0; j < lines.length; ++j) {\n            lines[j] = indent + lines[j];\n        }\n        str = lines.join(\"\\n\");\n        ret += str + \"\\n\";\n    }\n    level--;\n    return ret;\n};\n\nfunction OperationalError(message) {\n    if (!(this instanceof OperationalError))\n        return new OperationalError(message);\n    notEnumerableProp(this, \"name\", \"OperationalError\");\n    notEnumerableProp(this, \"message\", message);\n    this.cause = message;\n    this[\"isOperational\"] = true;\n\n    if (message instanceof Error) {\n        notEnumerableProp(this, \"message\", message.message);\n        notEnumerableProp(this, \"stack\", message.stack);\n    } else if (Error.captureStackTrace) {\n        Error.captureStackTrace(this, this.constructor);\n    }\n\n}\ninherits(OperationalError, Error);\n\nvar errorTypes = Error[\"__BluebirdErrorTypes__\"];\nif (!errorTypes) {\n    errorTypes = Objectfreeze({\n        CancellationError: CancellationError,\n        TimeoutError: TimeoutError,\n        OperationalError: OperationalError,\n        RejectionError: OperationalError,\n        AggregateError: AggregateError\n    });\n    es5.defineProperty(Error, \"__BluebirdErrorTypes__\", {\n        value: errorTypes,\n        writable: false,\n        enumerable: false,\n        configurable: false\n    });\n}\n\nmodule.exports = {\n    Error: Error,\n    TypeError: _TypeError,\n    RangeError: _RangeError,\n    CancellationError: errorTypes.CancellationError,\n    OperationalError: errorTypes.OperationalError,\n    TimeoutError: errorTypes.TimeoutError,\n    AggregateError: errorTypes.AggregateError,\n    Warning: Warning\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/errors.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/es5.js":
-/*!*************************************************!*\
-  !*** ./node_modules/bluebird/js/release/es5.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-eval("var isES5 = (function(){\n    \"use strict\";\n    return this === undefined;\n})();\n\nif (isES5) {\n    module.exports = {\n        freeze: Object.freeze,\n        defineProperty: Object.defineProperty,\n        getDescriptor: Object.getOwnPropertyDescriptor,\n        keys: Object.keys,\n        names: Object.getOwnPropertyNames,\n        getPrototypeOf: Object.getPrototypeOf,\n        isArray: Array.isArray,\n        isES5: isES5,\n        propertyIsWritable: function(obj, prop) {\n            var descriptor = Object.getOwnPropertyDescriptor(obj, prop);\n            return !!(!descriptor || descriptor.writable || descriptor.set);\n        }\n    };\n} else {\n    var has = {}.hasOwnProperty;\n    var str = {}.toString;\n    var proto = {}.constructor.prototype;\n\n    var ObjectKeys = function (o) {\n        var ret = [];\n        for (var key in o) {\n            if (has.call(o, key)) {\n                ret.push(key);\n            }\n        }\n        return ret;\n    };\n\n    var ObjectGetDescriptor = function(o, key) {\n        return {value: o[key]};\n    };\n\n    var ObjectDefineProperty = function (o, key, desc) {\n        o[key] = desc.value;\n        return o;\n    };\n\n    var ObjectFreeze = function (obj) {\n        return obj;\n    };\n\n    var ObjectGetPrototypeOf = function (obj) {\n        try {\n            return Object(obj).constructor.prototype;\n        }\n        catch (e) {\n            return proto;\n        }\n    };\n\n    var ArrayIsArray = function (obj) {\n        try {\n            return str.call(obj) === \"[object Array]\";\n        }\n        catch(e) {\n            return false;\n        }\n    };\n\n    module.exports = {\n        isArray: ArrayIsArray,\n        keys: ObjectKeys,\n        names: ObjectKeys,\n        defineProperty: ObjectDefineProperty,\n        getDescriptor: ObjectGetDescriptor,\n        freeze: ObjectFreeze,\n        getPrototypeOf: ObjectGetPrototypeOf,\n        isES5: isES5,\n        propertyIsWritable: function() {\n            return true;\n        }\n    };\n}\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/es5.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/filter.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/filter.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL) {\nvar PromiseMap = Promise.map;\n\nPromise.prototype.filter = function (fn, options) {\n    return PromiseMap(this, fn, options, INTERNAL);\n};\n\nPromise.filter = function (promises, fn, options) {\n    return PromiseMap(promises, fn, options, INTERNAL);\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/filter.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/finally.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/finally.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, tryConvertToPromise, NEXT_FILTER) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar CancellationError = Promise.CancellationError;\nvar errorObj = util.errorObj;\nvar catchFilter = __webpack_require__(/*! ./catch_filter */ \"./node_modules/bluebird/js/release/catch_filter.js\")(NEXT_FILTER);\n\nfunction PassThroughHandlerContext(promise, type, handler) {\n    this.promise = promise;\n    this.type = type;\n    this.handler = handler;\n    this.called = false;\n    this.cancelPromise = null;\n}\n\nPassThroughHandlerContext.prototype.isFinallyHandler = function() {\n    return this.type === 0;\n};\n\nfunction FinallyHandlerCancelReaction(finallyHandler) {\n    this.finallyHandler = finallyHandler;\n}\n\nFinallyHandlerCancelReaction.prototype._resultCancelled = function() {\n    checkCancel(this.finallyHandler);\n};\n\nfunction checkCancel(ctx, reason) {\n    if (ctx.cancelPromise != null) {\n        if (arguments.length > 1) {\n            ctx.cancelPromise._reject(reason);\n        } else {\n            ctx.cancelPromise._cancel();\n        }\n        ctx.cancelPromise = null;\n        return true;\n    }\n    return false;\n}\n\nfunction succeed() {\n    return finallyHandler.call(this, this.promise._target()._settledValue());\n}\nfunction fail(reason) {\n    if (checkCancel(this, reason)) return;\n    errorObj.e = reason;\n    return errorObj;\n}\nfunction finallyHandler(reasonOrValue) {\n    var promise = this.promise;\n    var handler = this.handler;\n\n    if (!this.called) {\n        this.called = true;\n        var ret = this.isFinallyHandler()\n            ? handler.call(promise._boundValue())\n            : handler.call(promise._boundValue(), reasonOrValue);\n        if (ret === NEXT_FILTER) {\n            return ret;\n        } else if (ret !== undefined) {\n            promise._setReturnedNonUndefined();\n            var maybePromise = tryConvertToPromise(ret, promise);\n            if (maybePromise instanceof Promise) {\n                if (this.cancelPromise != null) {\n                    if (maybePromise._isCancelled()) {\n                        var reason =\n                            new CancellationError(\"late cancellation observer\");\n                        promise._attachExtraTrace(reason);\n                        errorObj.e = reason;\n                        return errorObj;\n                    } else if (maybePromise.isPending()) {\n                        maybePromise._attachCancellationCallback(\n                            new FinallyHandlerCancelReaction(this));\n                    }\n                }\n                return maybePromise._then(\n                    succeed, fail, undefined, this, undefined);\n            }\n        }\n    }\n\n    if (promise.isRejected()) {\n        checkCancel(this);\n        errorObj.e = reasonOrValue;\n        return errorObj;\n    } else {\n        checkCancel(this);\n        return reasonOrValue;\n    }\n}\n\nPromise.prototype._passThrough = function(handler, type, success, fail) {\n    if (typeof handler !== \"function\") return this.then();\n    return this._then(success,\n                      fail,\n                      undefined,\n                      new PassThroughHandlerContext(this, type, handler),\n                      undefined);\n};\n\nPromise.prototype.lastly =\nPromise.prototype[\"finally\"] = function (handler) {\n    return this._passThrough(handler,\n                             0,\n                             finallyHandler,\n                             finallyHandler);\n};\n\n\nPromise.prototype.tap = function (handler) {\n    return this._passThrough(handler, 1, finallyHandler);\n};\n\nPromise.prototype.tapCatch = function (handlerOrPredicate) {\n    var len = arguments.length;\n    if(len === 1) {\n        return this._passThrough(handlerOrPredicate,\n                                 1,\n                                 undefined,\n                                 finallyHandler);\n    } else {\n         var catchInstances = new Array(len - 1),\n            j = 0, i;\n        for (i = 0; i < len - 1; ++i) {\n            var item = arguments[i];\n            if (util.isObject(item)) {\n                catchInstances[j++] = item;\n            } else {\n                return Promise.reject(new TypeError(\n                    \"tapCatch statement predicate: \"\n                    + \"expecting an object but got \" + util.classString(item)\n                ));\n            }\n        }\n        catchInstances.length = j;\n        var handler = arguments[i];\n        return this._passThrough(catchFilter(catchInstances, handler, this),\n                                 1,\n                                 undefined,\n                                 finallyHandler);\n    }\n\n};\n\nreturn PassThroughHandlerContext;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/finally.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/generators.js":
-/*!********************************************************!*\
-  !*** ./node_modules/bluebird/js/release/generators.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise,\n                          apiRejection,\n                          INTERNAL,\n                          tryConvertToPromise,\n                          Proxyable,\n                          debug) {\nvar errors = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\");\nvar TypeError = errors.TypeError;\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar errorObj = util.errorObj;\nvar tryCatch = util.tryCatch;\nvar yieldHandlers = [];\n\nfunction promiseFromYieldHandler(value, yieldHandlers, traceParent) {\n    for (var i = 0; i < yieldHandlers.length; ++i) {\n        traceParent._pushContext();\n        var result = tryCatch(yieldHandlers[i])(value);\n        traceParent._popContext();\n        if (result === errorObj) {\n            traceParent._pushContext();\n            var ret = Promise.reject(errorObj.e);\n            traceParent._popContext();\n            return ret;\n        }\n        var maybePromise = tryConvertToPromise(result, traceParent);\n        if (maybePromise instanceof Promise) return maybePromise;\n    }\n    return null;\n}\n\nfunction PromiseSpawn(generatorFunction, receiver, yieldHandler, stack) {\n    if (debug.cancellation()) {\n        var internal = new Promise(INTERNAL);\n        var _finallyPromise = this._finallyPromise = new Promise(INTERNAL);\n        this._promise = internal.lastly(function() {\n            return _finallyPromise;\n        });\n        internal._captureStackTrace();\n        internal._setOnCancel(this);\n    } else {\n        var promise = this._promise = new Promise(INTERNAL);\n        promise._captureStackTrace();\n    }\n    this._stack = stack;\n    this._generatorFunction = generatorFunction;\n    this._receiver = receiver;\n    this._generator = undefined;\n    this._yieldHandlers = typeof yieldHandler === \"function\"\n        ? [yieldHandler].concat(yieldHandlers)\n        : yieldHandlers;\n    this._yieldedPromise = null;\n    this._cancellationPhase = false;\n}\nutil.inherits(PromiseSpawn, Proxyable);\n\nPromiseSpawn.prototype._isResolved = function() {\n    return this._promise === null;\n};\n\nPromiseSpawn.prototype._cleanup = function() {\n    this._promise = this._generator = null;\n    if (debug.cancellation() && this._finallyPromise !== null) {\n        this._finallyPromise._fulfill();\n        this._finallyPromise = null;\n    }\n};\n\nPromiseSpawn.prototype._promiseCancelled = function() {\n    if (this._isResolved()) return;\n    var implementsReturn = typeof this._generator[\"return\"] !== \"undefined\";\n\n    var result;\n    if (!implementsReturn) {\n        var reason = new Promise.CancellationError(\n            \"generator .return() sentinel\");\n        Promise.coroutine.returnSentinel = reason;\n        this._promise._attachExtraTrace(reason);\n        this._promise._pushContext();\n        result = tryCatch(this._generator[\"throw\"]).call(this._generator,\n                                                         reason);\n        this._promise._popContext();\n    } else {\n        this._promise._pushContext();\n        result = tryCatch(this._generator[\"return\"]).call(this._generator,\n                                                          undefined);\n        this._promise._popContext();\n    }\n    this._cancellationPhase = true;\n    this._yieldedPromise = null;\n    this._continue(result);\n};\n\nPromiseSpawn.prototype._promiseFulfilled = function(value) {\n    this._yieldedPromise = null;\n    this._promise._pushContext();\n    var result = tryCatch(this._generator.next).call(this._generator, value);\n    this._promise._popContext();\n    this._continue(result);\n};\n\nPromiseSpawn.prototype._promiseRejected = function(reason) {\n    this._yieldedPromise = null;\n    this._promise._attachExtraTrace(reason);\n    this._promise._pushContext();\n    var result = tryCatch(this._generator[\"throw\"])\n        .call(this._generator, reason);\n    this._promise._popContext();\n    this._continue(result);\n};\n\nPromiseSpawn.prototype._resultCancelled = function() {\n    if (this._yieldedPromise instanceof Promise) {\n        var promise = this._yieldedPromise;\n        this._yieldedPromise = null;\n        promise.cancel();\n    }\n};\n\nPromiseSpawn.prototype.promise = function () {\n    return this._promise;\n};\n\nPromiseSpawn.prototype._run = function () {\n    this._generator = this._generatorFunction.call(this._receiver);\n    this._receiver =\n        this._generatorFunction = undefined;\n    this._promiseFulfilled(undefined);\n};\n\nPromiseSpawn.prototype._continue = function (result) {\n    var promise = this._promise;\n    if (result === errorObj) {\n        this._cleanup();\n        if (this._cancellationPhase) {\n            return promise.cancel();\n        } else {\n            return promise._rejectCallback(result.e, false);\n        }\n    }\n\n    var value = result.value;\n    if (result.done === true) {\n        this._cleanup();\n        if (this._cancellationPhase) {\n            return promise.cancel();\n        } else {\n            return promise._resolveCallback(value);\n        }\n    } else {\n        var maybePromise = tryConvertToPromise(value, this._promise);\n        if (!(maybePromise instanceof Promise)) {\n            maybePromise =\n                promiseFromYieldHandler(maybePromise,\n                                        this._yieldHandlers,\n                                        this._promise);\n            if (maybePromise === null) {\n                this._promiseRejected(\n                    new TypeError(\n                        \"A value %s was yielded that could not be treated as a promise\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\\u000a\".replace(\"%s\", String(value)) +\n                        \"From coroutine:\\u000a\" +\n                        this._stack.split(\"\\n\").slice(1, -7).join(\"\\n\")\n                    )\n                );\n                return;\n            }\n        }\n        maybePromise = maybePromise._target();\n        var bitField = maybePromise._bitField;\n        ;\n        if (((bitField & 50397184) === 0)) {\n            this._yieldedPromise = maybePromise;\n            maybePromise._proxy(this, null);\n        } else if (((bitField & 33554432) !== 0)) {\n            Promise._async.invoke(\n                this._promiseFulfilled, this, maybePromise._value()\n            );\n        } else if (((bitField & 16777216) !== 0)) {\n            Promise._async.invoke(\n                this._promiseRejected, this, maybePromise._reason()\n            );\n        } else {\n            this._promiseCancelled();\n        }\n    }\n};\n\nPromise.coroutine = function (generatorFunction, options) {\n    if (typeof generatorFunction !== \"function\") {\n        throw new TypeError(\"generatorFunction must be a function\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    var yieldHandler = Object(options).yieldHandler;\n    var PromiseSpawn$ = PromiseSpawn;\n    var stack = new Error().stack;\n    return function () {\n        var generator = generatorFunction.apply(this, arguments);\n        var spawn = new PromiseSpawn$(undefined, undefined, yieldHandler,\n                                      stack);\n        var ret = spawn.promise();\n        spawn._generator = generator;\n        spawn._promiseFulfilled(undefined);\n        return ret;\n    };\n};\n\nPromise.coroutine.addYieldHandler = function(fn) {\n    if (typeof fn !== \"function\") {\n        throw new TypeError(\"expecting a function but got \" + util.classString(fn));\n    }\n    yieldHandlers.push(fn);\n};\n\nPromise.spawn = function (generatorFunction) {\n    debug.deprecated(\"Promise.spawn()\", \"Promise.coroutine()\");\n    if (typeof generatorFunction !== \"function\") {\n        return apiRejection(\"generatorFunction must be a function\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    var spawn = new PromiseSpawn(generatorFunction, this);\n    var ret = spawn.promise();\n    spawn._run(Promise.spawn);\n    return ret;\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/generators.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/join.js":
-/*!**************************************************!*\
-  !*** ./node_modules/bluebird/js/release/join.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports =\nfunction(Promise, PromiseArray, tryConvertToPromise, INTERNAL, async,\n         getDomain) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar canEvaluate = util.canEvaluate;\nvar tryCatch = util.tryCatch;\nvar errorObj = util.errorObj;\nvar reject;\n\nif (true) {\nif (canEvaluate) {\n    var thenCallback = function(i) {\n        return new Function(\"value\", \"holder\", \"                             \\n\\\n            'use strict';                                                    \\n\\\n            holder.pIndex = value;                                           \\n\\\n            holder.checkFulfillment(this);                                   \\n\\\n            \".replace(/Index/g, i));\n    };\n\n    var promiseSetter = function(i) {\n        return new Function(\"promise\", \"holder\", \"                           \\n\\\n            'use strict';                                                    \\n\\\n            holder.pIndex = promise;                                         \\n\\\n            \".replace(/Index/g, i));\n    };\n\n    var generateHolderClass = function(total) {\n        var props = new Array(total);\n        for (var i = 0; i < props.length; ++i) {\n            props[i] = \"this.p\" + (i+1);\n        }\n        var assignment = props.join(\" = \") + \" = null;\";\n        var cancellationCode= \"var promise;\\n\" + props.map(function(prop) {\n            return \"                                                         \\n\\\n                promise = \" + prop + \";                                      \\n\\\n                if (promise instanceof Promise) {                            \\n\\\n                    promise.cancel();                                        \\n\\\n                }                                                            \\n\\\n            \";\n        }).join(\"\\n\");\n        var passedArguments = props.join(\", \");\n        var name = \"Holder$\" + total;\n\n\n        var code = \"return function(tryCatch, errorObj, Promise, async) {    \\n\\\n            'use strict';                                                    \\n\\\n            function [TheName](fn) {                                         \\n\\\n                [TheProperties]                                              \\n\\\n                this.fn = fn;                                                \\n\\\n                this.asyncNeeded = true;                                     \\n\\\n                this.now = 0;                                                \\n\\\n            }                                                                \\n\\\n                                                                             \\n\\\n            [TheName].prototype._callFunction = function(promise) {          \\n\\\n                promise._pushContext();                                      \\n\\\n                var ret = tryCatch(this.fn)([ThePassedArguments]);           \\n\\\n                promise._popContext();                                       \\n\\\n                if (ret === errorObj) {                                      \\n\\\n                    promise._rejectCallback(ret.e, false);                   \\n\\\n                } else {                                                     \\n\\\n                    promise._resolveCallback(ret);                           \\n\\\n                }                                                            \\n\\\n            };                                                               \\n\\\n                                                                             \\n\\\n            [TheName].prototype.checkFulfillment = function(promise) {       \\n\\\n                var now = ++this.now;                                        \\n\\\n                if (now === [TheTotal]) {                                    \\n\\\n                    if (this.asyncNeeded) {                                  \\n\\\n                        async.invoke(this._callFunction, this, promise);     \\n\\\n                    } else {                                                 \\n\\\n                        this._callFunction(promise);                         \\n\\\n                    }                                                        \\n\\\n                                                                             \\n\\\n                }                                                            \\n\\\n            };                                                               \\n\\\n                                                                             \\n\\\n            [TheName].prototype._resultCancelled = function() {              \\n\\\n                [CancellationCode]                                           \\n\\\n            };                                                               \\n\\\n                                                                             \\n\\\n            return [TheName];                                                \\n\\\n        }(tryCatch, errorObj, Promise, async);                               \\n\\\n        \";\n\n        code = code.replace(/\\[TheName\\]/g, name)\n            .replace(/\\[TheTotal\\]/g, total)\n            .replace(/\\[ThePassedArguments\\]/g, passedArguments)\n            .replace(/\\[TheProperties\\]/g, assignment)\n            .replace(/\\[CancellationCode\\]/g, cancellationCode);\n\n        return new Function(\"tryCatch\", \"errorObj\", \"Promise\", \"async\", code)\n                           (tryCatch, errorObj, Promise, async);\n    };\n\n    var holderClasses = [];\n    var thenCallbacks = [];\n    var promiseSetters = [];\n\n    for (var i = 0; i < 8; ++i) {\n        holderClasses.push(generateHolderClass(i + 1));\n        thenCallbacks.push(thenCallback(i + 1));\n        promiseSetters.push(promiseSetter(i + 1));\n    }\n\n    reject = function (reason) {\n        this._reject(reason);\n    };\n}}\n\nPromise.join = function () {\n    var last = arguments.length - 1;\n    var fn;\n    if (last > 0 && typeof arguments[last] === \"function\") {\n        fn = arguments[last];\n        if (true) {\n            if (last <= 8 && canEvaluate) {\n                var ret = new Promise(INTERNAL);\n                ret._captureStackTrace();\n                var HolderClass = holderClasses[last - 1];\n                var holder = new HolderClass(fn);\n                var callbacks = thenCallbacks;\n\n                for (var i = 0; i < last; ++i) {\n                    var maybePromise = tryConvertToPromise(arguments[i], ret);\n                    if (maybePromise instanceof Promise) {\n                        maybePromise = maybePromise._target();\n                        var bitField = maybePromise._bitField;\n                        ;\n                        if (((bitField & 50397184) === 0)) {\n                            maybePromise._then(callbacks[i], reject,\n                                               undefined, ret, holder);\n                            promiseSetters[i](maybePromise, holder);\n                            holder.asyncNeeded = false;\n                        } else if (((bitField & 33554432) !== 0)) {\n                            callbacks[i].call(ret,\n                                              maybePromise._value(), holder);\n                        } else if (((bitField & 16777216) !== 0)) {\n                            ret._reject(maybePromise._reason());\n                        } else {\n                            ret._cancel();\n                        }\n                    } else {\n                        callbacks[i].call(ret, maybePromise, holder);\n                    }\n                }\n\n                if (!ret._isFateSealed()) {\n                    if (holder.asyncNeeded) {\n                        var domain = getDomain();\n                        if (domain !== null) {\n                            holder.fn = util.domainBind(domain, holder.fn);\n                        }\n                    }\n                    ret._setAsyncGuaranteed();\n                    ret._setOnCancel(holder);\n                }\n                return ret;\n            }\n        }\n    }\n    var $_len = arguments.length;var args = new Array($_len); for(var $_i = 0; $_i < $_len; ++$_i) {args[$_i] = arguments[$_i];};\n    if (fn) args.pop();\n    var ret = new PromiseArray(args).promise();\n    return fn !== undefined ? ret.spread(fn) : ret;\n};\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/join.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/map.js":
-/*!*************************************************!*\
-  !*** ./node_modules/bluebird/js/release/map.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise,\n                          PromiseArray,\n                          apiRejection,\n                          tryConvertToPromise,\n                          INTERNAL,\n                          debug) {\nvar getDomain = Promise._getDomain;\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar tryCatch = util.tryCatch;\nvar errorObj = util.errorObj;\nvar async = Promise._async;\n\nfunction MappingPromiseArray(promises, fn, limit, _filter) {\n    this.constructor$(promises);\n    this._promise._captureStackTrace();\n    var domain = getDomain();\n    this._callback = domain === null ? fn : util.domainBind(domain, fn);\n    this._preservedValues = _filter === INTERNAL\n        ? new Array(this.length())\n        : null;\n    this._limit = limit;\n    this._inFlight = 0;\n    this._queue = [];\n    async.invoke(this._asyncInit, this, undefined);\n}\nutil.inherits(MappingPromiseArray, PromiseArray);\n\nMappingPromiseArray.prototype._asyncInit = function() {\n    this._init$(undefined, -2);\n};\n\nMappingPromiseArray.prototype._init = function () {};\n\nMappingPromiseArray.prototype._promiseFulfilled = function (value, index) {\n    var values = this._values;\n    var length = this.length();\n    var preservedValues = this._preservedValues;\n    var limit = this._limit;\n\n    if (index < 0) {\n        index = (index * -1) - 1;\n        values[index] = value;\n        if (limit >= 1) {\n            this._inFlight--;\n            this._drainQueue();\n            if (this._isResolved()) return true;\n        }\n    } else {\n        if (limit >= 1 && this._inFlight >= limit) {\n            values[index] = value;\n            this._queue.push(index);\n            return false;\n        }\n        if (preservedValues !== null) preservedValues[index] = value;\n\n        var promise = this._promise;\n        var callback = this._callback;\n        var receiver = promise._boundValue();\n        promise._pushContext();\n        var ret = tryCatch(callback).call(receiver, value, index, length);\n        var promiseCreated = promise._popContext();\n        debug.checkForgottenReturns(\n            ret,\n            promiseCreated,\n            preservedValues !== null ? \"Promise.filter\" : \"Promise.map\",\n            promise\n        );\n        if (ret === errorObj) {\n            this._reject(ret.e);\n            return true;\n        }\n\n        var maybePromise = tryConvertToPromise(ret, this._promise);\n        if (maybePromise instanceof Promise) {\n            maybePromise = maybePromise._target();\n            var bitField = maybePromise._bitField;\n            ;\n            if (((bitField & 50397184) === 0)) {\n                if (limit >= 1) this._inFlight++;\n                values[index] = maybePromise;\n                maybePromise._proxy(this, (index + 1) * -1);\n                return false;\n            } else if (((bitField & 33554432) !== 0)) {\n                ret = maybePromise._value();\n            } else if (((bitField & 16777216) !== 0)) {\n                this._reject(maybePromise._reason());\n                return true;\n            } else {\n                this._cancel();\n                return true;\n            }\n        }\n        values[index] = ret;\n    }\n    var totalResolved = ++this._totalResolved;\n    if (totalResolved >= length) {\n        if (preservedValues !== null) {\n            this._filter(values, preservedValues);\n        } else {\n            this._resolve(values);\n        }\n        return true;\n    }\n    return false;\n};\n\nMappingPromiseArray.prototype._drainQueue = function () {\n    var queue = this._queue;\n    var limit = this._limit;\n    var values = this._values;\n    while (queue.length > 0 && this._inFlight < limit) {\n        if (this._isResolved()) return;\n        var index = queue.pop();\n        this._promiseFulfilled(values[index], index);\n    }\n};\n\nMappingPromiseArray.prototype._filter = function (booleans, values) {\n    var len = values.length;\n    var ret = new Array(len);\n    var j = 0;\n    for (var i = 0; i < len; ++i) {\n        if (booleans[i]) ret[j++] = values[i];\n    }\n    ret.length = j;\n    this._resolve(ret);\n};\n\nMappingPromiseArray.prototype.preservedValues = function () {\n    return this._preservedValues;\n};\n\nfunction map(promises, fn, options, _filter) {\n    if (typeof fn !== \"function\") {\n        return apiRejection(\"expecting a function but got \" + util.classString(fn));\n    }\n\n    var limit = 0;\n    if (options !== undefined) {\n        if (typeof options === \"object\" && options !== null) {\n            if (typeof options.concurrency !== \"number\") {\n                return Promise.reject(\n                    new TypeError(\"'concurrency' must be a number but it is \" +\n                                    util.classString(options.concurrency)));\n            }\n            limit = options.concurrency;\n        } else {\n            return Promise.reject(new TypeError(\n                            \"options argument must be an object but it is \" +\n                             util.classString(options)));\n        }\n    }\n    limit = typeof limit === \"number\" &&\n        isFinite(limit) && limit >= 1 ? limit : 0;\n    return new MappingPromiseArray(promises, fn, limit, _filter).promise();\n}\n\nPromise.prototype.map = function (fn, options) {\n    return map(this, fn, options, null);\n};\n\nPromise.map = function (promises, fn, options, _filter) {\n    return map(promises, fn, options, _filter);\n};\n\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/map.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/method.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/method.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports =\nfunction(Promise, INTERNAL, tryConvertToPromise, apiRejection, debug) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar tryCatch = util.tryCatch;\n\nPromise.method = function (fn) {\n    if (typeof fn !== \"function\") {\n        throw new Promise.TypeError(\"expecting a function but got \" + util.classString(fn));\n    }\n    return function () {\n        var ret = new Promise(INTERNAL);\n        ret._captureStackTrace();\n        ret._pushContext();\n        var value = tryCatch(fn).apply(this, arguments);\n        var promiseCreated = ret._popContext();\n        debug.checkForgottenReturns(\n            value, promiseCreated, \"Promise.method\", ret);\n        ret._resolveFromSyncValue(value);\n        return ret;\n    };\n};\n\nPromise.attempt = Promise[\"try\"] = function (fn) {\n    if (typeof fn !== \"function\") {\n        return apiRejection(\"expecting a function but got \" + util.classString(fn));\n    }\n    var ret = new Promise(INTERNAL);\n    ret._captureStackTrace();\n    ret._pushContext();\n    var value;\n    if (arguments.length > 1) {\n        debug.deprecated(\"calling Promise.try with more than 1 argument\");\n        var arg = arguments[1];\n        var ctx = arguments[2];\n        value = util.isArray(arg) ? tryCatch(fn).apply(ctx, arg)\n                                  : tryCatch(fn).call(ctx, arg);\n    } else {\n        value = tryCatch(fn)();\n    }\n    var promiseCreated = ret._popContext();\n    debug.checkForgottenReturns(\n        value, promiseCreated, \"Promise.try\", ret);\n    ret._resolveFromSyncValue(value);\n    return ret;\n};\n\nPromise.prototype._resolveFromSyncValue = function (value) {\n    if (value === util.errorObj) {\n        this._rejectCallback(value.e, false);\n    } else {\n        this._resolveCallback(value, true);\n    }\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/method.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/nodeback.js":
-/*!******************************************************!*\
-  !*** ./node_modules/bluebird/js/release/nodeback.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar maybeWrapAsError = util.maybeWrapAsError;\nvar errors = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\");\nvar OperationalError = errors.OperationalError;\nvar es5 = __webpack_require__(/*! ./es5 */ \"./node_modules/bluebird/js/release/es5.js\");\n\nfunction isUntypedError(obj) {\n    return obj instanceof Error &&\n        es5.getPrototypeOf(obj) === Error.prototype;\n}\n\nvar rErrorKey = /^(?:name|message|stack|cause)$/;\nfunction wrapAsOperationalError(obj) {\n    var ret;\n    if (isUntypedError(obj)) {\n        ret = new OperationalError(obj);\n        ret.name = obj.name;\n        ret.message = obj.message;\n        ret.stack = obj.stack;\n        var keys = es5.keys(obj);\n        for (var i = 0; i < keys.length; ++i) {\n            var key = keys[i];\n            if (!rErrorKey.test(key)) {\n                ret[key] = obj[key];\n            }\n        }\n        return ret;\n    }\n    util.markAsOriginatingFromRejection(obj);\n    return obj;\n}\n\nfunction nodebackForPromise(promise, multiArgs) {\n    return function(err, value) {\n        if (promise === null) return;\n        if (err) {\n            var wrapped = wrapAsOperationalError(maybeWrapAsError(err));\n            promise._attachExtraTrace(wrapped);\n            promise._reject(wrapped);\n        } else if (!multiArgs) {\n            promise._fulfill(value);\n        } else {\n            var $_len = arguments.length;var args = new Array(Math.max($_len - 1, 0)); for(var $_i = 1; $_i < $_len; ++$_i) {args[$_i - 1] = arguments[$_i];};\n            promise._fulfill(args);\n        }\n        promise = null;\n    };\n}\n\nmodule.exports = nodebackForPromise;\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/nodeback.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/nodeify.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/nodeify.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar async = Promise._async;\nvar tryCatch = util.tryCatch;\nvar errorObj = util.errorObj;\n\nfunction spreadAdapter(val, nodeback) {\n    var promise = this;\n    if (!util.isArray(val)) return successAdapter.call(promise, val, nodeback);\n    var ret =\n        tryCatch(nodeback).apply(promise._boundValue(), [null].concat(val));\n    if (ret === errorObj) {\n        async.throwLater(ret.e);\n    }\n}\n\nfunction successAdapter(val, nodeback) {\n    var promise = this;\n    var receiver = promise._boundValue();\n    var ret = val === undefined\n        ? tryCatch(nodeback).call(receiver, null)\n        : tryCatch(nodeback).call(receiver, null, val);\n    if (ret === errorObj) {\n        async.throwLater(ret.e);\n    }\n}\nfunction errorAdapter(reason, nodeback) {\n    var promise = this;\n    if (!reason) {\n        var newReason = new Error(reason + \"\");\n        newReason.cause = reason;\n        reason = newReason;\n    }\n    var ret = tryCatch(nodeback).call(promise._boundValue(), reason);\n    if (ret === errorObj) {\n        async.throwLater(ret.e);\n    }\n}\n\nPromise.prototype.asCallback = Promise.prototype.nodeify = function (nodeback,\n                                                                     options) {\n    if (typeof nodeback == \"function\") {\n        var adapter = successAdapter;\n        if (options !== undefined && Object(options).spread) {\n            adapter = spreadAdapter;\n        }\n        this._then(\n            adapter,\n            errorAdapter,\n            undefined,\n            this,\n            nodeback\n        );\n    }\n    return this;\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/nodeify.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/promise.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/promise.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function() {\nvar makeSelfResolutionError = function () {\n    return new TypeError(\"circular promise resolution chain\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n};\nvar reflectHandler = function() {\n    return new Promise.PromiseInspection(this._target());\n};\nvar apiRejection = function(msg) {\n    return Promise.reject(new TypeError(msg));\n};\nfunction Proxyable() {}\nvar UNDEFINED_BINDING = {};\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\n\nvar getDomain;\nif (util.isNode) {\n    getDomain = function() {\n        var ret = process.domain;\n        if (ret === undefined) ret = null;\n        return ret;\n    };\n} else {\n    getDomain = function() {\n        return null;\n    };\n}\nutil.notEnumerableProp(Promise, \"_getDomain\", getDomain);\n\nvar es5 = __webpack_require__(/*! ./es5 */ \"./node_modules/bluebird/js/release/es5.js\");\nvar Async = __webpack_require__(/*! ./async */ \"./node_modules/bluebird/js/release/async.js\");\nvar async = new Async();\nes5.defineProperty(Promise, \"_async\", {value: async});\nvar errors = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\");\nvar TypeError = Promise.TypeError = errors.TypeError;\nPromise.RangeError = errors.RangeError;\nvar CancellationError = Promise.CancellationError = errors.CancellationError;\nPromise.TimeoutError = errors.TimeoutError;\nPromise.OperationalError = errors.OperationalError;\nPromise.RejectionError = errors.OperationalError;\nPromise.AggregateError = errors.AggregateError;\nvar INTERNAL = function(){};\nvar APPLY = {};\nvar NEXT_FILTER = {};\nvar tryConvertToPromise = __webpack_require__(/*! ./thenables */ \"./node_modules/bluebird/js/release/thenables.js\")(Promise, INTERNAL);\nvar PromiseArray =\n    __webpack_require__(/*! ./promise_array */ \"./node_modules/bluebird/js/release/promise_array.js\")(Promise, INTERNAL,\n                               tryConvertToPromise, apiRejection, Proxyable);\nvar Context = __webpack_require__(/*! ./context */ \"./node_modules/bluebird/js/release/context.js\")(Promise);\n /*jshint unused:false*/\nvar createContext = Context.create;\nvar debug = __webpack_require__(/*! ./debuggability */ \"./node_modules/bluebird/js/release/debuggability.js\")(Promise, Context);\nvar CapturedTrace = debug.CapturedTrace;\nvar PassThroughHandlerContext =\n    __webpack_require__(/*! ./finally */ \"./node_modules/bluebird/js/release/finally.js\")(Promise, tryConvertToPromise, NEXT_FILTER);\nvar catchFilter = __webpack_require__(/*! ./catch_filter */ \"./node_modules/bluebird/js/release/catch_filter.js\")(NEXT_FILTER);\nvar nodebackForPromise = __webpack_require__(/*! ./nodeback */ \"./node_modules/bluebird/js/release/nodeback.js\");\nvar errorObj = util.errorObj;\nvar tryCatch = util.tryCatch;\nfunction check(self, executor) {\n    if (self == null || self.constructor !== Promise) {\n        throw new TypeError(\"the promise constructor cannot be invoked directly\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    if (typeof executor !== \"function\") {\n        throw new TypeError(\"expecting a function but got \" + util.classString(executor));\n    }\n\n}\n\nfunction Promise(executor) {\n    if (executor !== INTERNAL) {\n        check(this, executor);\n    }\n    this._bitField = 0;\n    this._fulfillmentHandler0 = undefined;\n    this._rejectionHandler0 = undefined;\n    this._promise0 = undefined;\n    this._receiver0 = undefined;\n    this._resolveFromExecutor(executor);\n    this._promiseCreated();\n    this._fireEvent(\"promiseCreated\", this);\n}\n\nPromise.prototype.toString = function () {\n    return \"[object Promise]\";\n};\n\nPromise.prototype.caught = Promise.prototype[\"catch\"] = function (fn) {\n    var len = arguments.length;\n    if (len > 1) {\n        var catchInstances = new Array(len - 1),\n            j = 0, i;\n        for (i = 0; i < len - 1; ++i) {\n            var item = arguments[i];\n            if (util.isObject(item)) {\n                catchInstances[j++] = item;\n            } else {\n                return apiRejection(\"Catch statement predicate: \" +\n                    \"expecting an object but got \" + util.classString(item));\n            }\n        }\n        catchInstances.length = j;\n        fn = arguments[i];\n        return this.then(undefined, catchFilter(catchInstances, fn, this));\n    }\n    return this.then(undefined, fn);\n};\n\nPromise.prototype.reflect = function () {\n    return this._then(reflectHandler,\n        reflectHandler, undefined, this, undefined);\n};\n\nPromise.prototype.then = function (didFulfill, didReject) {\n    if (debug.warnings() && arguments.length > 0 &&\n        typeof didFulfill !== \"function\" &&\n        typeof didReject !== \"function\") {\n        var msg = \".then() only accepts functions but was passed: \" +\n                util.classString(didFulfill);\n        if (arguments.length > 1) {\n            msg += \", \" + util.classString(didReject);\n        }\n        this._warn(msg);\n    }\n    return this._then(didFulfill, didReject, undefined, undefined, undefined);\n};\n\nPromise.prototype.done = function (didFulfill, didReject) {\n    var promise =\n        this._then(didFulfill, didReject, undefined, undefined, undefined);\n    promise._setIsFinal();\n};\n\nPromise.prototype.spread = function (fn) {\n    if (typeof fn !== \"function\") {\n        return apiRejection(\"expecting a function but got \" + util.classString(fn));\n    }\n    return this.all()._then(fn, undefined, undefined, APPLY, undefined);\n};\n\nPromise.prototype.toJSON = function () {\n    var ret = {\n        isFulfilled: false,\n        isRejected: false,\n        fulfillmentValue: undefined,\n        rejectionReason: undefined\n    };\n    if (this.isFulfilled()) {\n        ret.fulfillmentValue = this.value();\n        ret.isFulfilled = true;\n    } else if (this.isRejected()) {\n        ret.rejectionReason = this.reason();\n        ret.isRejected = true;\n    }\n    return ret;\n};\n\nPromise.prototype.all = function () {\n    if (arguments.length > 0) {\n        this._warn(\".all() was passed arguments but it does not take any\");\n    }\n    return new PromiseArray(this).promise();\n};\n\nPromise.prototype.error = function (fn) {\n    return this.caught(util.originatesFromRejection, fn);\n};\n\nPromise.getNewLibraryCopy = module.exports;\n\nPromise.is = function (val) {\n    return val instanceof Promise;\n};\n\nPromise.fromNode = Promise.fromCallback = function(fn) {\n    var ret = new Promise(INTERNAL);\n    ret._captureStackTrace();\n    var multiArgs = arguments.length > 1 ? !!Object(arguments[1]).multiArgs\n                                         : false;\n    var result = tryCatch(fn)(nodebackForPromise(ret, multiArgs));\n    if (result === errorObj) {\n        ret._rejectCallback(result.e, true);\n    }\n    if (!ret._isFateSealed()) ret._setAsyncGuaranteed();\n    return ret;\n};\n\nPromise.all = function (promises) {\n    return new PromiseArray(promises).promise();\n};\n\nPromise.cast = function (obj) {\n    var ret = tryConvertToPromise(obj);\n    if (!(ret instanceof Promise)) {\n        ret = new Promise(INTERNAL);\n        ret._captureStackTrace();\n        ret._setFulfilled();\n        ret._rejectionHandler0 = obj;\n    }\n    return ret;\n};\n\nPromise.resolve = Promise.fulfilled = Promise.cast;\n\nPromise.reject = Promise.rejected = function (reason) {\n    var ret = new Promise(INTERNAL);\n    ret._captureStackTrace();\n    ret._rejectCallback(reason, true);\n    return ret;\n};\n\nPromise.setScheduler = function(fn) {\n    if (typeof fn !== \"function\") {\n        throw new TypeError(\"expecting a function but got \" + util.classString(fn));\n    }\n    return async.setScheduler(fn);\n};\n\nPromise.prototype._then = function (\n    didFulfill,\n    didReject,\n    _,    receiver,\n    internalData\n) {\n    var haveInternalData = internalData !== undefined;\n    var promise = haveInternalData ? internalData : new Promise(INTERNAL);\n    var target = this._target();\n    var bitField = target._bitField;\n\n    if (!haveInternalData) {\n        promise._propagateFrom(this, 3);\n        promise._captureStackTrace();\n        if (receiver === undefined &&\n            ((this._bitField & 2097152) !== 0)) {\n            if (!((bitField & 50397184) === 0)) {\n                receiver = this._boundValue();\n            } else {\n                receiver = target === this ? undefined : this._boundTo;\n            }\n        }\n        this._fireEvent(\"promiseChained\", this, promise);\n    }\n\n    var domain = getDomain();\n    if (!((bitField & 50397184) === 0)) {\n        var handler, value, settler = target._settlePromiseCtx;\n        if (((bitField & 33554432) !== 0)) {\n            value = target._rejectionHandler0;\n            handler = didFulfill;\n        } else if (((bitField & 16777216) !== 0)) {\n            value = target._fulfillmentHandler0;\n            handler = didReject;\n            target._unsetRejectionIsUnhandled();\n        } else {\n            settler = target._settlePromiseLateCancellationObserver;\n            value = new CancellationError(\"late cancellation observer\");\n            target._attachExtraTrace(value);\n            handler = didReject;\n        }\n\n        async.invoke(settler, target, {\n            handler: domain === null ? handler\n                : (typeof handler === \"function\" &&\n                    util.domainBind(domain, handler)),\n            promise: promise,\n            receiver: receiver,\n            value: value\n        });\n    } else {\n        target._addCallbacks(didFulfill, didReject, promise, receiver, domain);\n    }\n\n    return promise;\n};\n\nPromise.prototype._length = function () {\n    return this._bitField & 65535;\n};\n\nPromise.prototype._isFateSealed = function () {\n    return (this._bitField & 117506048) !== 0;\n};\n\nPromise.prototype._isFollowing = function () {\n    return (this._bitField & 67108864) === 67108864;\n};\n\nPromise.prototype._setLength = function (len) {\n    this._bitField = (this._bitField & -65536) |\n        (len & 65535);\n};\n\nPromise.prototype._setFulfilled = function () {\n    this._bitField = this._bitField | 33554432;\n    this._fireEvent(\"promiseFulfilled\", this);\n};\n\nPromise.prototype._setRejected = function () {\n    this._bitField = this._bitField | 16777216;\n    this._fireEvent(\"promiseRejected\", this);\n};\n\nPromise.prototype._setFollowing = function () {\n    this._bitField = this._bitField | 67108864;\n    this._fireEvent(\"promiseResolved\", this);\n};\n\nPromise.prototype._setIsFinal = function () {\n    this._bitField = this._bitField | 4194304;\n};\n\nPromise.prototype._isFinal = function () {\n    return (this._bitField & 4194304) > 0;\n};\n\nPromise.prototype._unsetCancelled = function() {\n    this._bitField = this._bitField & (~65536);\n};\n\nPromise.prototype._setCancelled = function() {\n    this._bitField = this._bitField | 65536;\n    this._fireEvent(\"promiseCancelled\", this);\n};\n\nPromise.prototype._setWillBeCancelled = function() {\n    this._bitField = this._bitField | 8388608;\n};\n\nPromise.prototype._setAsyncGuaranteed = function() {\n    if (async.hasCustomScheduler()) return;\n    this._bitField = this._bitField | 134217728;\n};\n\nPromise.prototype._receiverAt = function (index) {\n    var ret = index === 0 ? this._receiver0 : this[\n            index * 4 - 4 + 3];\n    if (ret === UNDEFINED_BINDING) {\n        return undefined;\n    } else if (ret === undefined && this._isBound()) {\n        return this._boundValue();\n    }\n    return ret;\n};\n\nPromise.prototype._promiseAt = function (index) {\n    return this[\n            index * 4 - 4 + 2];\n};\n\nPromise.prototype._fulfillmentHandlerAt = function (index) {\n    return this[\n            index * 4 - 4 + 0];\n};\n\nPromise.prototype._rejectionHandlerAt = function (index) {\n    return this[\n            index * 4 - 4 + 1];\n};\n\nPromise.prototype._boundValue = function() {};\n\nPromise.prototype._migrateCallback0 = function (follower) {\n    var bitField = follower._bitField;\n    var fulfill = follower._fulfillmentHandler0;\n    var reject = follower._rejectionHandler0;\n    var promise = follower._promise0;\n    var receiver = follower._receiverAt(0);\n    if (receiver === undefined) receiver = UNDEFINED_BINDING;\n    this._addCallbacks(fulfill, reject, promise, receiver, null);\n};\n\nPromise.prototype._migrateCallbackAt = function (follower, index) {\n    var fulfill = follower._fulfillmentHandlerAt(index);\n    var reject = follower._rejectionHandlerAt(index);\n    var promise = follower._promiseAt(index);\n    var receiver = follower._receiverAt(index);\n    if (receiver === undefined) receiver = UNDEFINED_BINDING;\n    this._addCallbacks(fulfill, reject, promise, receiver, null);\n};\n\nPromise.prototype._addCallbacks = function (\n    fulfill,\n    reject,\n    promise,\n    receiver,\n    domain\n) {\n    var index = this._length();\n\n    if (index >= 65535 - 4) {\n        index = 0;\n        this._setLength(0);\n    }\n\n    if (index === 0) {\n        this._promise0 = promise;\n        this._receiver0 = receiver;\n        if (typeof fulfill === \"function\") {\n            this._fulfillmentHandler0 =\n                domain === null ? fulfill : util.domainBind(domain, fulfill);\n        }\n        if (typeof reject === \"function\") {\n            this._rejectionHandler0 =\n                domain === null ? reject : util.domainBind(domain, reject);\n        }\n    } else {\n        var base = index * 4 - 4;\n        this[base + 2] = promise;\n        this[base + 3] = receiver;\n        if (typeof fulfill === \"function\") {\n            this[base + 0] =\n                domain === null ? fulfill : util.domainBind(domain, fulfill);\n        }\n        if (typeof reject === \"function\") {\n            this[base + 1] =\n                domain === null ? reject : util.domainBind(domain, reject);\n        }\n    }\n    this._setLength(index + 1);\n    return index;\n};\n\nPromise.prototype._proxy = function (proxyable, arg) {\n    this._addCallbacks(undefined, undefined, arg, proxyable, null);\n};\n\nPromise.prototype._resolveCallback = function(value, shouldBind) {\n    if (((this._bitField & 117506048) !== 0)) return;\n    if (value === this)\n        return this._rejectCallback(makeSelfResolutionError(), false);\n    var maybePromise = tryConvertToPromise(value, this);\n    if (!(maybePromise instanceof Promise)) return this._fulfill(value);\n\n    if (shouldBind) this._propagateFrom(maybePromise, 2);\n\n    var promise = maybePromise._target();\n\n    if (promise === this) {\n        this._reject(makeSelfResolutionError());\n        return;\n    }\n\n    var bitField = promise._bitField;\n    if (((bitField & 50397184) === 0)) {\n        var len = this._length();\n        if (len > 0) promise._migrateCallback0(this);\n        for (var i = 1; i < len; ++i) {\n            promise._migrateCallbackAt(this, i);\n        }\n        this._setFollowing();\n        this._setLength(0);\n        this._setFollowee(promise);\n    } else if (((bitField & 33554432) !== 0)) {\n        this._fulfill(promise._value());\n    } else if (((bitField & 16777216) !== 0)) {\n        this._reject(promise._reason());\n    } else {\n        var reason = new CancellationError(\"late cancellation observer\");\n        promise._attachExtraTrace(reason);\n        this._reject(reason);\n    }\n};\n\nPromise.prototype._rejectCallback =\nfunction(reason, synchronous, ignoreNonErrorWarnings) {\n    var trace = util.ensureErrorObject(reason);\n    var hasStack = trace === reason;\n    if (!hasStack && !ignoreNonErrorWarnings && debug.warnings()) {\n        var message = \"a promise was rejected with a non-error: \" +\n            util.classString(reason);\n        this._warn(message, true);\n    }\n    this._attachExtraTrace(trace, synchronous ? hasStack : false);\n    this._reject(reason);\n};\n\nPromise.prototype._resolveFromExecutor = function (executor) {\n    if (executor === INTERNAL) return;\n    var promise = this;\n    this._captureStackTrace();\n    this._pushContext();\n    var synchronous = true;\n    var r = this._execute(executor, function(value) {\n        promise._resolveCallback(value);\n    }, function (reason) {\n        promise._rejectCallback(reason, synchronous);\n    });\n    synchronous = false;\n    this._popContext();\n\n    if (r !== undefined) {\n        promise._rejectCallback(r, true);\n    }\n};\n\nPromise.prototype._settlePromiseFromHandler = function (\n    handler, receiver, value, promise\n) {\n    var bitField = promise._bitField;\n    if (((bitField & 65536) !== 0)) return;\n    promise._pushContext();\n    var x;\n    if (receiver === APPLY) {\n        if (!value || typeof value.length !== \"number\") {\n            x = errorObj;\n            x.e = new TypeError(\"cannot .spread() a non-array: \" +\n                                    util.classString(value));\n        } else {\n            x = tryCatch(handler).apply(this._boundValue(), value);\n        }\n    } else {\n        x = tryCatch(handler).call(receiver, value);\n    }\n    var promiseCreated = promise._popContext();\n    bitField = promise._bitField;\n    if (((bitField & 65536) !== 0)) return;\n\n    if (x === NEXT_FILTER) {\n        promise._reject(value);\n    } else if (x === errorObj) {\n        promise._rejectCallback(x.e, false);\n    } else {\n        debug.checkForgottenReturns(x, promiseCreated, \"\",  promise, this);\n        promise._resolveCallback(x);\n    }\n};\n\nPromise.prototype._target = function() {\n    var ret = this;\n    while (ret._isFollowing()) ret = ret._followee();\n    return ret;\n};\n\nPromise.prototype._followee = function() {\n    return this._rejectionHandler0;\n};\n\nPromise.prototype._setFollowee = function(promise) {\n    this._rejectionHandler0 = promise;\n};\n\nPromise.prototype._settlePromise = function(promise, handler, receiver, value) {\n    var isPromise = promise instanceof Promise;\n    var bitField = this._bitField;\n    var asyncGuaranteed = ((bitField & 134217728) !== 0);\n    if (((bitField & 65536) !== 0)) {\n        if (isPromise) promise._invokeInternalOnCancel();\n\n        if (receiver instanceof PassThroughHandlerContext &&\n            receiver.isFinallyHandler()) {\n            receiver.cancelPromise = promise;\n            if (tryCatch(handler).call(receiver, value) === errorObj) {\n                promise._reject(errorObj.e);\n            }\n        } else if (handler === reflectHandler) {\n            promise._fulfill(reflectHandler.call(receiver));\n        } else if (receiver instanceof Proxyable) {\n            receiver._promiseCancelled(promise);\n        } else if (isPromise || promise instanceof PromiseArray) {\n            promise._cancel();\n        } else {\n            receiver.cancel();\n        }\n    } else if (typeof handler === \"function\") {\n        if (!isPromise) {\n            handler.call(receiver, value, promise);\n        } else {\n            if (asyncGuaranteed) promise._setAsyncGuaranteed();\n            this._settlePromiseFromHandler(handler, receiver, value, promise);\n        }\n    } else if (receiver instanceof Proxyable) {\n        if (!receiver._isResolved()) {\n            if (((bitField & 33554432) !== 0)) {\n                receiver._promiseFulfilled(value, promise);\n            } else {\n                receiver._promiseRejected(value, promise);\n            }\n        }\n    } else if (isPromise) {\n        if (asyncGuaranteed) promise._setAsyncGuaranteed();\n        if (((bitField & 33554432) !== 0)) {\n            promise._fulfill(value);\n        } else {\n            promise._reject(value);\n        }\n    }\n};\n\nPromise.prototype._settlePromiseLateCancellationObserver = function(ctx) {\n    var handler = ctx.handler;\n    var promise = ctx.promise;\n    var receiver = ctx.receiver;\n    var value = ctx.value;\n    if (typeof handler === \"function\") {\n        if (!(promise instanceof Promise)) {\n            handler.call(receiver, value, promise);\n        } else {\n            this._settlePromiseFromHandler(handler, receiver, value, promise);\n        }\n    } else if (promise instanceof Promise) {\n        promise._reject(value);\n    }\n};\n\nPromise.prototype._settlePromiseCtx = function(ctx) {\n    this._settlePromise(ctx.promise, ctx.handler, ctx.receiver, ctx.value);\n};\n\nPromise.prototype._settlePromise0 = function(handler, value, bitField) {\n    var promise = this._promise0;\n    var receiver = this._receiverAt(0);\n    this._promise0 = undefined;\n    this._receiver0 = undefined;\n    this._settlePromise(promise, handler, receiver, value);\n};\n\nPromise.prototype._clearCallbackDataAtIndex = function(index) {\n    var base = index * 4 - 4;\n    this[base + 2] =\n    this[base + 3] =\n    this[base + 0] =\n    this[base + 1] = undefined;\n};\n\nPromise.prototype._fulfill = function (value) {\n    var bitField = this._bitField;\n    if (((bitField & 117506048) >>> 16)) return;\n    if (value === this) {\n        var err = makeSelfResolutionError();\n        this._attachExtraTrace(err);\n        return this._reject(err);\n    }\n    this._setFulfilled();\n    this._rejectionHandler0 = value;\n\n    if ((bitField & 65535) > 0) {\n        if (((bitField & 134217728) !== 0)) {\n            this._settlePromises();\n        } else {\n            async.settlePromises(this);\n        }\n    }\n};\n\nPromise.prototype._reject = function (reason) {\n    var bitField = this._bitField;\n    if (((bitField & 117506048) >>> 16)) return;\n    this._setRejected();\n    this._fulfillmentHandler0 = reason;\n\n    if (this._isFinal()) {\n        return async.fatalError(reason, util.isNode);\n    }\n\n    if ((bitField & 65535) > 0) {\n        async.settlePromises(this);\n    } else {\n        this._ensurePossibleRejectionHandled();\n    }\n};\n\nPromise.prototype._fulfillPromises = function (len, value) {\n    for (var i = 1; i < len; i++) {\n        var handler = this._fulfillmentHandlerAt(i);\n        var promise = this._promiseAt(i);\n        var receiver = this._receiverAt(i);\n        this._clearCallbackDataAtIndex(i);\n        this._settlePromise(promise, handler, receiver, value);\n    }\n};\n\nPromise.prototype._rejectPromises = function (len, reason) {\n    for (var i = 1; i < len; i++) {\n        var handler = this._rejectionHandlerAt(i);\n        var promise = this._promiseAt(i);\n        var receiver = this._receiverAt(i);\n        this._clearCallbackDataAtIndex(i);\n        this._settlePromise(promise, handler, receiver, reason);\n    }\n};\n\nPromise.prototype._settlePromises = function () {\n    var bitField = this._bitField;\n    var len = (bitField & 65535);\n\n    if (len > 0) {\n        if (((bitField & 16842752) !== 0)) {\n            var reason = this._fulfillmentHandler0;\n            this._settlePromise0(this._rejectionHandler0, reason, bitField);\n            this._rejectPromises(len, reason);\n        } else {\n            var value = this._rejectionHandler0;\n            this._settlePromise0(this._fulfillmentHandler0, value, bitField);\n            this._fulfillPromises(len, value);\n        }\n        this._setLength(0);\n    }\n    this._clearCancellationData();\n};\n\nPromise.prototype._settledValue = function() {\n    var bitField = this._bitField;\n    if (((bitField & 33554432) !== 0)) {\n        return this._rejectionHandler0;\n    } else if (((bitField & 16777216) !== 0)) {\n        return this._fulfillmentHandler0;\n    }\n};\n\nfunction deferResolve(v) {this.promise._resolveCallback(v);}\nfunction deferReject(v) {this.promise._rejectCallback(v, false);}\n\nPromise.defer = Promise.pending = function() {\n    debug.deprecated(\"Promise.defer\", \"new Promise\");\n    var promise = new Promise(INTERNAL);\n    return {\n        promise: promise,\n        resolve: deferResolve,\n        reject: deferReject\n    };\n};\n\nutil.notEnumerableProp(Promise,\n                       \"_makeSelfResolutionError\",\n                       makeSelfResolutionError);\n\n__webpack_require__(/*! ./method */ \"./node_modules/bluebird/js/release/method.js\")(Promise, INTERNAL, tryConvertToPromise, apiRejection,\n    debug);\n__webpack_require__(/*! ./bind */ \"./node_modules/bluebird/js/release/bind.js\")(Promise, INTERNAL, tryConvertToPromise, debug);\n__webpack_require__(/*! ./cancel */ \"./node_modules/bluebird/js/release/cancel.js\")(Promise, PromiseArray, apiRejection, debug);\n__webpack_require__(/*! ./direct_resolve */ \"./node_modules/bluebird/js/release/direct_resolve.js\")(Promise);\n__webpack_require__(/*! ./synchronous_inspection */ \"./node_modules/bluebird/js/release/synchronous_inspection.js\")(Promise);\n__webpack_require__(/*! ./join */ \"./node_modules/bluebird/js/release/join.js\")(\n    Promise, PromiseArray, tryConvertToPromise, INTERNAL, async, getDomain);\nPromise.Promise = Promise;\nPromise.version = \"3.5.1\";\n__webpack_require__(/*! ./map.js */ \"./node_modules/bluebird/js/release/map.js\")(Promise, PromiseArray, apiRejection, tryConvertToPromise, INTERNAL, debug);\n__webpack_require__(/*! ./call_get.js */ \"./node_modules/bluebird/js/release/call_get.js\")(Promise);\n__webpack_require__(/*! ./using.js */ \"./node_modules/bluebird/js/release/using.js\")(Promise, apiRejection, tryConvertToPromise, createContext, INTERNAL, debug);\n__webpack_require__(/*! ./timers.js */ \"./node_modules/bluebird/js/release/timers.js\")(Promise, INTERNAL, debug);\n__webpack_require__(/*! ./generators.js */ \"./node_modules/bluebird/js/release/generators.js\")(Promise, apiRejection, INTERNAL, tryConvertToPromise, Proxyable, debug);\n__webpack_require__(/*! ./nodeify.js */ \"./node_modules/bluebird/js/release/nodeify.js\")(Promise);\n__webpack_require__(/*! ./promisify.js */ \"./node_modules/bluebird/js/release/promisify.js\")(Promise, INTERNAL);\n__webpack_require__(/*! ./props.js */ \"./node_modules/bluebird/js/release/props.js\")(Promise, PromiseArray, tryConvertToPromise, apiRejection);\n__webpack_require__(/*! ./race.js */ \"./node_modules/bluebird/js/release/race.js\")(Promise, INTERNAL, tryConvertToPromise, apiRejection);\n__webpack_require__(/*! ./reduce.js */ \"./node_modules/bluebird/js/release/reduce.js\")(Promise, PromiseArray, apiRejection, tryConvertToPromise, INTERNAL, debug);\n__webpack_require__(/*! ./settle.js */ \"./node_modules/bluebird/js/release/settle.js\")(Promise, PromiseArray, debug);\n__webpack_require__(/*! ./some.js */ \"./node_modules/bluebird/js/release/some.js\")(Promise, PromiseArray, apiRejection);\n__webpack_require__(/*! ./filter.js */ \"./node_modules/bluebird/js/release/filter.js\")(Promise, INTERNAL);\n__webpack_require__(/*! ./each.js */ \"./node_modules/bluebird/js/release/each.js\")(Promise, INTERNAL);\n__webpack_require__(/*! ./any.js */ \"./node_modules/bluebird/js/release/any.js\")(Promise);\n                                                         \n    util.toFastProperties(Promise);                                          \n    util.toFastProperties(Promise.prototype);                                \n    function fillTypes(value) {                                              \n        var p = new Promise(INTERNAL);                                       \n        p._fulfillmentHandler0 = value;                                      \n        p._rejectionHandler0 = value;                                        \n        p._promise0 = value;                                                 \n        p._receiver0 = value;                                                \n    }                                                                        \n    // Complete slack tracking, opt out of field-type tracking and           \n    // stabilize map                                                         \n    fillTypes({a: 1});                                                       \n    fillTypes({b: 2});                                                       \n    fillTypes({c: 3});                                                       \n    fillTypes(1);                                                            \n    fillTypes(function(){});                                                 \n    fillTypes(undefined);                                                    \n    fillTypes(false);                                                        \n    fillTypes(new Promise(INTERNAL));                                        \n    debug.setBounds(Async.firstLineError, util.lastLineError);               \n    return Promise;                                                          \n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/promise.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/promise_array.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/bluebird/js/release/promise_array.js ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL, tryConvertToPromise,\n    apiRejection, Proxyable) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar isArray = util.isArray;\n\nfunction toResolutionValue(val) {\n    switch(val) {\n    case -2: return [];\n    case -3: return {};\n    case -6: return new Map();\n    }\n}\n\nfunction PromiseArray(values) {\n    var promise = this._promise = new Promise(INTERNAL);\n    if (values instanceof Promise) {\n        promise._propagateFrom(values, 3);\n    }\n    promise._setOnCancel(this);\n    this._values = values;\n    this._length = 0;\n    this._totalResolved = 0;\n    this._init(undefined, -2);\n}\nutil.inherits(PromiseArray, Proxyable);\n\nPromiseArray.prototype.length = function () {\n    return this._length;\n};\n\nPromiseArray.prototype.promise = function () {\n    return this._promise;\n};\n\nPromiseArray.prototype._init = function init(_, resolveValueIfEmpty) {\n    var values = tryConvertToPromise(this._values, this._promise);\n    if (values instanceof Promise) {\n        values = values._target();\n        var bitField = values._bitField;\n        ;\n        this._values = values;\n\n        if (((bitField & 50397184) === 0)) {\n            this._promise._setAsyncGuaranteed();\n            return values._then(\n                init,\n                this._reject,\n                undefined,\n                this,\n                resolveValueIfEmpty\n           );\n        } else if (((bitField & 33554432) !== 0)) {\n            values = values._value();\n        } else if (((bitField & 16777216) !== 0)) {\n            return this._reject(values._reason());\n        } else {\n            return this._cancel();\n        }\n    }\n    values = util.asArray(values);\n    if (values === null) {\n        var err = apiRejection(\n            \"expecting an array or an iterable object but got \" + util.classString(values)).reason();\n        this._promise._rejectCallback(err, false);\n        return;\n    }\n\n    if (values.length === 0) {\n        if (resolveValueIfEmpty === -5) {\n            this._resolveEmptyArray();\n        }\n        else {\n            this._resolve(toResolutionValue(resolveValueIfEmpty));\n        }\n        return;\n    }\n    this._iterate(values);\n};\n\nPromiseArray.prototype._iterate = function(values) {\n    var len = this.getActualLength(values.length);\n    this._length = len;\n    this._values = this.shouldCopyValues() ? new Array(len) : this._values;\n    var result = this._promise;\n    var isResolved = false;\n    var bitField = null;\n    for (var i = 0; i < len; ++i) {\n        var maybePromise = tryConvertToPromise(values[i], result);\n\n        if (maybePromise instanceof Promise) {\n            maybePromise = maybePromise._target();\n            bitField = maybePromise._bitField;\n        } else {\n            bitField = null;\n        }\n\n        if (isResolved) {\n            if (bitField !== null) {\n                maybePromise.suppressUnhandledRejections();\n            }\n        } else if (bitField !== null) {\n            if (((bitField & 50397184) === 0)) {\n                maybePromise._proxy(this, i);\n                this._values[i] = maybePromise;\n            } else if (((bitField & 33554432) !== 0)) {\n                isResolved = this._promiseFulfilled(maybePromise._value(), i);\n            } else if (((bitField & 16777216) !== 0)) {\n                isResolved = this._promiseRejected(maybePromise._reason(), i);\n            } else {\n                isResolved = this._promiseCancelled(i);\n            }\n        } else {\n            isResolved = this._promiseFulfilled(maybePromise, i);\n        }\n    }\n    if (!isResolved) result._setAsyncGuaranteed();\n};\n\nPromiseArray.prototype._isResolved = function () {\n    return this._values === null;\n};\n\nPromiseArray.prototype._resolve = function (value) {\n    this._values = null;\n    this._promise._fulfill(value);\n};\n\nPromiseArray.prototype._cancel = function() {\n    if (this._isResolved() || !this._promise._isCancellable()) return;\n    this._values = null;\n    this._promise._cancel();\n};\n\nPromiseArray.prototype._reject = function (reason) {\n    this._values = null;\n    this._promise._rejectCallback(reason, false);\n};\n\nPromiseArray.prototype._promiseFulfilled = function (value, index) {\n    this._values[index] = value;\n    var totalResolved = ++this._totalResolved;\n    if (totalResolved >= this._length) {\n        this._resolve(this._values);\n        return true;\n    }\n    return false;\n};\n\nPromiseArray.prototype._promiseCancelled = function() {\n    this._cancel();\n    return true;\n};\n\nPromiseArray.prototype._promiseRejected = function (reason) {\n    this._totalResolved++;\n    this._reject(reason);\n    return true;\n};\n\nPromiseArray.prototype._resultCancelled = function() {\n    if (this._isResolved()) return;\n    var values = this._values;\n    this._cancel();\n    if (values instanceof Promise) {\n        values.cancel();\n    } else {\n        for (var i = 0; i < values.length; ++i) {\n            if (values[i] instanceof Promise) {\n                values[i].cancel();\n            }\n        }\n    }\n};\n\nPromiseArray.prototype.shouldCopyValues = function () {\n    return true;\n};\n\nPromiseArray.prototype.getActualLength = function (len) {\n    return len;\n};\n\nreturn PromiseArray;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/promise_array.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/promisify.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/bluebird/js/release/promisify.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL) {\nvar THIS = {};\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar nodebackForPromise = __webpack_require__(/*! ./nodeback */ \"./node_modules/bluebird/js/release/nodeback.js\");\nvar withAppended = util.withAppended;\nvar maybeWrapAsError = util.maybeWrapAsError;\nvar canEvaluate = util.canEvaluate;\nvar TypeError = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\").TypeError;\nvar defaultSuffix = \"Async\";\nvar defaultPromisified = {__isPromisified__: true};\nvar noCopyProps = [\n    \"arity\",    \"length\",\n    \"name\",\n    \"arguments\",\n    \"caller\",\n    \"callee\",\n    \"prototype\",\n    \"__isPromisified__\"\n];\nvar noCopyPropsPattern = new RegExp(\"^(?:\" + noCopyProps.join(\"|\") + \")$\");\n\nvar defaultFilter = function(name) {\n    return util.isIdentifier(name) &&\n        name.charAt(0) !== \"_\" &&\n        name !== \"constructor\";\n};\n\nfunction propsFilter(key) {\n    return !noCopyPropsPattern.test(key);\n}\n\nfunction isPromisified(fn) {\n    try {\n        return fn.__isPromisified__ === true;\n    }\n    catch (e) {\n        return false;\n    }\n}\n\nfunction hasPromisified(obj, key, suffix) {\n    var val = util.getDataPropertyOrDefault(obj, key + suffix,\n                                            defaultPromisified);\n    return val ? isPromisified(val) : false;\n}\nfunction checkValid(ret, suffix, suffixRegexp) {\n    for (var i = 0; i < ret.length; i += 2) {\n        var key = ret[i];\n        if (suffixRegexp.test(key)) {\n            var keyWithoutAsyncSuffix = key.replace(suffixRegexp, \"\");\n            for (var j = 0; j < ret.length; j += 2) {\n                if (ret[j] === keyWithoutAsyncSuffix) {\n                    throw new TypeError(\"Cannot promisify an API that has normal methods with '%s'-suffix\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\"\n                        .replace(\"%s\", suffix));\n                }\n            }\n        }\n    }\n}\n\nfunction promisifiableMethods(obj, suffix, suffixRegexp, filter) {\n    var keys = util.inheritedDataKeys(obj);\n    var ret = [];\n    for (var i = 0; i < keys.length; ++i) {\n        var key = keys[i];\n        var value = obj[key];\n        var passesDefaultFilter = filter === defaultFilter\n            ? true : defaultFilter(key, value, obj);\n        if (typeof value === \"function\" &&\n            !isPromisified(value) &&\n            !hasPromisified(obj, key, suffix) &&\n            filter(key, value, obj, passesDefaultFilter)) {\n            ret.push(key, value);\n        }\n    }\n    checkValid(ret, suffix, suffixRegexp);\n    return ret;\n}\n\nvar escapeIdentRegex = function(str) {\n    return str.replace(/([$])/, \"\\\\$\");\n};\n\nvar makeNodePromisifiedEval;\nif (true) {\nvar switchCaseArgumentOrder = function(likelyArgumentCount) {\n    var ret = [likelyArgumentCount];\n    var min = Math.max(0, likelyArgumentCount - 1 - 3);\n    for(var i = likelyArgumentCount - 1; i >= min; --i) {\n        ret.push(i);\n    }\n    for(var i = likelyArgumentCount + 1; i <= 3; ++i) {\n        ret.push(i);\n    }\n    return ret;\n};\n\nvar argumentSequence = function(argumentCount) {\n    return util.filledRange(argumentCount, \"_arg\", \"\");\n};\n\nvar parameterDeclaration = function(parameterCount) {\n    return util.filledRange(\n        Math.max(parameterCount, 3), \"_arg\", \"\");\n};\n\nvar parameterCount = function(fn) {\n    if (typeof fn.length === \"number\") {\n        return Math.max(Math.min(fn.length, 1023 + 1), 0);\n    }\n    return 0;\n};\n\nmakeNodePromisifiedEval =\nfunction(callback, receiver, originalName, fn, _, multiArgs) {\n    var newParameterCount = Math.max(0, parameterCount(fn) - 1);\n    var argumentOrder = switchCaseArgumentOrder(newParameterCount);\n    var shouldProxyThis = typeof callback === \"string\" || receiver === THIS;\n\n    function generateCallForArgumentCount(count) {\n        var args = argumentSequence(count).join(\", \");\n        var comma = count > 0 ? \", \" : \"\";\n        var ret;\n        if (shouldProxyThis) {\n            ret = \"ret = callback.call(this, {{args}}, nodeback); break;\\n\";\n        } else {\n            ret = receiver === undefined\n                ? \"ret = callback({{args}}, nodeback); break;\\n\"\n                : \"ret = callback.call(receiver, {{args}}, nodeback); break;\\n\";\n        }\n        return ret.replace(\"{{args}}\", args).replace(\", \", comma);\n    }\n\n    function generateArgumentSwitchCase() {\n        var ret = \"\";\n        for (var i = 0; i < argumentOrder.length; ++i) {\n            ret += \"case \" + argumentOrder[i] +\":\" +\n                generateCallForArgumentCount(argumentOrder[i]);\n        }\n\n        ret += \"                                                             \\n\\\n        default:                                                             \\n\\\n            var args = new Array(len + 1);                                   \\n\\\n            var i = 0;                                                       \\n\\\n            for (var i = 0; i < len; ++i) {                                  \\n\\\n               args[i] = arguments[i];                                       \\n\\\n            }                                                                \\n\\\n            args[i] = nodeback;                                              \\n\\\n            [CodeForCall]                                                    \\n\\\n            break;                                                           \\n\\\n        \".replace(\"[CodeForCall]\", (shouldProxyThis\n                                ? \"ret = callback.apply(this, args);\\n\"\n                                : \"ret = callback.apply(receiver, args);\\n\"));\n        return ret;\n    }\n\n    var getFunctionCode = typeof callback === \"string\"\n                                ? (\"this != null ? this['\"+callback+\"'] : fn\")\n                                : \"fn\";\n    var body = \"'use strict';                                                \\n\\\n        var ret = function (Parameters) {                                    \\n\\\n            'use strict';                                                    \\n\\\n            var len = arguments.length;                                      \\n\\\n            var promise = new Promise(INTERNAL);                             \\n\\\n            promise._captureStackTrace();                                    \\n\\\n            var nodeback = nodebackForPromise(promise, \" + multiArgs + \");   \\n\\\n            var ret;                                                         \\n\\\n            var callback = tryCatch([GetFunctionCode]);                      \\n\\\n            switch(len) {                                                    \\n\\\n                [CodeForSwitchCase]                                          \\n\\\n            }                                                                \\n\\\n            if (ret === errorObj) {                                          \\n\\\n                promise._rejectCallback(maybeWrapAsError(ret.e), true, true);\\n\\\n            }                                                                \\n\\\n            if (!promise._isFateSealed()) promise._setAsyncGuaranteed();     \\n\\\n            return promise;                                                  \\n\\\n        };                                                                   \\n\\\n        notEnumerableProp(ret, '__isPromisified__', true);                   \\n\\\n        return ret;                                                          \\n\\\n    \".replace(\"[CodeForSwitchCase]\", generateArgumentSwitchCase())\n        .replace(\"[GetFunctionCode]\", getFunctionCode);\n    body = body.replace(\"Parameters\", parameterDeclaration(newParameterCount));\n    return new Function(\"Promise\",\n                        \"fn\",\n                        \"receiver\",\n                        \"withAppended\",\n                        \"maybeWrapAsError\",\n                        \"nodebackForPromise\",\n                        \"tryCatch\",\n                        \"errorObj\",\n                        \"notEnumerableProp\",\n                        \"INTERNAL\",\n                        body)(\n                    Promise,\n                    fn,\n                    receiver,\n                    withAppended,\n                    maybeWrapAsError,\n                    nodebackForPromise,\n                    util.tryCatch,\n                    util.errorObj,\n                    util.notEnumerableProp,\n                    INTERNAL);\n};\n}\n\nfunction makeNodePromisifiedClosure(callback, receiver, _, fn, __, multiArgs) {\n    var defaultThis = (function() {return this;})();\n    var method = callback;\n    if (typeof method === \"string\") {\n        callback = fn;\n    }\n    function promisified() {\n        var _receiver = receiver;\n        if (receiver === THIS) _receiver = this;\n        var promise = new Promise(INTERNAL);\n        promise._captureStackTrace();\n        var cb = typeof method === \"string\" && this !== defaultThis\n            ? this[method] : callback;\n        var fn = nodebackForPromise(promise, multiArgs);\n        try {\n            cb.apply(_receiver, withAppended(arguments, fn));\n        } catch(e) {\n            promise._rejectCallback(maybeWrapAsError(e), true, true);\n        }\n        if (!promise._isFateSealed()) promise._setAsyncGuaranteed();\n        return promise;\n    }\n    util.notEnumerableProp(promisified, \"__isPromisified__\", true);\n    return promisified;\n}\n\nvar makeNodePromisified = canEvaluate\n    ? makeNodePromisifiedEval\n    : makeNodePromisifiedClosure;\n\nfunction promisifyAll(obj, suffix, filter, promisifier, multiArgs) {\n    var suffixRegexp = new RegExp(escapeIdentRegex(suffix) + \"$\");\n    var methods =\n        promisifiableMethods(obj, suffix, suffixRegexp, filter);\n\n    for (var i = 0, len = methods.length; i < len; i+= 2) {\n        var key = methods[i];\n        var fn = methods[i+1];\n        var promisifiedKey = key + suffix;\n        if (promisifier === makeNodePromisified) {\n            obj[promisifiedKey] =\n                makeNodePromisified(key, THIS, key, fn, suffix, multiArgs);\n        } else {\n            var promisified = promisifier(fn, function() {\n                return makeNodePromisified(key, THIS, key,\n                                           fn, suffix, multiArgs);\n            });\n            util.notEnumerableProp(promisified, \"__isPromisified__\", true);\n            obj[promisifiedKey] = promisified;\n        }\n    }\n    util.toFastProperties(obj);\n    return obj;\n}\n\nfunction promisify(callback, receiver, multiArgs) {\n    return makeNodePromisified(callback, receiver, undefined,\n                                callback, null, multiArgs);\n}\n\nPromise.promisify = function (fn, options) {\n    if (typeof fn !== \"function\") {\n        throw new TypeError(\"expecting a function but got \" + util.classString(fn));\n    }\n    if (isPromisified(fn)) {\n        return fn;\n    }\n    options = Object(options);\n    var receiver = options.context === undefined ? THIS : options.context;\n    var multiArgs = !!options.multiArgs;\n    var ret = promisify(fn, receiver, multiArgs);\n    util.copyDescriptors(fn, ret, propsFilter);\n    return ret;\n};\n\nPromise.promisifyAll = function (target, options) {\n    if (typeof target !== \"function\" && typeof target !== \"object\") {\n        throw new TypeError(\"the target of promisifyAll must be an object or a function\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    options = Object(options);\n    var multiArgs = !!options.multiArgs;\n    var suffix = options.suffix;\n    if (typeof suffix !== \"string\") suffix = defaultSuffix;\n    var filter = options.filter;\n    if (typeof filter !== \"function\") filter = defaultFilter;\n    var promisifier = options.promisifier;\n    if (typeof promisifier !== \"function\") promisifier = makeNodePromisified;\n\n    if (!util.isIdentifier(suffix)) {\n        throw new RangeError(\"suffix must be a valid identifier\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n\n    var keys = util.inheritedDataKeys(target);\n    for (var i = 0; i < keys.length; ++i) {\n        var value = target[keys[i]];\n        if (keys[i] !== \"constructor\" &&\n            util.isClass(value)) {\n            promisifyAll(value.prototype, suffix, filter, promisifier,\n                multiArgs);\n            promisifyAll(value, suffix, filter, promisifier, multiArgs);\n        }\n    }\n\n    return promisifyAll(target, suffix, filter, promisifier, multiArgs);\n};\n};\n\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/promisify.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/props.js":
-/*!***************************************************!*\
-  !*** ./node_modules/bluebird/js/release/props.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(\n    Promise, PromiseArray, tryConvertToPromise, apiRejection) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar isObject = util.isObject;\nvar es5 = __webpack_require__(/*! ./es5 */ \"./node_modules/bluebird/js/release/es5.js\");\nvar Es6Map;\nif (typeof Map === \"function\") Es6Map = Map;\n\nvar mapToEntries = (function() {\n    var index = 0;\n    var size = 0;\n\n    function extractEntry(value, key) {\n        this[index] = value;\n        this[index + size] = key;\n        index++;\n    }\n\n    return function mapToEntries(map) {\n        size = map.size;\n        index = 0;\n        var ret = new Array(map.size * 2);\n        map.forEach(extractEntry, ret);\n        return ret;\n    };\n})();\n\nvar entriesToMap = function(entries) {\n    var ret = new Es6Map();\n    var length = entries.length / 2 | 0;\n    for (var i = 0; i < length; ++i) {\n        var key = entries[length + i];\n        var value = entries[i];\n        ret.set(key, value);\n    }\n    return ret;\n};\n\nfunction PropertiesPromiseArray(obj) {\n    var isMap = false;\n    var entries;\n    if (Es6Map !== undefined && obj instanceof Es6Map) {\n        entries = mapToEntries(obj);\n        isMap = true;\n    } else {\n        var keys = es5.keys(obj);\n        var len = keys.length;\n        entries = new Array(len * 2);\n        for (var i = 0; i < len; ++i) {\n            var key = keys[i];\n            entries[i] = obj[key];\n            entries[i + len] = key;\n        }\n    }\n    this.constructor$(entries);\n    this._isMap = isMap;\n    this._init$(undefined, isMap ? -6 : -3);\n}\nutil.inherits(PropertiesPromiseArray, PromiseArray);\n\nPropertiesPromiseArray.prototype._init = function () {};\n\nPropertiesPromiseArray.prototype._promiseFulfilled = function (value, index) {\n    this._values[index] = value;\n    var totalResolved = ++this._totalResolved;\n    if (totalResolved >= this._length) {\n        var val;\n        if (this._isMap) {\n            val = entriesToMap(this._values);\n        } else {\n            val = {};\n            var keyOffset = this.length();\n            for (var i = 0, len = this.length(); i < len; ++i) {\n                val[this._values[i + keyOffset]] = this._values[i];\n            }\n        }\n        this._resolve(val);\n        return true;\n    }\n    return false;\n};\n\nPropertiesPromiseArray.prototype.shouldCopyValues = function () {\n    return false;\n};\n\nPropertiesPromiseArray.prototype.getActualLength = function (len) {\n    return len >> 1;\n};\n\nfunction props(promises) {\n    var ret;\n    var castValue = tryConvertToPromise(promises);\n\n    if (!isObject(castValue)) {\n        return apiRejection(\"cannot await properties of a non-object\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    } else if (castValue instanceof Promise) {\n        ret = castValue._then(\n            Promise.props, undefined, undefined, undefined, undefined);\n    } else {\n        ret = new PropertiesPromiseArray(castValue).promise();\n    }\n\n    if (castValue instanceof Promise) {\n        ret._propagateFrom(castValue, 2);\n    }\n    return ret;\n}\n\nPromise.prototype.props = function () {\n    return props(this);\n};\n\nPromise.props = function (promises) {\n    return props(promises);\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/props.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/queue.js":
-/*!***************************************************!*\
-  !*** ./node_modules/bluebird/js/release/queue.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nfunction arrayMove(src, srcIndex, dst, dstIndex, len) {\n    for (var j = 0; j < len; ++j) {\n        dst[j + dstIndex] = src[j + srcIndex];\n        src[j + srcIndex] = void 0;\n    }\n}\n\nfunction Queue(capacity) {\n    this._capacity = capacity;\n    this._length = 0;\n    this._front = 0;\n}\n\nQueue.prototype._willBeOverCapacity = function (size) {\n    return this._capacity < size;\n};\n\nQueue.prototype._pushOne = function (arg) {\n    var length = this.length();\n    this._checkCapacity(length + 1);\n    var i = (this._front + length) & (this._capacity - 1);\n    this[i] = arg;\n    this._length = length + 1;\n};\n\nQueue.prototype.push = function (fn, receiver, arg) {\n    var length = this.length() + 3;\n    if (this._willBeOverCapacity(length)) {\n        this._pushOne(fn);\n        this._pushOne(receiver);\n        this._pushOne(arg);\n        return;\n    }\n    var j = this._front + length - 3;\n    this._checkCapacity(length);\n    var wrapMask = this._capacity - 1;\n    this[(j + 0) & wrapMask] = fn;\n    this[(j + 1) & wrapMask] = receiver;\n    this[(j + 2) & wrapMask] = arg;\n    this._length = length;\n};\n\nQueue.prototype.shift = function () {\n    var front = this._front,\n        ret = this[front];\n\n    this[front] = undefined;\n    this._front = (front + 1) & (this._capacity - 1);\n    this._length--;\n    return ret;\n};\n\nQueue.prototype.length = function () {\n    return this._length;\n};\n\nQueue.prototype._checkCapacity = function (size) {\n    if (this._capacity < size) {\n        this._resizeTo(this._capacity << 1);\n    }\n};\n\nQueue.prototype._resizeTo = function (capacity) {\n    var oldCapacity = this._capacity;\n    this._capacity = capacity;\n    var front = this._front;\n    var length = this._length;\n    var moveItemsCount = (front + length) & (oldCapacity - 1);\n    arrayMove(this, 0, this, oldCapacity, moveItemsCount);\n};\n\nmodule.exports = Queue;\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/queue.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/race.js":
-/*!**************************************************!*\
-  !*** ./node_modules/bluebird/js/release/race.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(\n    Promise, INTERNAL, tryConvertToPromise, apiRejection) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\n\nvar raceLater = function (promise) {\n    return promise.then(function(array) {\n        return race(array, promise);\n    });\n};\n\nfunction race(promises, parent) {\n    var maybePromise = tryConvertToPromise(promises);\n\n    if (maybePromise instanceof Promise) {\n        return raceLater(maybePromise);\n    } else {\n        promises = util.asArray(promises);\n        if (promises === null)\n            return apiRejection(\"expecting an array or an iterable object but got \" + util.classString(promises));\n    }\n\n    var ret = new Promise(INTERNAL);\n    if (parent !== undefined) {\n        ret._propagateFrom(parent, 3);\n    }\n    var fulfill = ret._fulfill;\n    var reject = ret._reject;\n    for (var i = 0, len = promises.length; i < len; ++i) {\n        var val = promises[i];\n\n        if (val === undefined && !(i in promises)) {\n            continue;\n        }\n\n        Promise.cast(val)._then(fulfill, reject, undefined, ret, null);\n    }\n    return ret;\n}\n\nPromise.race = function (promises) {\n    return race(promises, undefined);\n};\n\nPromise.prototype.race = function () {\n    return race(this, undefined);\n};\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/race.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/reduce.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/reduce.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise,\n                          PromiseArray,\n                          apiRejection,\n                          tryConvertToPromise,\n                          INTERNAL,\n                          debug) {\nvar getDomain = Promise._getDomain;\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar tryCatch = util.tryCatch;\n\nfunction ReductionPromiseArray(promises, fn, initialValue, _each) {\n    this.constructor$(promises);\n    var domain = getDomain();\n    this._fn = domain === null ? fn : util.domainBind(domain, fn);\n    if (initialValue !== undefined) {\n        initialValue = Promise.resolve(initialValue);\n        initialValue._attachCancellationCallback(this);\n    }\n    this._initialValue = initialValue;\n    this._currentCancellable = null;\n    if(_each === INTERNAL) {\n        this._eachValues = Array(this._length);\n    } else if (_each === 0) {\n        this._eachValues = null;\n    } else {\n        this._eachValues = undefined;\n    }\n    this._promise._captureStackTrace();\n    this._init$(undefined, -5);\n}\nutil.inherits(ReductionPromiseArray, PromiseArray);\n\nReductionPromiseArray.prototype._gotAccum = function(accum) {\n    if (this._eachValues !== undefined && \n        this._eachValues !== null && \n        accum !== INTERNAL) {\n        this._eachValues.push(accum);\n    }\n};\n\nReductionPromiseArray.prototype._eachComplete = function(value) {\n    if (this._eachValues !== null) {\n        this._eachValues.push(value);\n    }\n    return this._eachValues;\n};\n\nReductionPromiseArray.prototype._init = function() {};\n\nReductionPromiseArray.prototype._resolveEmptyArray = function() {\n    this._resolve(this._eachValues !== undefined ? this._eachValues\n                                                 : this._initialValue);\n};\n\nReductionPromiseArray.prototype.shouldCopyValues = function () {\n    return false;\n};\n\nReductionPromiseArray.prototype._resolve = function(value) {\n    this._promise._resolveCallback(value);\n    this._values = null;\n};\n\nReductionPromiseArray.prototype._resultCancelled = function(sender) {\n    if (sender === this._initialValue) return this._cancel();\n    if (this._isResolved()) return;\n    this._resultCancelled$();\n    if (this._currentCancellable instanceof Promise) {\n        this._currentCancellable.cancel();\n    }\n    if (this._initialValue instanceof Promise) {\n        this._initialValue.cancel();\n    }\n};\n\nReductionPromiseArray.prototype._iterate = function (values) {\n    this._values = values;\n    var value;\n    var i;\n    var length = values.length;\n    if (this._initialValue !== undefined) {\n        value = this._initialValue;\n        i = 0;\n    } else {\n        value = Promise.resolve(values[0]);\n        i = 1;\n    }\n\n    this._currentCancellable = value;\n\n    if (!value.isRejected()) {\n        for (; i < length; ++i) {\n            var ctx = {\n                accum: null,\n                value: values[i],\n                index: i,\n                length: length,\n                array: this\n            };\n            value = value._then(gotAccum, undefined, undefined, ctx, undefined);\n        }\n    }\n\n    if (this._eachValues !== undefined) {\n        value = value\n            ._then(this._eachComplete, undefined, undefined, this, undefined);\n    }\n    value._then(completed, completed, undefined, value, this);\n};\n\nPromise.prototype.reduce = function (fn, initialValue) {\n    return reduce(this, fn, initialValue, null);\n};\n\nPromise.reduce = function (promises, fn, initialValue, _each) {\n    return reduce(promises, fn, initialValue, _each);\n};\n\nfunction completed(valueOrReason, array) {\n    if (this.isFulfilled()) {\n        array._resolve(valueOrReason);\n    } else {\n        array._reject(valueOrReason);\n    }\n}\n\nfunction reduce(promises, fn, initialValue, _each) {\n    if (typeof fn !== \"function\") {\n        return apiRejection(\"expecting a function but got \" + util.classString(fn));\n    }\n    var array = new ReductionPromiseArray(promises, fn, initialValue, _each);\n    return array.promise();\n}\n\nfunction gotAccum(accum) {\n    this.accum = accum;\n    this.array._gotAccum(accum);\n    var value = tryConvertToPromise(this.value, this.array._promise);\n    if (value instanceof Promise) {\n        this.array._currentCancellable = value;\n        return value._then(gotValue, undefined, undefined, this, undefined);\n    } else {\n        return gotValue.call(this, value);\n    }\n}\n\nfunction gotValue(value) {\n    var array = this.array;\n    var promise = array._promise;\n    var fn = tryCatch(array._fn);\n    promise._pushContext();\n    var ret;\n    if (array._eachValues !== undefined) {\n        ret = fn.call(promise._boundValue(), value, this.index, this.length);\n    } else {\n        ret = fn.call(promise._boundValue(),\n                              this.accum, value, this.index, this.length);\n    }\n    if (ret instanceof Promise) {\n        array._currentCancellable = ret;\n    }\n    var promiseCreated = promise._popContext();\n    debug.checkForgottenReturns(\n        ret,\n        promiseCreated,\n        array._eachValues !== undefined ? \"Promise.each\" : \"Promise.reduce\",\n        promise\n    );\n    return ret;\n}\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/reduce.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/schedule.js":
-/*!******************************************************!*\
-  !*** ./node_modules/bluebird/js/release/schedule.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar schedule;\nvar noAsyncScheduler = function() {\n    throw new Error(\"No async scheduler available\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n};\nvar NativePromise = util.getNativePromise();\nif (util.isNode && typeof MutationObserver === \"undefined\") {\n    var GlobalSetImmediate = global.setImmediate;\n    var ProcessNextTick = process.nextTick;\n    schedule = util.isRecentNode\n                ? function(fn) { GlobalSetImmediate.call(global, fn); }\n                : function(fn) { ProcessNextTick.call(process, fn); };\n} else if (typeof NativePromise === \"function\" &&\n           typeof NativePromise.resolve === \"function\") {\n    var nativePromise = NativePromise.resolve();\n    schedule = function(fn) {\n        nativePromise.then(fn);\n    };\n} else if ((typeof MutationObserver !== \"undefined\") &&\n          !(typeof window !== \"undefined\" &&\n            window.navigator &&\n            (window.navigator.standalone || window.cordova))) {\n    schedule = (function() {\n        var div = document.createElement(\"div\");\n        var opts = {attributes: true};\n        var toggleScheduled = false;\n        var div2 = document.createElement(\"div\");\n        var o2 = new MutationObserver(function() {\n            div.classList.toggle(\"foo\");\n            toggleScheduled = false;\n        });\n        o2.observe(div2, opts);\n\n        var scheduleToggle = function() {\n            if (toggleScheduled) return;\n            toggleScheduled = true;\n            div2.classList.toggle(\"foo\");\n        };\n\n        return function schedule(fn) {\n            var o = new MutationObserver(function() {\n                o.disconnect();\n                fn();\n            });\n            o.observe(div, opts);\n            scheduleToggle();\n        };\n    })();\n} else if (typeof setImmediate !== \"undefined\") {\n    schedule = function (fn) {\n        setImmediate(fn);\n    };\n} else if (typeof setTimeout !== \"undefined\") {\n    schedule = function (fn) {\n        setTimeout(fn, 0);\n    };\n} else {\n    schedule = noAsyncScheduler;\n}\nmodule.exports = schedule;\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/schedule.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/settle.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/settle.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports =\n    function(Promise, PromiseArray, debug) {\nvar PromiseInspection = Promise.PromiseInspection;\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\n\nfunction SettledPromiseArray(values) {\n    this.constructor$(values);\n}\nutil.inherits(SettledPromiseArray, PromiseArray);\n\nSettledPromiseArray.prototype._promiseResolved = function (index, inspection) {\n    this._values[index] = inspection;\n    var totalResolved = ++this._totalResolved;\n    if (totalResolved >= this._length) {\n        this._resolve(this._values);\n        return true;\n    }\n    return false;\n};\n\nSettledPromiseArray.prototype._promiseFulfilled = function (value, index) {\n    var ret = new PromiseInspection();\n    ret._bitField = 33554432;\n    ret._settledValueField = value;\n    return this._promiseResolved(index, ret);\n};\nSettledPromiseArray.prototype._promiseRejected = function (reason, index) {\n    var ret = new PromiseInspection();\n    ret._bitField = 16777216;\n    ret._settledValueField = reason;\n    return this._promiseResolved(index, ret);\n};\n\nPromise.settle = function (promises) {\n    debug.deprecated(\".settle()\", \".reflect()\");\n    return new SettledPromiseArray(promises).promise();\n};\n\nPromise.prototype.settle = function () {\n    return Promise.settle(this);\n};\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/settle.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/some.js":
-/*!**************************************************!*\
-  !*** ./node_modules/bluebird/js/release/some.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports =\nfunction(Promise, PromiseArray, apiRejection) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar RangeError = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\").RangeError;\nvar AggregateError = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\").AggregateError;\nvar isArray = util.isArray;\nvar CANCELLATION = {};\n\n\nfunction SomePromiseArray(values) {\n    this.constructor$(values);\n    this._howMany = 0;\n    this._unwrap = false;\n    this._initialized = false;\n}\nutil.inherits(SomePromiseArray, PromiseArray);\n\nSomePromiseArray.prototype._init = function () {\n    if (!this._initialized) {\n        return;\n    }\n    if (this._howMany === 0) {\n        this._resolve([]);\n        return;\n    }\n    this._init$(undefined, -5);\n    var isArrayResolved = isArray(this._values);\n    if (!this._isResolved() &&\n        isArrayResolved &&\n        this._howMany > this._canPossiblyFulfill()) {\n        this._reject(this._getRangeError(this.length()));\n    }\n};\n\nSomePromiseArray.prototype.init = function () {\n    this._initialized = true;\n    this._init();\n};\n\nSomePromiseArray.prototype.setUnwrap = function () {\n    this._unwrap = true;\n};\n\nSomePromiseArray.prototype.howMany = function () {\n    return this._howMany;\n};\n\nSomePromiseArray.prototype.setHowMany = function (count) {\n    this._howMany = count;\n};\n\nSomePromiseArray.prototype._promiseFulfilled = function (value) {\n    this._addFulfilled(value);\n    if (this._fulfilled() === this.howMany()) {\n        this._values.length = this.howMany();\n        if (this.howMany() === 1 && this._unwrap) {\n            this._resolve(this._values[0]);\n        } else {\n            this._resolve(this._values);\n        }\n        return true;\n    }\n    return false;\n\n};\nSomePromiseArray.prototype._promiseRejected = function (reason) {\n    this._addRejected(reason);\n    return this._checkOutcome();\n};\n\nSomePromiseArray.prototype._promiseCancelled = function () {\n    if (this._values instanceof Promise || this._values == null) {\n        return this._cancel();\n    }\n    this._addRejected(CANCELLATION);\n    return this._checkOutcome();\n};\n\nSomePromiseArray.prototype._checkOutcome = function() {\n    if (this.howMany() > this._canPossiblyFulfill()) {\n        var e = new AggregateError();\n        for (var i = this.length(); i < this._values.length; ++i) {\n            if (this._values[i] !== CANCELLATION) {\n                e.push(this._values[i]);\n            }\n        }\n        if (e.length > 0) {\n            this._reject(e);\n        } else {\n            this._cancel();\n        }\n        return true;\n    }\n    return false;\n};\n\nSomePromiseArray.prototype._fulfilled = function () {\n    return this._totalResolved;\n};\n\nSomePromiseArray.prototype._rejected = function () {\n    return this._values.length - this.length();\n};\n\nSomePromiseArray.prototype._addRejected = function (reason) {\n    this._values.push(reason);\n};\n\nSomePromiseArray.prototype._addFulfilled = function (value) {\n    this._values[this._totalResolved++] = value;\n};\n\nSomePromiseArray.prototype._canPossiblyFulfill = function () {\n    return this.length() - this._rejected();\n};\n\nSomePromiseArray.prototype._getRangeError = function (count) {\n    var message = \"Input array must contain at least \" +\n            this._howMany + \" items but contains only \" + count + \" items\";\n    return new RangeError(message);\n};\n\nSomePromiseArray.prototype._resolveEmptyArray = function () {\n    this._reject(this._getRangeError(0));\n};\n\nfunction some(promises, howMany) {\n    if ((howMany | 0) !== howMany || howMany < 0) {\n        return apiRejection(\"expecting a positive integer\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    var ret = new SomePromiseArray(promises);\n    var promise = ret.promise();\n    ret.setHowMany(howMany);\n    ret.init();\n    return promise;\n}\n\nPromise.some = function (promises, howMany) {\n    return some(promises, howMany);\n};\n\nPromise.prototype.some = function (howMany) {\n    return some(this, howMany);\n};\n\nPromise._SomePromiseArray = SomePromiseArray;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/some.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/synchronous_inspection.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/bluebird/js/release/synchronous_inspection.js ***!
-  \********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise) {\nfunction PromiseInspection(promise) {\n    if (promise !== undefined) {\n        promise = promise._target();\n        this._bitField = promise._bitField;\n        this._settledValueField = promise._isFateSealed()\n            ? promise._settledValue() : undefined;\n    }\n    else {\n        this._bitField = 0;\n        this._settledValueField = undefined;\n    }\n}\n\nPromiseInspection.prototype._settledValue = function() {\n    return this._settledValueField;\n};\n\nvar value = PromiseInspection.prototype.value = function () {\n    if (!this.isFulfilled()) {\n        throw new TypeError(\"cannot get fulfillment value of a non-fulfilled promise\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    return this._settledValue();\n};\n\nvar reason = PromiseInspection.prototype.error =\nPromiseInspection.prototype.reason = function () {\n    if (!this.isRejected()) {\n        throw new TypeError(\"cannot get rejection reason of a non-rejected promise\\u000a\\u000a    See http://goo.gl/MqrFmX\\u000a\");\n    }\n    return this._settledValue();\n};\n\nvar isFulfilled = PromiseInspection.prototype.isFulfilled = function() {\n    return (this._bitField & 33554432) !== 0;\n};\n\nvar isRejected = PromiseInspection.prototype.isRejected = function () {\n    return (this._bitField & 16777216) !== 0;\n};\n\nvar isPending = PromiseInspection.prototype.isPending = function () {\n    return (this._bitField & 50397184) === 0;\n};\n\nvar isResolved = PromiseInspection.prototype.isResolved = function () {\n    return (this._bitField & 50331648) !== 0;\n};\n\nPromiseInspection.prototype.isCancelled = function() {\n    return (this._bitField & 8454144) !== 0;\n};\n\nPromise.prototype.__isCancelled = function() {\n    return (this._bitField & 65536) === 65536;\n};\n\nPromise.prototype._isCancelled = function() {\n    return this._target().__isCancelled();\n};\n\nPromise.prototype.isCancelled = function() {\n    return (this._target()._bitField & 8454144) !== 0;\n};\n\nPromise.prototype.isPending = function() {\n    return isPending.call(this._target());\n};\n\nPromise.prototype.isRejected = function() {\n    return isRejected.call(this._target());\n};\n\nPromise.prototype.isFulfilled = function() {\n    return isFulfilled.call(this._target());\n};\n\nPromise.prototype.isResolved = function() {\n    return isResolved.call(this._target());\n};\n\nPromise.prototype.value = function() {\n    return value.call(this._target());\n};\n\nPromise.prototype.reason = function() {\n    var target = this._target();\n    target._unsetRejectionIsUnhandled();\n    return reason.call(target);\n};\n\nPromise.prototype._value = function() {\n    return this._settledValue();\n};\n\nPromise.prototype._reason = function() {\n    this._unsetRejectionIsUnhandled();\n    return this._settledValue();\n};\n\nPromise.PromiseInspection = PromiseInspection;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/synchronous_inspection.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/thenables.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/bluebird/js/release/thenables.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar errorObj = util.errorObj;\nvar isObject = util.isObject;\n\nfunction tryConvertToPromise(obj, context) {\n    if (isObject(obj)) {\n        if (obj instanceof Promise) return obj;\n        var then = getThen(obj);\n        if (then === errorObj) {\n            if (context) context._pushContext();\n            var ret = Promise.reject(then.e);\n            if (context) context._popContext();\n            return ret;\n        } else if (typeof then === \"function\") {\n            if (isAnyBluebirdPromise(obj)) {\n                var ret = new Promise(INTERNAL);\n                obj._then(\n                    ret._fulfill,\n                    ret._reject,\n                    undefined,\n                    ret,\n                    null\n                );\n                return ret;\n            }\n            return doThenable(obj, then, context);\n        }\n    }\n    return obj;\n}\n\nfunction doGetThen(obj) {\n    return obj.then;\n}\n\nfunction getThen(obj) {\n    try {\n        return doGetThen(obj);\n    } catch (e) {\n        errorObj.e = e;\n        return errorObj;\n    }\n}\n\nvar hasProp = {}.hasOwnProperty;\nfunction isAnyBluebirdPromise(obj) {\n    try {\n        return hasProp.call(obj, \"_promise0\");\n    } catch (e) {\n        return false;\n    }\n}\n\nfunction doThenable(x, then, context) {\n    var promise = new Promise(INTERNAL);\n    var ret = promise;\n    if (context) context._pushContext();\n    promise._captureStackTrace();\n    if (context) context._popContext();\n    var synchronous = true;\n    var result = util.tryCatch(then).call(x, resolve, reject);\n    synchronous = false;\n\n    if (promise && result === errorObj) {\n        promise._rejectCallback(result.e, true, true);\n        promise = null;\n    }\n\n    function resolve(value) {\n        if (!promise) return;\n        promise._resolveCallback(value);\n        promise = null;\n    }\n\n    function reject(reason) {\n        if (!promise) return;\n        promise._rejectCallback(reason, synchronous, true);\n        promise = null;\n    }\n    return ret;\n}\n\nreturn tryConvertToPromise;\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/thenables.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/timers.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bluebird/js/release/timers.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function(Promise, INTERNAL, debug) {\nvar util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\nvar TimeoutError = Promise.TimeoutError;\n\nfunction HandleWrapper(handle)  {\n    this.handle = handle;\n}\n\nHandleWrapper.prototype._resultCancelled = function() {\n    clearTimeout(this.handle);\n};\n\nvar afterValue = function(value) { return delay(+this).thenReturn(value); };\nvar delay = Promise.delay = function (ms, value) {\n    var ret;\n    var handle;\n    if (value !== undefined) {\n        ret = Promise.resolve(value)\n                ._then(afterValue, null, null, ms, undefined);\n        if (debug.cancellation() && value instanceof Promise) {\n            ret._setOnCancel(value);\n        }\n    } else {\n        ret = new Promise(INTERNAL);\n        handle = setTimeout(function() { ret._fulfill(); }, +ms);\n        if (debug.cancellation()) {\n            ret._setOnCancel(new HandleWrapper(handle));\n        }\n        ret._captureStackTrace();\n    }\n    ret._setAsyncGuaranteed();\n    return ret;\n};\n\nPromise.prototype.delay = function (ms) {\n    return delay(ms, this);\n};\n\nvar afterTimeout = function (promise, message, parent) {\n    var err;\n    if (typeof message !== \"string\") {\n        if (message instanceof Error) {\n            err = message;\n        } else {\n            err = new TimeoutError(\"operation timed out\");\n        }\n    } else {\n        err = new TimeoutError(message);\n    }\n    util.markAsOriginatingFromRejection(err);\n    promise._attachExtraTrace(err);\n    promise._reject(err);\n\n    if (parent != null) {\n        parent.cancel();\n    }\n};\n\nfunction successClear(value) {\n    clearTimeout(this.handle);\n    return value;\n}\n\nfunction failureClear(reason) {\n    clearTimeout(this.handle);\n    throw reason;\n}\n\nPromise.prototype.timeout = function (ms, message) {\n    ms = +ms;\n    var ret, parent;\n\n    var handleWrapper = new HandleWrapper(setTimeout(function timeoutTimeout() {\n        if (ret.isPending()) {\n            afterTimeout(ret, message, parent);\n        }\n    }, ms));\n\n    if (debug.cancellation()) {\n        parent = this.then();\n        ret = parent._then(successClear, failureClear,\n                            undefined, handleWrapper, undefined);\n        ret._setOnCancel(handleWrapper);\n    } else {\n        ret = this._then(successClear, failureClear,\n                            undefined, handleWrapper, undefined);\n    }\n\n    return ret;\n};\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/timers.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/using.js":
-/*!***************************************************!*\
-  !*** ./node_modules/bluebird/js/release/using.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nmodule.exports = function (Promise, apiRejection, tryConvertToPromise,\n    createContext, INTERNAL, debug) {\n    var util = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\");\n    var TypeError = __webpack_require__(/*! ./errors */ \"./node_modules/bluebird/js/release/errors.js\").TypeError;\n    var inherits = __webpack_require__(/*! ./util */ \"./node_modules/bluebird/js/release/util.js\").inherits;\n    var errorObj = util.errorObj;\n    var tryCatch = util.tryCatch;\n    var NULL = {};\n\n    function thrower(e) {\n        setTimeout(function(){throw e;}, 0);\n    }\n\n    function castPreservingDisposable(thenable) {\n        var maybePromise = tryConvertToPromise(thenable);\n        if (maybePromise !== thenable &&\n            typeof thenable._isDisposable === \"function\" &&\n            typeof thenable._getDisposer === \"function\" &&\n            thenable._isDisposable()) {\n            maybePromise._setDisposable(thenable._getDisposer());\n        }\n        return maybePromise;\n    }\n    function dispose(resources, inspection) {\n        var i = 0;\n        var len = resources.length;\n        var ret = new Promise(INTERNAL);\n        function iterator() {\n            if (i >= len) return ret._fulfill();\n            var maybePromise = castPreservingDisposable(resources[i++]);\n            if (maybePromise instanceof Promise &&\n                maybePromise._isDisposable()) {\n                try {\n                    maybePromise = tryConvertToPromise(\n                        maybePromise._getDisposer().tryDispose(inspection),\n                        resources.promise);\n                } catch (e) {\n                    return thrower(e);\n                }\n                if (maybePromise instanceof Promise) {\n                    return maybePromise._then(iterator, thrower,\n                                              null, null, null);\n                }\n            }\n            iterator();\n        }\n        iterator();\n        return ret;\n    }\n\n    function Disposer(data, promise, context) {\n        this._data = data;\n        this._promise = promise;\n        this._context = context;\n    }\n\n    Disposer.prototype.data = function () {\n        return this._data;\n    };\n\n    Disposer.prototype.promise = function () {\n        return this._promise;\n    };\n\n    Disposer.prototype.resource = function () {\n        if (this.promise().isFulfilled()) {\n            return this.promise().value();\n        }\n        return NULL;\n    };\n\n    Disposer.prototype.tryDispose = function(inspection) {\n        var resource = this.resource();\n        var context = this._context;\n        if (context !== undefined) context._pushContext();\n        var ret = resource !== NULL\n            ? this.doDispose(resource, inspection) : null;\n        if (context !== undefined) context._popContext();\n        this._promise._unsetDisposable();\n        this._data = null;\n        return ret;\n    };\n\n    Disposer.isDisposer = function (d) {\n        return (d != null &&\n                typeof d.resource === \"function\" &&\n                typeof d.tryDispose === \"function\");\n    };\n\n    function FunctionDisposer(fn, promise, context) {\n        this.constructor$(fn, promise, context);\n    }\n    inherits(FunctionDisposer, Disposer);\n\n    FunctionDisposer.prototype.doDispose = function (resource, inspection) {\n        var fn = this.data();\n        return fn.call(resource, resource, inspection);\n    };\n\n    function maybeUnwrapDisposer(value) {\n        if (Disposer.isDisposer(value)) {\n            this.resources[this.index]._setDisposable(value);\n            return value.promise();\n        }\n        return value;\n    }\n\n    function ResourceList(length) {\n        this.length = length;\n        this.promise = null;\n        this[length-1] = null;\n    }\n\n    ResourceList.prototype._resultCancelled = function() {\n        var len = this.length;\n        for (var i = 0; i < len; ++i) {\n            var item = this[i];\n            if (item instanceof Promise) {\n                item.cancel();\n            }\n        }\n    };\n\n    Promise.using = function () {\n        var len = arguments.length;\n        if (len < 2) return apiRejection(\n                        \"you must pass at least 2 arguments to Promise.using\");\n        var fn = arguments[len - 1];\n        if (typeof fn !== \"function\") {\n            return apiRejection(\"expecting a function but got \" + util.classString(fn));\n        }\n        var input;\n        var spreadArgs = true;\n        if (len === 2 && Array.isArray(arguments[0])) {\n            input = arguments[0];\n            len = input.length;\n            spreadArgs = false;\n        } else {\n            input = arguments;\n            len--;\n        }\n        var resources = new ResourceList(len);\n        for (var i = 0; i < len; ++i) {\n            var resource = input[i];\n            if (Disposer.isDisposer(resource)) {\n                var disposer = resource;\n                resource = resource.promise();\n                resource._setDisposable(disposer);\n            } else {\n                var maybePromise = tryConvertToPromise(resource);\n                if (maybePromise instanceof Promise) {\n                    resource =\n                        maybePromise._then(maybeUnwrapDisposer, null, null, {\n                            resources: resources,\n                            index: i\n                    }, undefined);\n                }\n            }\n            resources[i] = resource;\n        }\n\n        var reflectedResources = new Array(resources.length);\n        for (var i = 0; i < reflectedResources.length; ++i) {\n            reflectedResources[i] = Promise.resolve(resources[i]).reflect();\n        }\n\n        var resultPromise = Promise.all(reflectedResources)\n            .then(function(inspections) {\n                for (var i = 0; i < inspections.length; ++i) {\n                    var inspection = inspections[i];\n                    if (inspection.isRejected()) {\n                        errorObj.e = inspection.error();\n                        return errorObj;\n                    } else if (!inspection.isFulfilled()) {\n                        resultPromise.cancel();\n                        return;\n                    }\n                    inspections[i] = inspection.value();\n                }\n                promise._pushContext();\n\n                fn = tryCatch(fn);\n                var ret = spreadArgs\n                    ? fn.apply(undefined, inspections) : fn(inspections);\n                var promiseCreated = promise._popContext();\n                debug.checkForgottenReturns(\n                    ret, promiseCreated, \"Promise.using\", promise);\n                return ret;\n            });\n\n        var promise = resultPromise.lastly(function() {\n            var inspection = new Promise.PromiseInspection(resultPromise);\n            return dispose(resources, inspection);\n        });\n        resources.promise = promise;\n        promise._setOnCancel(resources);\n        return promise;\n    };\n\n    Promise.prototype._setDisposable = function (disposer) {\n        this._bitField = this._bitField | 131072;\n        this._disposer = disposer;\n    };\n\n    Promise.prototype._isDisposable = function () {\n        return (this._bitField & 131072) > 0;\n    };\n\n    Promise.prototype._getDisposer = function () {\n        return this._disposer;\n    };\n\n    Promise.prototype._unsetDisposable = function () {\n        this._bitField = this._bitField & (~131072);\n        this._disposer = undefined;\n    };\n\n    Promise.prototype.disposer = function (fn) {\n        if (typeof fn === \"function\") {\n            return new FunctionDisposer(fn, this, createContext());\n        }\n        throw new TypeError();\n    };\n\n};\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/using.js?");
-
-/***/ }),
-
-/***/ "./node_modules/bluebird/js/release/util.js":
-/*!**************************************************!*\
-  !*** ./node_modules/bluebird/js/release/util.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\nvar es5 = __webpack_require__(/*! ./es5 */ \"./node_modules/bluebird/js/release/es5.js\");\nvar canEvaluate = typeof navigator == \"undefined\";\n\nvar errorObj = {e: {}};\nvar tryCatchTarget;\nvar globalObject = typeof self !== \"undefined\" ? self :\n    typeof window !== \"undefined\" ? window :\n    typeof global !== \"undefined\" ? global :\n    this !== undefined ? this : null;\n\nfunction tryCatcher() {\n    try {\n        var target = tryCatchTarget;\n        tryCatchTarget = null;\n        return target.apply(this, arguments);\n    } catch (e) {\n        errorObj.e = e;\n        return errorObj;\n    }\n}\nfunction tryCatch(fn) {\n    tryCatchTarget = fn;\n    return tryCatcher;\n}\n\nvar inherits = function(Child, Parent) {\n    var hasProp = {}.hasOwnProperty;\n\n    function T() {\n        this.constructor = Child;\n        this.constructor$ = Parent;\n        for (var propertyName in Parent.prototype) {\n            if (hasProp.call(Parent.prototype, propertyName) &&\n                propertyName.charAt(propertyName.length-1) !== \"$\"\n           ) {\n                this[propertyName + \"$\"] = Parent.prototype[propertyName];\n            }\n        }\n    }\n    T.prototype = Parent.prototype;\n    Child.prototype = new T();\n    return Child.prototype;\n};\n\n\nfunction isPrimitive(val) {\n    return val == null || val === true || val === false ||\n        typeof val === \"string\" || typeof val === \"number\";\n\n}\n\nfunction isObject(value) {\n    return typeof value === \"function\" ||\n           typeof value === \"object\" && value !== null;\n}\n\nfunction maybeWrapAsError(maybeError) {\n    if (!isPrimitive(maybeError)) return maybeError;\n\n    return new Error(safeToString(maybeError));\n}\n\nfunction withAppended(target, appendee) {\n    var len = target.length;\n    var ret = new Array(len + 1);\n    var i;\n    for (i = 0; i < len; ++i) {\n        ret[i] = target[i];\n    }\n    ret[i] = appendee;\n    return ret;\n}\n\nfunction getDataPropertyOrDefault(obj, key, defaultValue) {\n    if (es5.isES5) {\n        var desc = Object.getOwnPropertyDescriptor(obj, key);\n\n        if (desc != null) {\n            return desc.get == null && desc.set == null\n                    ? desc.value\n                    : defaultValue;\n        }\n    } else {\n        return {}.hasOwnProperty.call(obj, key) ? obj[key] : undefined;\n    }\n}\n\nfunction notEnumerableProp(obj, name, value) {\n    if (isPrimitive(obj)) return obj;\n    var descriptor = {\n        value: value,\n        configurable: true,\n        enumerable: false,\n        writable: true\n    };\n    es5.defineProperty(obj, name, descriptor);\n    return obj;\n}\n\nfunction thrower(r) {\n    throw r;\n}\n\nvar inheritedDataKeys = (function() {\n    var excludedPrototypes = [\n        Array.prototype,\n        Object.prototype,\n        Function.prototype\n    ];\n\n    var isExcludedProto = function(val) {\n        for (var i = 0; i < excludedPrototypes.length; ++i) {\n            if (excludedPrototypes[i] === val) {\n                return true;\n            }\n        }\n        return false;\n    };\n\n    if (es5.isES5) {\n        var getKeys = Object.getOwnPropertyNames;\n        return function(obj) {\n            var ret = [];\n            var visitedKeys = Object.create(null);\n            while (obj != null && !isExcludedProto(obj)) {\n                var keys;\n                try {\n                    keys = getKeys(obj);\n                } catch (e) {\n                    return ret;\n                }\n                for (var i = 0; i < keys.length; ++i) {\n                    var key = keys[i];\n                    if (visitedKeys[key]) continue;\n                    visitedKeys[key] = true;\n                    var desc = Object.getOwnPropertyDescriptor(obj, key);\n                    if (desc != null && desc.get == null && desc.set == null) {\n                        ret.push(key);\n                    }\n                }\n                obj = es5.getPrototypeOf(obj);\n            }\n            return ret;\n        };\n    } else {\n        var hasProp = {}.hasOwnProperty;\n        return function(obj) {\n            if (isExcludedProto(obj)) return [];\n            var ret = [];\n\n            /*jshint forin:false */\n            enumeration: for (var key in obj) {\n                if (hasProp.call(obj, key)) {\n                    ret.push(key);\n                } else {\n                    for (var i = 0; i < excludedPrototypes.length; ++i) {\n                        if (hasProp.call(excludedPrototypes[i], key)) {\n                            continue enumeration;\n                        }\n                    }\n                    ret.push(key);\n                }\n            }\n            return ret;\n        };\n    }\n\n})();\n\nvar thisAssignmentPattern = /this\\s*\\.\\s*\\S+\\s*=/;\nfunction isClass(fn) {\n    try {\n        if (typeof fn === \"function\") {\n            var keys = es5.names(fn.prototype);\n\n            var hasMethods = es5.isES5 && keys.length > 1;\n            var hasMethodsOtherThanConstructor = keys.length > 0 &&\n                !(keys.length === 1 && keys[0] === \"constructor\");\n            var hasThisAssignmentAndStaticMethods =\n                thisAssignmentPattern.test(fn + \"\") && es5.names(fn).length > 0;\n\n            if (hasMethods || hasMethodsOtherThanConstructor ||\n                hasThisAssignmentAndStaticMethods) {\n                return true;\n            }\n        }\n        return false;\n    } catch (e) {\n        return false;\n    }\n}\n\nfunction toFastProperties(obj) {\n    /*jshint -W027,-W055,-W031*/\n    function FakeConstructor() {}\n    FakeConstructor.prototype = obj;\n    var l = 8;\n    while (l--) new FakeConstructor();\n    return obj;\n    eval(obj);\n}\n\nvar rident = /^[a-z$_][a-z$_0-9]*$/i;\nfunction isIdentifier(str) {\n    return rident.test(str);\n}\n\nfunction filledRange(count, prefix, suffix) {\n    var ret = new Array(count);\n    for(var i = 0; i < count; ++i) {\n        ret[i] = prefix + i + suffix;\n    }\n    return ret;\n}\n\nfunction safeToString(obj) {\n    try {\n        return obj + \"\";\n    } catch (e) {\n        return \"[no string representation]\";\n    }\n}\n\nfunction isError(obj) {\n    return obj instanceof Error ||\n        (obj !== null &&\n           typeof obj === \"object\" &&\n           typeof obj.message === \"string\" &&\n           typeof obj.name === \"string\");\n}\n\nfunction markAsOriginatingFromRejection(e) {\n    try {\n        notEnumerableProp(e, \"isOperational\", true);\n    }\n    catch(ignore) {}\n}\n\nfunction originatesFromRejection(e) {\n    if (e == null) return false;\n    return ((e instanceof Error[\"__BluebirdErrorTypes__\"].OperationalError) ||\n        e[\"isOperational\"] === true);\n}\n\nfunction canAttachTrace(obj) {\n    return isError(obj) && es5.propertyIsWritable(obj, \"stack\");\n}\n\nvar ensureErrorObject = (function() {\n    if (!(\"stack\" in new Error())) {\n        return function(value) {\n            if (canAttachTrace(value)) return value;\n            try {throw new Error(safeToString(value));}\n            catch(err) {return err;}\n        };\n    } else {\n        return function(value) {\n            if (canAttachTrace(value)) return value;\n            return new Error(safeToString(value));\n        };\n    }\n})();\n\nfunction classString(obj) {\n    return {}.toString.call(obj);\n}\n\nfunction copyDescriptors(from, to, filter) {\n    var keys = es5.names(from);\n    for (var i = 0; i < keys.length; ++i) {\n        var key = keys[i];\n        if (filter(key)) {\n            try {\n                es5.defineProperty(to, key, es5.getDescriptor(from, key));\n            } catch (ignore) {}\n        }\n    }\n}\n\nvar asArray = function(v) {\n    if (es5.isArray(v)) {\n        return v;\n    }\n    return null;\n};\n\nif (typeof Symbol !== \"undefined\" && Symbol.iterator) {\n    var ArrayFrom = typeof Array.from === \"function\" ? function(v) {\n        return Array.from(v);\n    } : function(v) {\n        var ret = [];\n        var it = v[Symbol.iterator]();\n        var itResult;\n        while (!((itResult = it.next()).done)) {\n            ret.push(itResult.value);\n        }\n        return ret;\n    };\n\n    asArray = function(v) {\n        if (es5.isArray(v)) {\n            return v;\n        } else if (v != null && typeof v[Symbol.iterator] === \"function\") {\n            return ArrayFrom(v);\n        }\n        return null;\n    };\n}\n\nvar isNode = typeof process !== \"undefined\" &&\n        classString(process).toLowerCase() === \"[object process]\";\n\nvar hasEnvVariables = typeof process !== \"undefined\" &&\n    typeof process.env !== \"undefined\";\n\nfunction env(key) {\n    return hasEnvVariables ? process.env[key] : undefined;\n}\n\nfunction getNativePromise() {\n    if (typeof Promise === \"function\") {\n        try {\n            var promise = new Promise(function(){});\n            if ({}.toString.call(promise) === \"[object Promise]\") {\n                return Promise;\n            }\n        } catch (e) {}\n    }\n}\n\nfunction domainBind(self, cb) {\n    return self.bind(cb);\n}\n\nvar ret = {\n    isClass: isClass,\n    isIdentifier: isIdentifier,\n    inheritedDataKeys: inheritedDataKeys,\n    getDataPropertyOrDefault: getDataPropertyOrDefault,\n    thrower: thrower,\n    isArray: es5.isArray,\n    asArray: asArray,\n    notEnumerableProp: notEnumerableProp,\n    isPrimitive: isPrimitive,\n    isObject: isObject,\n    isError: isError,\n    canEvaluate: canEvaluate,\n    errorObj: errorObj,\n    tryCatch: tryCatch,\n    inherits: inherits,\n    withAppended: withAppended,\n    maybeWrapAsError: maybeWrapAsError,\n    toFastProperties: toFastProperties,\n    filledRange: filledRange,\n    toString: safeToString,\n    canAttachTrace: canAttachTrace,\n    ensureErrorObject: ensureErrorObject,\n    originatesFromRejection: originatesFromRejection,\n    markAsOriginatingFromRejection: markAsOriginatingFromRejection,\n    classString: classString,\n    copyDescriptors: copyDescriptors,\n    hasDevTools: typeof chrome !== \"undefined\" && chrome &&\n                 typeof chrome.loadTimes === \"function\",\n    isNode: isNode,\n    hasEnvVariables: hasEnvVariables,\n    env: env,\n    global: globalObject,\n    getNativePromise: getNativePromise,\n    domainBind: domainBind\n};\nret.isRecentNode = ret.isNode && (function() {\n    var version = process.versions.node.split(\".\").map(Number);\n    return (version[0] === 0 && version[1] > 10) || (version[0] > 0);\n})();\n\nif (ret.isNode) ret.toFastProperties(process);\n\ntry {throw new Error(); } catch (e) {ret.lastLineError = e;}\nmodule.exports = ret;\n\n\n//# sourceURL=webpack://mutastate/./node_modules/bluebird/js/release/util.js?");
-
-/***/ }),
-
-/***/ "./node_modules/objer/dist/src/node.index.js":
-/*!***************************************************!*\
-  !*** ./node_modules/objer/dist/src/node.index.js ***!
-  \***************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-eval("(function webpackUniversalModuleDefinition(root, factory) {\n\tif(true)\n\t\tmodule.exports = factory();\n\telse {}\n})(global, function() {\nreturn /******/ (function(modules) { // webpackBootstrap\n/******/ \t// The module cache\n/******/ \tvar installedModules = {};\n/******/\n/******/ \t// The require function\n/******/ \tfunction __webpack_require__(moduleId) {\n/******/\n/******/ \t\t// Check if module is in cache\n/******/ \t\tif(installedModules[moduleId]) {\n/******/ \t\t\treturn installedModules[moduleId].exports;\n/******/ \t\t}\n/******/ \t\t// Create a new module (and put it into the cache)\n/******/ \t\tvar module = installedModules[moduleId] = {\n/******/ \t\t\ti: moduleId,\n/******/ \t\t\tl: false,\n/******/ \t\t\texports: {}\n/******/ \t\t};\n/******/\n/******/ \t\t// Execute the module function\n/******/ \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n/******/\n/******/ \t\t// Flag the module as loaded\n/******/ \t\tmodule.l = true;\n/******/\n/******/ \t\t// Return the exports of the module\n/******/ \t\treturn module.exports;\n/******/ \t}\n/******/\n/******/\n/******/ \t// expose the modules object (__webpack_modules__)\n/******/ \t__webpack_require__.m = modules;\n/******/\n/******/ \t// expose the module cache\n/******/ \t__webpack_require__.c = installedModules;\n/******/\n/******/ \t// define getter function for harmony exports\n/******/ \t__webpack_require__.d = function(exports, name, getter) {\n/******/ \t\tif(!__webpack_require__.o(exports, name)) {\n/******/ \t\t\tObject.defineProperty(exports, name, { enumerable: true, get: getter });\n/******/ \t\t}\n/******/ \t};\n/******/\n/******/ \t// define __esModule on exports\n/******/ \t__webpack_require__.r = function(exports) {\n/******/ \t\tif(typeof Symbol !== 'undefined' && Symbol.toStringTag) {\n/******/ \t\t\tObject.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });\n/******/ \t\t}\n/******/ \t\tObject.defineProperty(exports, '__esModule', { value: true });\n/******/ \t};\n/******/\n/******/ \t// create a fake namespace object\n/******/ \t// mode & 1: value is a module id, require it\n/******/ \t// mode & 2: merge all properties of value into the ns\n/******/ \t// mode & 4: return value when already ns object\n/******/ \t// mode & 8|1: behave like require\n/******/ \t__webpack_require__.t = function(value, mode) {\n/******/ \t\tif(mode & 1) value = __webpack_require__(value);\n/******/ \t\tif(mode & 8) return value;\n/******/ \t\tif((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;\n/******/ \t\tvar ns = Object.create(null);\n/******/ \t\t__webpack_require__.r(ns);\n/******/ \t\tObject.defineProperty(ns, 'default', { enumerable: true, value: value });\n/******/ \t\tif(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));\n/******/ \t\treturn ns;\n/******/ \t};\n/******/\n/******/ \t// getDefaultExport function for compatibility with non-harmony modules\n/******/ \t__webpack_require__.n = function(module) {\n/******/ \t\tvar getter = module && module.__esModule ?\n/******/ \t\t\tfunction getDefault() { return module['default']; } :\n/******/ \t\t\tfunction getModuleExports() { return module; };\n/******/ \t\t__webpack_require__.d(getter, 'a', getter);\n/******/ \t\treturn getter;\n/******/ \t};\n/******/\n/******/ \t// Object.prototype.hasOwnProperty.call\n/******/ \t__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };\n/******/\n/******/ \t// __webpack_public_path__\n/******/ \t__webpack_require__.p = \"\";\n/******/\n/******/\n/******/ \t// Load entry module and return exports\n/******/ \treturn __webpack_require__(__webpack_require__.s = \"./src/index.js\");\n/******/ })\n/************************************************************************/\n/******/ ({\n\n/***/ \"./src/index.js\":\n/*!**********************!*\\\n  !*** ./src/index.js ***!\n  \\**********************/\n/*! no static exports found */\n/***/ (function(module, exports, __webpack_require__) {\n\n\"use strict\";\neval(\"\\n\\nObject.defineProperty(exports, \\\"__esModule\\\", {\\n  value: true\\n});\\nexports.set = set;\\nexports.keys = keys;\\nexports.pick = pick;\\nexports.assassinate = assassinate;\\nexports.clone = clone;\\nexports.omit = omit;\\nexports.values = values;\\nexports.has = has;\\nexports.hasRoot = hasRoot;\\nexports.get = get;\\nexports.yank = yank;\\nexports.getObjectPath = getObjectPath;\\nexports.getStringPathForArray = getStringPathForArray;\\nexports.assurePathExists = assurePathExists;\\nexports.getTypeString = getTypeString;\\nexports.deepEq = deepEq;\\nexports.shallowDiff = shallowDiff;\\nexports.default = void 0;\\n\\nfunction _typeof(obj) { if (typeof Symbol === \\\"function\\\" && typeof Symbol.iterator === \\\"symbol\\\") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === \\\"function\\\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \\\"symbol\\\" : typeof obj; }; } return _typeof(obj); }\\n\\n/**\\n * Objer module, interact with objects\\n * @module objer\\n */\\n\\n/**\\n * Set value at an object subpath\\n * @param {Object} object\\n * @param {string|array} path\\n * @param {*} value\\n */\\nfunction set(object, path, value) {\\n  var subObject = object;\\n  var keys = getObjectPath(path);\\n  if (keys.length === 0) return value; // We cannot modify the original value to be the new value no matter how hard we try\\n\\n  for (var keydex = 0; keydex < keys.length; keydex += 1) {\\n    var key = keys[keydex];\\n\\n    if (key !== '') {\\n      if (keydex !== keys.length - 1) {\\n        if (subObject[key] === null || _typeof(subObject[key]) !== 'object') {\\n          subObject[key] = {};\\n        }\\n\\n        subObject = subObject[key];\\n      } else {\\n        subObject[key] = value;\\n      }\\n    }\\n  }\\n\\n  return object;\\n}\\n/**\\n * Get array of keys in an object\\n * @param {Object} object\\n */\\n\\n\\nfunction keys(object) {\\n  var stringType = getTypeString(object);\\n\\n  if (stringType === 'object' || stringType === 'array') {\\n    if (typeof Object.keys !== 'undefined') return Object.keys(object);\\n    var _keys = [];\\n\\n    for (var key in object) {\\n      if (object.hasOwnProperty(key)) {\\n        _keys.push(key);\\n      }\\n    }\\n\\n    return _keys;\\n  }\\n\\n  return [];\\n}\\n/**\\n * Create an object with selected keys and values from an input object\\n * @param {*} object\\n * @param {array} whitelistedKeys\\n */\\n\\n\\nfunction pick(object, whitelistedKeys) {\\n  var result = {};\\n  if (!whitelistedKeys) return result;\\n  var key = void 0;\\n\\n  for (var keydex = 0; keydex < whitelistedKeys.length; keydex += 1) {\\n    key = whitelistedKeys[keydex];\\n\\n    if (has(object, key)) {\\n      set(result, key, get(object, key));\\n    }\\n  }\\n\\n  return result;\\n}\\n\\nfunction assassinate(source, path) {\\n  var pathArray = getObjectPath(path);\\n\\n  if (pathArray.length > 0) {\\n    var parentPath = pathArray.slice(0, pathArray.length - 1);\\n\\n    if (has(source, parentPath) || parentPath.length === 0) {\\n      var original = get(source, parentPath);\\n      var originalType = getTypeString(original);\\n      var pathKey = pathArray[pathArray.length - 1];\\n\\n      if (originalType === 'object') {\\n        delete original[pathKey];\\n      } else if (originalType === 'array' && typeof pathKey === 'number') {\\n        original.splice(pathKey, 1);\\n      }\\n    }\\n  }\\n\\n  return source;\\n}\\n\\nfunction clone(source) {\\n  var stringType = getTypeString(source);\\n\\n  if (stringType === 'object') {\\n    var sourceKeys = keys(source);\\n    var result = {};\\n\\n    for (var keydex = 0; keydex < sourceKeys.length; keydex += 1) {\\n      result[sourceKeys[keydex]] = clone(source[sourceKeys[keydex]]);\\n    }\\n\\n    return result;\\n  } else if (stringType === 'array') {\\n    var length = source.length;\\n    var _result = [];\\n\\n    for (var dex = 0; dex < length; dex += 1) {\\n      _result.push(clone(source[dex]));\\n    }\\n\\n    return _result;\\n  }\\n\\n  return source;\\n}\\n/**\\n * Create an object without selected keys and values from an input object, DEEP CLONES OBJECT\\n * @param {*} object\\n * @param {array} whitelistedKeys\\n */\\n\\n\\nfunction omit(object, blacklistedKeys) {\\n  if (!blacklistedKeys) return object;\\n  var result = clone(object);\\n\\n  for (var keydex = 0; keydex < blacklistedKeys.length; keydex += 1) {\\n    assassinate(result, blacklistedKeys[keydex]);\\n  }\\n\\n  return result;\\n}\\n/**\\n * Get array of values in an object, passing an array will return the original array, anything else will return a blank array\\n * @param {Object} object\\n */\\n\\n\\nfunction values(object) {\\n  var stringType = getTypeString(object);\\n\\n  if (stringType === 'object') {\\n    var objectKeys = keys(object);\\n    var result = [];\\n\\n    for (var keydex = 0; keydex < objectKeys.length; keydex += 1) {\\n      result.push(object[objectKeys[keydex]]);\\n    }\\n\\n    return result;\\n  } else if (stringType === 'array') {\\n    return object;\\n  }\\n\\n  return [];\\n}\\n/**\\n * Check if an object has a value at a path\\n * @param {Object} object\\n * @param {string|array} path\\n */\\n\\n\\nfunction has(object, path) {\\n  var subObject = object;\\n  var keys = getObjectPath(path);\\n  if (keys.length === 0) return false;\\n\\n  for (var keydex = 0; keydex < keys.length; keydex += 1) {\\n    var key = keys[keydex];\\n    if (!hasRoot(subObject, key)) return false;\\n    subObject = subObject[key];\\n  }\\n\\n  return true;\\n}\\n/**\\n * Check if an object has a top level key, hasRoot({ a: 1 }, 'a'); is true, hasRoot({ a: { b: 1 } }, 'a.b'); is false\\n * @param {Object} object\\n * @param {string} key\\n */\\n\\n\\nfunction hasRoot(object, key) {\\n  if (object !== null && _typeof(object) === 'object') {\\n    return key in object;\\n  }\\n\\n  return false;\\n}\\n/**\\n * Retrieve value from within an object or array\\n * @param {Object} object\\n * @param {string|array} path\\n * @param {*} [defaultValue]\\n */\\n\\n\\nfunction get(object, path) {\\n  var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;\\n  var subObject = object;\\n  var keys = getObjectPath(path);\\n\\n  for (var keydex = 0; keydex < keys.length; keydex += 1) {\\n    var key = keys[keydex];\\n\\n    if (key !== '') {\\n      if (!hasRoot(subObject, key)) return defaultValue;\\n      subObject = subObject[key];\\n    }\\n  }\\n\\n  return subObject;\\n}\\n/**\\n * Retrieve subobject at path, if the key is null or undefined, the default value or undefined will be returned\\n * @param {Object} object\\n * @param {string|array} path\\n * @param {*} [defaultValue]\\n */\\n\\n\\nfunction yank(object, path) {\\n  var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;\\n  var stringType = getTypeString(path);\\n  if (stringType !== 'string' && stringType !== 'array' && stringType !== 'number') return defaultValue;\\n  var subObject = object;\\n  var keys = getObjectPath(path);\\n\\n  for (var keydex = 0; keydex < keys.length; keydex += 1) {\\n    var key = keys[keydex];\\n\\n    if (key !== '') {\\n      if (!hasRoot(subObject, key)) return defaultValue;\\n      subObject = subObject[key];\\n    }\\n  }\\n\\n  return subObject;\\n}\\n/**\\n * Resolve a path to a path array 'a.b.c' returns ['a', 'b', 'c']\\n * @param {string|array} path\\n */\\n\\n\\nfunction getObjectPath(path) {\\n  var inputType = getTypeString(path);\\n  if (inputType === 'array') return path;\\n\\n  if (inputType !== 'string') {\\n    if (inputType === 'number') return [path];\\n    return [];\\n  }\\n\\n  var inBrackets = false;\\n  var partBegin = 0;\\n  var split = false;\\n  var exitBrackets = false;\\n  var pathlen = path.length;\\n  var parts = [];\\n\\n  for (var dex = 0; dex < pathlen + 1; dex += 1) {\\n    var char = path[dex];\\n\\n    if (inBrackets && !exitBrackets) {\\n      if (char === ']') {\\n        exitBrackets = true;\\n      }\\n    } else if (char === '.') {\\n      split = true;\\n    } else if (char === '[') {\\n      split = true;\\n      inBrackets = true;\\n    }\\n\\n    if (split || dex === pathlen) {\\n      var nextPart = path.substr(partBegin, dex - partBegin - (exitBrackets ? 1 : 0));\\n\\n      if (inBrackets) {\\n        var parsed = parseInt(nextPart, 10);\\n\\n        if (!isNaN(parsed)) {\\n          nextPart = parsed;\\n        }\\n      }\\n\\n      parts.push(nextPart);\\n      partBegin = dex + 1;\\n      split = false;\\n      if (exitBrackets) inBrackets = false;\\n      exitBrackets = false;\\n    }\\n  }\\n\\n  return parts;\\n}\\n/**\\n * Convert an array into a string path ['a', 'b', 'c'] returns 'a.b.c'\\n * @param {array} arrayPath\\n */\\n\\n\\nfunction getStringPathForArray(arrayPath) {\\n  var inputType = getTypeString(arrayPath);\\n\\n  if (inputType !== 'array') {\\n    if (inputType === 'string') return arrayPath;\\n    if (inputType === 'number') return \\\"[\\\".concat(arrayPath, \\\"]\\\");\\n    return '';\\n  }\\n\\n  return arrayPath.reduce(function (result, item, dex) {\\n    if (getTypeString(item) === 'number') {\\n      return \\\"\\\".concat(result, \\\"[\\\").concat(item, \\\"]\\\");\\n    }\\n\\n    return result + (dex > 0 ? '.' : '') + item;\\n  }, '');\\n}\\n/**\\n * If this subkey doesn't exist, initialize it to defaultValue\\n * @param {Object} object\\n * @param {string|array} path\\n * @param {*} defaultValue\\n */\\n\\n\\nfunction assurePathExists(object, path) {\\n  var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};\\n  var arrayPath = getObjectPath(path);\\n  var currentObject = object;\\n\\n  for (var arraydex = 0; arraydex < arrayPath.length; arraydex += 1) {\\n    var key = arrayPath[arraydex];\\n\\n    if (!hasRoot(currentObject, key)) {\\n      // TODO: Address problems where key exists already and is not an array or object\\n      var nextKey = arraydex === arrayPath.length - 1 ? null : arrayPath[arraydex + 1];\\n\\n      if (nextKey === null) {\\n        currentObject[key] = defaultValue;\\n      } else if (getTypeString(nextKey) === 'number') {\\n        currentObject[key] = [];\\n      } else {\\n        currentObject[key] = {};\\n      }\\n    }\\n\\n    currentObject = currentObject[key];\\n  }\\n\\n  return currentObject;\\n}\\n/**\\n * Return simplified type as a string. [] returns 'array' new Date() returns 'date'\\n * @param {*} data\\n */\\n\\n\\nfunction getTypeString(data) {\\n  var stringType = _typeof(data);\\n\\n  if (stringType === 'object') {\\n    if (data === null) return 'null';\\n    var stringified = toString.apply(data);\\n\\n    if (stringified.length > 2 && stringified[0] === '[' && stringified[stringified.length - 1] === ']') {\\n      var splits = stringified.substr(1, stringified.length - 2).split(' ');\\n\\n      if (splits.length > 1) {\\n        return splits.slice(1).join(' ').toLowerCase();\\n      }\\n    }\\n\\n    return 'unknown';\\n  }\\n\\n  if (stringType === 'number') {\\n    if (isNaN(data)) return 'nan';\\n  }\\n\\n  return stringType;\\n}\\n/**\\n * Check if both parameters are equal, check all nested keys of objects and arrays\\n * @param {*} obja\\n * @param {*} objb\\n */\\n\\n\\nfunction deepEq(left, right) {\\n  var leftType = getTypeString(left);\\n  var rightType = getTypeString(right);\\n  if (leftType !== rightType) return false;\\n  if (leftType === 'nan') return true;\\n\\n  if (leftType === 'object') {\\n    if (left === right) return true; // if they are the same thing, don't check children\\n\\n    var leftKeys = keys(left).sort(); // unsorted could be unequal\\n\\n    var rightKeys = keys(right).sort();\\n    if (!deepEq(leftKeys, rightKeys)) return false;\\n\\n    for (var keydex = 0; keydex < leftKeys.length; keydex += 1) {\\n      if (!deepEq(left[leftKeys[keydex]], right[leftKeys[keydex]])) return false;\\n    }\\n\\n    return true;\\n  }\\n\\n  if (leftType === 'array') {\\n    if (left === right) return true; // if they are the same thing, don't check children\\n\\n    if (left.length !== right.length) return false;\\n\\n    for (var dex = 0; dex < left.length; dex += 1) {\\n      if (!deepEq(left[dex], right[dex])) return false;\\n    }\\n\\n    return true;\\n  }\\n\\n  return left === right;\\n}\\n/**\\n * Detect differences between two things, will indicate changes in type, value, length, etc. Will not diff string values.\\n * @param {*} original\\n * @param {*} incoming\\n */\\n\\n\\nfunction shallowDiff(original, incoming) {\\n  var currentPath = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];\\n  var changes = [];\\n  var originalType = getTypeString(original);\\n  var incomingType = getTypeString(incoming);\\n  if (originalType !== incomingType) return [{\\n    change: 'type',\\n    path: currentPath,\\n    original: original,\\n    incoming: incoming\\n  }];\\n  if (originalType === 'nan') return [];\\n\\n  if (originalType === 'object') {\\n    if (original === incoming) return []; // if they are the same thing, don't check children\\n\\n    var originalKeys = keys(original).sort(); // unsorted could be unequal\\n\\n    var incomingKeys = keys(incoming).sort();\\n    var sharedKeys = [];\\n\\n    if (!deepEq(originalKeys, incomingKeys)) {\\n      for (var originalDex = originalKeys.length - 1; originalDex >= 0; originalDex -= 1) {\\n        var originalKey = originalKeys[originalDex];\\n\\n        for (var incomingDex = incomingKeys.length - 1; incomingDex >= 0; incomingDex -= 1) {\\n          if (originalKey === incomingKeys[incomingDex]) {\\n            sharedKeys.push(originalKey);\\n            originalKeys.splice(originalDex, 1);\\n            incomingKeys.splice(incomingDex, 1);\\n            break;\\n          }\\n        }\\n      }\\n\\n      for (var _originalDex = 0; _originalDex < originalKeys.length; _originalDex += 1) {\\n        changes.push({\\n          change: 'delete',\\n          path: currentPath,\\n          key: originalKeys[_originalDex],\\n          original: original[originalKeys[_originalDex]]\\n        });\\n      }\\n\\n      for (var _incomingDex = 0; _incomingDex < incomingKeys.length; _incomingDex += 1) {\\n        changes.push({\\n          change: 'add',\\n          path: currentPath,\\n          key: incomingKeys[_incomingDex],\\n          incoming: incoming[incomingKeys[_incomingDex]]\\n        });\\n      }\\n    } else {\\n      sharedKeys = originalKeys;\\n    }\\n\\n    for (var keydex = 0; keydex < sharedKeys.length; keydex += 1) {\\n      changes = changes.concat(shallowDiff(original[sharedKeys[keydex]], incoming[sharedKeys[keydex]], currentPath.concat(sharedKeys[keydex])));\\n    }\\n  } else if (originalType === 'array') {\\n    if (original === incoming) return []; // if they are the same thing, don't check children\\n\\n    var sharedLength = original.length;\\n\\n    if (original.length !== incoming.length) {\\n      if (original.length > incoming.length) {\\n        sharedLength = incoming.length;\\n        changes.push({\\n          change: 'shrink',\\n          path: currentPath,\\n          original: original.slice(incoming.length)\\n        });\\n      } else {\\n        changes.push({\\n          change: 'grow',\\n          path: currentPath,\\n          incoming: incoming.slice(original.length)\\n        });\\n      }\\n    }\\n\\n    for (var dex = 0; dex < sharedLength; dex += 1) {\\n      changes = changes.concat(shallowDiff(original[dex], incoming[dex], currentPath.concat(dex)));\\n    }\\n  } else if (original === incoming) {\\n    return [];\\n  } else {\\n    return [{\\n      change: 'value',\\n      path: currentPath,\\n      original: original,\\n      incoming: incoming\\n    }];\\n  }\\n\\n  return changes;\\n}\\n\\nvar _default = {\\n  assurePathExists: assurePathExists,\\n  deepEq: deepEq,\\n  get: get,\\n  getObjectPath: getObjectPath,\\n  getStringPathForArray: getStringPathForArray,\\n  getTypeString: getTypeString,\\n  has: has,\\n  hasRoot: hasRoot,\\n  keys: keys,\\n  set: set,\\n  yank: yank\\n};\\nexports.default = _default;\\n\\n//# sourceURL=webpack://nexusdk/./src/index.js?\");\n\n/***/ })\n\n/******/ });\n});\n\n//# sourceURL=webpack://mutastate/./node_modules/objer/dist/src/node.index.js?");
-
-/***/ }),
-
-/***/ "./src/BaseAgent.js":
-/*!**************************!*\
-  !*** ./src/BaseAgent.js ***!
-  \**************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _objer = __webpack_require__(/*! objer */ \"./node_modules/objer/dist/src/node.index.js\");\n\nfunction _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(\"Cannot call a class as a function\"); } }\n\nvar BaseAgent = function BaseAgent(mutastate, onChange) {\n  var _this = this;\n\n  _classCallCheck(this, BaseAgent);\n\n  this.getComposedState = function (initialData, key, value) {\n    if (key instanceof Array && key.length === 0 || key === null) return value;\n\n    (0, _objer.set)(initialData, key, value);\n    return initialData;\n  };\n\n  this.setComposedState = function (key, value) {\n    _this.data = _this.getComposedState(_this.data, key, value);\n  };\n\n  this.translate = function (inputKey, outputKey, translationFunction) {\n    var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},\n        _ref$killOnCleanup = _ref.killOnCleanup,\n        killOnCleanup = _ref$killOnCleanup === undefined ? true : _ref$killOnCleanup,\n        _ref$throttleTime = _ref.throttleTime,\n        throttleTime = _ref$throttleTime === undefined ? null : _ref$throttleTime;\n\n    _this.mutastate.translate(inputKey, outputKey, translationFunction, { batch: killOnCleanup ? _this : undefined, throttleTime: throttleTime });\n  };\n\n  this.get = function (key) {\n    return _this.mutastate.get(key);\n  };\n\n  this.set = function (key, value, options) {\n    return _this.mutastate.set(key, value, options);\n  };\n\n  this.delete = function (key) {\n    return _this.mutastate.delete(key);\n  };\n\n  this.assign = function (key, value) {\n    return _this.mutastate.assign(key, value);\n  };\n\n  this.push = function (key, value, options) {\n    return _this.mutastate.push(key, value, options);\n  };\n\n  this.pop = function (key, options) {\n    return _this.mutastate.pop(key, options);\n  };\n\n  this.has = function (key) {\n    return _this.mutastate.has(key);\n  };\n\n  this.getEverything = function () {\n    return _this.mutastate.getEverything();\n  };\n\n  this.setEverything = function (data) {\n    return _this.mutastate.setEverything(data);\n  };\n\n  this.mutastate = mutastate;\n  this.data = {};\n  this.onChange = onChange;\n};\n\nexports.default = BaseAgent;\n\n//# sourceURL=webpack://mutastate/./src/BaseAgent.js?");
-
-/***/ }),
-
-/***/ "./src/Mutastate.js":
-/*!**************************!*\
-  !*** ./src/Mutastate.js ***!
-  \**************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (\"value\" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();\n\nexports.getLocalStorageSaveFunc = getLocalStorageSaveFunc;\nexports.getLocalStorageLoadFunc = getLocalStorageLoadFunc;\n\nvar _MutastateAgent = __webpack_require__(/*! ./MutastateAgent */ \"./src/MutastateAgent.js\");\n\nvar _MutastateAgent2 = _interopRequireDefault(_MutastateAgent);\n\nvar _MutastateHelpers = __webpack_require__(/*! ./MutastateHelpers */ \"./src/MutastateHelpers.js\");\n\nvar _objer = __webpack_require__(/*! objer */ \"./node_modules/objer/dist/src/node.index.js\");\n\nvar _blankKey = __webpack_require__(/*! ./utility/blankKey */ \"./src/utility/blankKey.js\");\n\nvar _promise = __webpack_require__(/*! ./utility/promise */ \"./src/utility/promise.js\");\n\nvar _promise2 = _interopRequireDefault(_promise);\n\nvar _ProxyAgent = __webpack_require__(/*! ./ProxyAgent */ \"./src/ProxyAgent.js\");\n\nvar _ProxyAgent2 = _interopRequireDefault(_ProxyAgent);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nfunction _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n\nfunction _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(\"Cannot call a class as a function\"); } }\n\nfunction missingCallback() {\n  console.error('Mutastate missing save or load callback', new Error().stack);\n  return {};\n}\n\n/**\n * Use localstorage if the user hasn't specified a save function\n */\nfunction getLocalStorageSaveFunc() {\n  if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {\n    return function (key, data) {\n      return global.localStorage.setItem(key, JSON.stringify(data));\n    };\n  } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {\n    return function (key, data) {\n      return window.localStorage.setItem(key, JSON.stringify(data));\n    };\n  }\n}\n\nfunction getLocalStorageLoadFunc() {\n  if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {\n    return function (key) {\n      return global.localStorage.getItem(key) ? JSON.parse(global.localStorage.getItem(key)) : {};\n    };\n  } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {\n    return function (key) {\n      return window.localStorage.getItem(key) ? JSON.parse(window.localStorage.getItem(key)) : {};\n    };\n  }\n}\n\nvar SAVE_THROTTLE_TIME = 100;\n\n/**\n * Core mutastate class, this class stores data and informes listeners of changes\n */\n\nvar Mutastate = function () {\n  function Mutastate() {\n    var _this = this;\n\n    _classCallCheck(this, Mutastate);\n\n    this.getAgent = function (onChange) {\n      return new _MutastateAgent2.default(_this, onChange);\n    };\n\n    this.getProxyAgent = function (onChange) {\n      return new _ProxyAgent2.default(_this, onChange);\n    };\n\n    this.initialize = function (_ref) {\n      var shards = _ref.shards,\n          save = _ref.save,\n          load = _ref.load;\n\n      _this.saveData = save !== undefined ? save : missingCallback;\n      _this.loadData = load !== undefined ? load : missingCallback;\n      _this.persistShards = shards;\n      return _this.load();\n    };\n\n    this.save = function () {\n      var result = {};\n      var promises = [];\n      var persistLength = (_this.persistShards || []).length;\n\n      var _loop = function _loop(dex) {\n        var key = _this.persistShards[dex];\n        var saveResults = _this.saveData(key, (0, _objer.get)(_this.data, key));\n        if (saveResults instanceof _this.promise) {\n          promises.push(saveResults.then(function (result) {\n            return _defineProperty({}, key, result);\n          }));\n        } else {\n          result[key] = saveResults;\n        }\n      };\n\n      for (var dex = 0; dex < persistLength; dex += 1) {\n        _loop(dex);\n      }\n\n      if (promises.length > 0) {\n        return _this.promise.all(promises).then(function (ray) {\n          (ray || []).forEach(function (obj) {\n            if (obj) {\n              Object.assign(result, obj);\n            }\n          });\n          return _this.data;\n        });\n      }\n\n      return _this.data;\n    };\n\n    this.load = function () {\n      var result = {};\n      var promises = [];\n      var persistLength = (_this.persistShards || []).length;\n\n      var _loop2 = function _loop2(dex) {\n        var key = _this.persistShards[dex];\n        var loadResults = _this.loadData(key);\n        if (loadResults instanceof _this.promise) {\n          promises.push(loadResults.then(function (result) {\n            return _defineProperty({}, key, result);\n          }));\n        } else {\n          result[key] = loadResults;\n        }\n      };\n\n      for (var dex = 0; dex < persistLength; dex += 1) {\n        _loop2(dex);\n      }\n\n      if (promises.length > 0) {\n        return _this.promise.all(promises).then(function (ray) {\n          (ray || []).forEach(function (obj) {\n            Object.assign(result, obj);\n          });\n          _this.data = result;\n          return _this.data;\n        });\n      }\n\n      _this.data = result;\n      return Promise.resolve(_this.data);\n    };\n\n    this.throttledSave = (0, _MutastateHelpers.throttle)(this.save, SAVE_THROTTLE_TIME);\n\n    this.getListenersAtPath = function (key) {\n      var keyArray = (0, _blankKey.isBlankKey)(key) ? ['default'] : (0, _objer.getObjectPath)(key);\n\n      var currentListenObject = _this.listenerObject;\n      for (var keydex = 0; keydex < keyArray.length - 1; keydex += 1) {\n        // Go through all keys except the last, which is where out final request will go\n        var subKey = keyArray[keydex];\n        currentListenObject = (0, _objer.assurePathExists)(currentListenObject, ['subkeys', subKey], {});\n      }\n      var finalKey = keyArray[keyArray.length - 1];\n      return (0, _objer.assurePathExists)(currentListenObject, ['subkeys', finalKey, 'listeners'], []);\n    };\n\n    this.listen = function (key) {\n      var listener = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { callback: function callback() {}, alias: null, batch: null, transform: null, defaultValue: undefined };\n\n      var listeners = _this.getListenersAtPath(key);\n      var matchedListeners = listeners.reduce(function (results, existingListener, dex) {\n        if (existingListener.callback === listener.callback) results.push(dex);\n        return results;\n      }, []);\n\n      for (var dex = matchedListeners.length - 1; dex >= 0; dex -= 1) {\n        listeners.splice(matchedListeners[dex], 1);\n      }\n\n      listeners.push(listener);\n      return true;\n    };\n\n    this.unlisten = function (key, callback) {\n      var listeners = _this.getListenersAtPath(key);\n\n      var matchedListeners = listeners.reduce(function (results, existingListener, dex) {\n        if (existingListener.callback === callback) results.push(dex);\n        return results;\n      }, []);\n\n      for (var dex = matchedListeners.length - 1; dex >= 0; dex -= 1) {\n        listeners.splice(matchedListeners[dex], 1);\n      }\n    };\n\n    this.unlistenBatch = function (batch, basePath) {\n      var patharray = basePath || [];\n      var subkeypath = (basePath || []).concat('subkeys');\n      var subKeys = (0, _objer.keys)((0, _objer.get)(_this.listenerObject, subkeypath));\n      for (var keydex = 0; keydex < subKeys.length; keydex += 1) {\n        _this.unlistenBatch(batch, subkeypath.concat([subKeys[keydex]]));\n      }\n\n      var listeners = (0, _objer.get)(_this.listenerObject, patharray.concat('listeners'));\n\n      var matchedListeners = (listeners || []).reduce(function (results, existingListener, dex) {\n        if (existingListener.batch === batch) results.push(dex);\n        return results;\n      }, []);\n\n      for (var dex = matchedListeners.length - 1; dex >= 0; dex -= 1) {\n        listeners.splice(matchedListeners[dex], 1);\n      }\n    };\n\n    this.getForListener = function (key, listener, keyChange) {\n      var alias = listener.alias,\n          callback = listener.callback,\n          transform = listener.transform,\n          defaultValue = listener.defaultValue;\n\n      var value = null;\n\n      if ((0, _objer.has)(_this.data, key)) {\n        value = (0, _objer.get)(_this.data, key);\n      } else {\n        if (defaultValue !== undefined) {\n          (0, _objer.set)(_this.data, key, defaultValue);\n        }\n        value = defaultValue;\n      }\n\n      return { keyChange: keyChange, alias: alias, callback: callback, key: key, value: transform ? transform(value) : value };\n    };\n\n    this.getAllChildListeners = function (listenerObject) {\n      var currentKey = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];\n      var type = arguments[2];\n\n      var result = [];\n      var currentListeners = (0, _objer.get)(listenerObject, 'listeners') || [];\n      var subkeyObject = (0, _objer.get)(listenerObject, 'subkeys') || {};\n      var subkeys = (0, _objer.keys)(subkeyObject);\n      for (var listenerdex = 0; listenerdex < currentListeners.length; listenerdex += 1) {\n        result.push({ listener: currentListeners[listenerdex], key: currentKey, type: type });\n      }\n      for (var keydex = 0; keydex < subkeys.length; keydex += 1) {\n        var subkey = subkeys[keydex];\n        result = result.concat(_this.getAllChildListeners(subkeyObject[subkey], currentKey.concat(subkey), type));\n      }\n      return result;\n    };\n\n    this.getDeleteListeners = function (original, incoming, listenerObject) {\n      var currentKey = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];\n\n      var result = [];\n      var originalType = (0, _objer.getTypeString)(original);\n      if (originalType === 'object' || originalType === 'array') {\n        var incomingType = (0, _objer.getTypeString)(incoming);\n        if (incomingType !== originalType) {\n          result = result.concat(_this.getAllChildListeners(listenerObject, currentKey, 'delete'));\n          // Send delete notification to every child of the original key\n        } else {\n          var originalKeys = (0, _objer.keys)(original);\n          if ((0, _objer.has)(listenerObject, 'subkeys')) {\n            for (var keydex = 0; keydex < originalKeys.length; keydex += 1) {\n              var originalKey = originalKeys[keydex];\n              if ((0, _objer.has)(listenerObject.subkeys, originalKey)) {\n                if (!(0, _objer.has)(incoming, originalKey)) {\n                  result = result.concat(_this.getAllChildListeners(listenerObject.subkeys[originalKey], currentKey.concat(originalKey), 'delete'));\n                } else {\n                  result = result.concat(_this.getDeleteListeners((0, _objer.get)(original, originalKey), (0, _objer.get)(incoming, originalKey), listenerObject.subkeys[originalKey], currentKey.concat(originalKey)));\n                }\n              }\n            }\n          }\n        }\n      }\n      return result;\n    };\n\n    this.get = function (key) {\n      return (0, _objer.get)(_this.data, key);\n    };\n\n    this.set = function (key, value) {\n      var _ref4 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},\n          _ref4$notify = _ref4.notify,\n          notify = _ref4$notify === undefined ? true : _ref4$notify,\n          _ref4$immediate = _ref4.immediate,\n          immediate = _ref4$immediate === undefined ? false : _ref4$immediate,\n          _ref4$save = _ref4.save,\n          save = _ref4$save === undefined ? true : _ref4$save;\n\n      var keyArray = (0, _objer.getObjectPath)(key);\n      var listeners = _this.getRelevantListeners(keyArray, value);\n      // Consider a pre-notify here\n      (0, _objer.set)(_this.data, key, value);\n      if (notify) _this.notify(listeners);\n      if (save) {\n        if (immediate) _this.save();else _this.throttledSave();\n      }\n    };\n\n    this.delete = function (key) {\n      _this.set(key, undefined);\n      (0, _objer.assassinate)(_this.data, key);\n    };\n\n    this.assign = function (key, value) {\n      var original = (0, _objer.get)(_this.data, key);\n      var originalType = (0, _objer.getTypeString)(original);\n      var incomingType = (0, _objer.getTypeString)(value);\n\n      if (originalType === 'object' && incomingType === 'object') {\n        _this.set(key, Object.assign({}, original, value));\n      } else {\n        _this.set(key, value);\n      }\n    };\n\n    this.push = function (key, value) {\n      var _ref5 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},\n          _ref5$notify = _ref5.notify,\n          notify = _ref5$notify === undefined ? true : _ref5$notify,\n          _ref5$immediate = _ref5.immediate,\n          immediate = _ref5$immediate === undefined ? false : _ref5$immediate,\n          _ref5$save = _ref5.save,\n          save = _ref5$save === undefined ? true : _ref5$save;\n\n      var keyArray = (0, _objer.getObjectPath)(key);\n      var original = (0, _objer.get)(_this.data, keyArray);\n      var originalType = (0, _objer.getTypeString)(original);\n      if (originalType === 'array') {\n        var extendedKey = keyArray.concat(original.length);\n        var listeners = _this.getRelevantListeners(extendedKey, value);\n        // Consider a pre-notify here\n        original.push(value);\n        if (notify) _this.notify(listeners);\n        if (save) {\n          if (immediate) _this.save();else _this.throttledSave();\n        }\n      }\n    };\n\n    this.pop = function (key) {\n      var _ref6 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},\n          _ref6$notify = _ref6.notify,\n          notify = _ref6$notify === undefined ? true : _ref6$notify,\n          _ref6$immediate = _ref6.immediate,\n          immediate = _ref6$immediate === undefined ? false : _ref6$immediate,\n          _ref6$save = _ref6.save,\n          save = _ref6$save === undefined ? true : _ref6$save;\n\n      var keyArray = (0, _objer.getObjectPath)(key);\n      var original = (0, _objer.get)(_this.data, keyArray);\n      var originalType = (0, _objer.getTypeString)(original);\n      if (originalType === 'array' && original.length > 0) {\n        var extendedKey = keyArray.concat(original.length - 1);\n        var listeners = _this.getRelevantListeners(extendedKey, undefined);\n        // Consider a pre-notify here\n        original.pop();\n        if (notify) _this.notify(listeners);\n        if (save) {\n          if (immediate) _this.save();else _this.throttledSave();\n        }\n      }\n    };\n\n    this.has = function (key) {\n      return (0, _objer.has)(_this.data, key);\n    };\n\n    this.getEverything = function () {\n      return _this.data;\n    };\n\n    this.setEverything = function (data) {\n      return _this.data = data;\n    };\n\n    this.translate = function (inputKey, outputKey, translationFunction) {\n      var _ref7 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},\n          batch = _ref7.batch,\n          _ref7$throttleTime = _ref7.throttleTime,\n          throttleTime = _ref7$throttleTime === undefined ? null : _ref7$throttleTime;\n\n      var callback = function callback(input) {\n        if (input.length > 0) {\n          var output = translationFunction(input[input.length - 1].value, (0, _objer.get)(_this.data, inputKey));\n          if (output instanceof Promise) {\n            output.then(function (result) {\n              return _this.set(outputKey, result);\n            });\n          } else {\n            _this.set(outputKey, output);\n          }\n        }\n      };\n      var shouldThrottle = (0, _objer.getTypeString)(throttleTime) === 'number' && throttleTime > 0;\n      _this.listen(inputKey, { initialLoad: true, batch: batch, callback: shouldThrottle ? (0, _MutastateHelpers.throttle)(callback, throttleTime) : callback });\n    };\n\n    this.listenerObject = { subkeys: {} };\n    this.data = {};\n    this.promise = (0, _promise2.default)();\n  }\n\n  /**\n   * An agent is a listener with alias and transform capabilities\n   * @param {function} onChange\n   */\n\n\n  /**\n   * Set save and load functionality, as well as indicate shards we need to load and save\n   */\n  // TODO: consider adding persistData option here\n\n\n  /**\n   * Save data from each persisted shard, persisted shards are indicated by initialize\n   */\n\n\n  /**\n   * Load data from persisted shards, typically only called on app init\n   */\n\n\n  /**\n   * Retrieve a list of relevant listeners given a change at a key;\n   */\n\n\n  // getChildListenersAtPath = (key) => {\n\n  // }\n\n  /**\n   * Add a path listener, dedupes by callback function, careful with anonymous functions!\n   */\n\n\n  /**\n   * Unlisten by callback, careful with anonymous functions!\n   */\n\n\n  /**\n   * Unlisten by the batch parameter passed into the options of the listen function\n   */\n\n\n  /**\n   * Get data for a particular listener, apply transformation to the value\n   */\n\n\n  /**\n   * Get a full list of listeners under a subkey\n   */\n\n\n  /**\n   * recurse original against incoming for changed keys, if original type is an object or array and incoming type is not the same\n   * pass all child listeners. If incoming and original are both either objects or arrays, recurse the children using this function.\n   */\n\n\n  _createClass(Mutastate, [{\n    key: 'getChangeListeners',\n\n\n    /**\n     * given a change, notify all parents of the relevant key, and for every subkey of the incoming data notify listeners\n     * this function does not notify any listers of removed data, getDeleteListeners fulfills that role\n     */\n    value: function getChangeListeners(change, sublistener) {\n      var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];\n      var originalChangeDepth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;\n      var currentChangeDepth = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;\n\n      var changeRelativity = originalChangeDepth - currentChangeDepth; // Parent change > 0, child change < 0, currentChange == 0\n      var result = [];\n      if ((0, _objer.has)(sublistener, 'listeners')) {\n        for (var listenerdex = 0; listenerdex < sublistener.listeners.length; listenerdex += 1) {\n          var listener = sublistener.listeners[listenerdex];\n          if (listener.noChildUpdates === true && changeRelativity > 0) {} // Skip informing parents who don't care\n          else if (listener.noParentUpdates === true && changeRelativity < 0) {} // Skip informing children who don't care\n            else {\n                result.push({ listener: listener, key: key, type: 'change' });\n              }\n        }\n      }\n\n      var changetype = (0, _objer.getTypeString)(change);\n      if ((0, _objer.has)(sublistener, 'subkeys') && (changetype === 'array' || changetype === 'object')) {\n        var changeKeys = (0, _objer.keys)(change);\n        for (var keydex = 0; keydex < changeKeys.length; keydex += 1) {\n          var changeKey = changeKeys[keydex];\n          if ((0, _objer.has)(sublistener.subkeys, changeKey)) {\n            result = result.concat(this.getChangeListeners(change[changeKey], sublistener.subkeys[changeKey], key.concat(changeKey), originalChangeDepth, currentChangeDepth + 1));\n          }\n        }\n      }\n\n      return result;\n    }\n\n    /**\n     * Listeners are nested by a pattern of subkeys.key.subkeys.otherkey, this function turns ['key', 'otherkey'] into the expected array\n     */\n\n  }, {\n    key: 'getListenerObjectAtKey',\n    value: function getListenerObjectAtKey(key) {\n      var result = this.listenerObject;\n      for (var keydex = 0; keydex < key.length; keydex += 1) {\n        if ((0, _objer.has)(result, ['subkeys', key[keydex]])) {\n          result = result.subkeys[key[keydex]];\n        } else {\n          return null;\n        }\n      }\n      return result;\n    }\n\n    /**\n     * Concatenate change and delete listeners for a given change\n     */\n\n  }, {\n    key: 'getRelevantListeners',\n    value: function getRelevantListeners(key, value) {\n      var keyArray = (0, _objer.getObjectPath)(key);\n      var changeListeners = this.getChangeListeners((0, _MutastateHelpers.getKeyFilledObject)(keyArray, value), this.listenerObject, [], keyArray.length);\n      var original = (0, _objer.get)(this.data, keyArray);\n      var deleteListeners = this.getDeleteListeners(original, value, this.getListenerObjectAtKey(keyArray), keyArray);\n\n      return changeListeners.concat(deleteListeners);\n    }\n\n    /**\n     * Execute notify callbacks for a batch in format [{ listener, key }]\n     */\n\n  }, {\n    key: 'notify',\n    value: function notify(notifyBatch) {\n      var _this2 = this;\n\n      var callbackBatches = [];\n\n      var _loop3 = function _loop3(keydex) {\n        var keyChange = notifyBatch[keydex];\n        var listenerIndex = (0, _MutastateHelpers.findIndex)(callbackBatches, function (callbackBatch) {\n          return callbackBatch.callback === keyChange.listener.callback;\n        });\n\n        if (listenerIndex !== -1) {\n          callbackBatches[listenerIndex].changes.push(_this2.getForListener(keyChange.key, keyChange.listener));\n        } else {\n          callbackBatches.push({ callback: keyChange.listener.callback, changes: [_this2.getForListener(keyChange.key, keyChange.listener)] });\n        }\n      };\n\n      for (var keydex = 0; keydex < notifyBatch.length; keydex += 1) {\n        _loop3(keydex);\n      }\n\n      for (var callbatch = 0; callbatch < callbackBatches.length; callbatch += 1) {\n        var listenerBatch = callbackBatches[callbatch];\n        var callback = listenerBatch.callback,\n            changes = listenerBatch.changes;\n\n\n        callback(changes);\n      }\n    }\n\n    // Complication: must notify all array keys of updates due to key changes\n    // unshift = (key, value) => {\n    //   const keyArray = getObjectPath(key);\n    //   const original = get(this.data, keyArray);\n    //   const originalType = getTypeString(original);\n    //   if (originalType === 'array') {\n    //     const extendedKey = keyArray.concat(0);\n    //     const listeners = this.getRelevantListeners(extendedKey, value);\n    //     // Consider a pre-notify here\n    //     original.unshift(value);\n    //     if (notify) this.notify(listeners);\n    //     if (immediate) this.save();\n    //   }\n    // }\n\n    // shift = (key) => {\n    //   const keyArray = getObjectPath(key);\n    //   const original = get(this.data, keyArray);\n    //   const originalType = getTypeString(original);\n    //   if (originalType === 'array' && original.length > 0) {\n    //     const extendedKey = keyArray.concat(0);\n    //     const listeners = this.getRelevantListeners(extendedKey, undefined);\n    //     // Consider a pre-notify here\n    //     original.shift();\n    //     if (notify) this.notify(listeners);\n    //     if (immediate) this.save();\n    //   }\n    // }\n\n    // TODO: deduplicate translations!!\n\n  }]);\n\n  return Mutastate;\n}();\n\nexports.default = Mutastate;\n\n//# sourceURL=webpack://mutastate/./src/Mutastate.js?");
-
-/***/ }),
-
-/***/ "./src/MutastateAgent.js":
-/*!*******************************!*\
-  !*** ./src/MutastateAgent.js ***!
-  \*******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };\n\nvar _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (\"value\" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();\n\nvar _objer = __webpack_require__(/*! objer */ \"./node_modules/objer/dist/src/node.index.js\");\n\nvar _BaseAgent2 = __webpack_require__(/*! ./BaseAgent */ \"./src/BaseAgent.js\");\n\nvar _BaseAgent3 = _interopRequireDefault(_BaseAgent2);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nfunction _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(\"Cannot call a class as a function\"); } }\n\nfunction _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError(\"this hasn't been initialised - super() hasn't been called\"); } return call && (typeof call === \"object\" || typeof call === \"function\") ? call : self; }\n\nfunction _inherits(subClass, superClass) { if (typeof superClass !== \"function\" && superClass !== null) { throw new TypeError(\"Super expression must either be null or a function, not \" + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }\n\nvar MutastateAgent = function (_BaseAgent) {\n  _inherits(MutastateAgent, _BaseAgent);\n\n  function MutastateAgent(mutastate, onChange) {\n    _classCallCheck(this, MutastateAgent);\n\n    var _this = _possibleConstructorReturn(this, (MutastateAgent.__proto__ || Object.getPrototypeOf(MutastateAgent)).call(this, mutastate, onChange));\n\n    _this.unlisten = function (key) {\n      var result = _this.mutastate.unlisten(key, _this.handleChange);\n      return result;\n    };\n\n    _this.unlistenFromAll = function () {\n      _this.mutastate.unlistenBatch(_this);\n    };\n\n    _this.listen = function (key) {\n      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},\n          alias = _ref.alias,\n          transform = _ref.transform,\n          _ref$initialLoad = _ref.initialLoad,\n          initialLoad = _ref$initialLoad === undefined ? true : _ref$initialLoad,\n          defaultValue = _ref.defaultValue,\n          _ref$partOfMultiListe = _ref.partOfMultiListen,\n          partOfMultiListen = _ref$partOfMultiListe === undefined ? false : _ref$partOfMultiListe;\n\n      var modifiedListener = {\n        alias: alias,\n        transform: transform,\n        initialLoad: initialLoad,\n        defaultValue: defaultValue,\n        callback: _this.handleChange,\n        batch: _this\n      };\n      _this.mutastate.listen(key, modifiedListener);\n\n      if (initialLoad) {\n        var listenData = _this.mutastate.getForListener(key, modifiedListener);\n        _this.setComposedState(alias || key, listenData.value);\n        if (!partOfMultiListen && _this.onChange) {\n          _this.onChange(_this.data);\n        }\n      }\n    };\n\n    _this.multiListen = function (listeners) {\n      var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},\n          _ref2$initialLoad = _ref2.initialLoad,\n          initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad;\n\n      var loaded = false;\n\n      for (var listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {\n        var listener = listeners[listenerdex];\n        var hasKey = (0, _objer.get)(listener, 'key');\n        var key = hasKey ? listener.key : listener;\n        var alias = hasKey ? listener.alias : null;\n        var options = (hasKey ? listener.options : {}) || {};\n        _this.listen(key, _extends({}, options, { partOfMultiListen: true }));\n        if (initialLoad) {\n          loaded = true;\n          var listenData = _this.mutastate.getForListener(key, listener);\n          _this.setComposedState(alias || key, listenData.value);\n        }\n      }\n\n      if (loaded && _this.onChange) {\n        _this.onChange(_this.data);\n      }\n    };\n\n    _this.handleChange = function (changeEvents) {\n      for (var changedex = 0; changedex < changeEvents.length; changedex += 1) {\n        var changeEvent = changeEvents[changedex];\n        var alias = changeEvent.alias,\n            key = changeEvent.key,\n            value = changeEvent.value;\n\n        _this.setComposedState(alias || key, value);\n      }\n\n      if (_this.onChange) {\n        _this.onChange(_this.data);\n      }\n    };\n\n    _this.mutastate = mutastate;\n    _this.data = {};\n    _this.onChange = onChange;\n    return _this;\n  }\n\n  _createClass(MutastateAgent, [{\n    key: 'cleanup',\n    value: function cleanup() {\n      return this.unlistenFromAll();\n    }\n  }]);\n\n  return MutastateAgent;\n}(_BaseAgent3.default);\n\nexports.default = MutastateAgent;\n\n//# sourceURL=webpack://mutastate/./src/MutastateAgent.js?");
-
-/***/ }),
-
-/***/ "./src/MutastateHelpers.js":
-/*!*********************************!*\
-  !*** ./src/MutastateHelpers.js ***!
-  \*********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.findIndex = findIndex;\nexports.throttle = throttle;\nexports.getKeyFilledObject = getKeyFilledObject;\n\nvar _objer = __webpack_require__(/*! objer */ \"./node_modules/objer/dist/src/node.index.js\");\n\nfunction findIndex(array, callback, context) {\n  for (var keydex = 0; keydex < array.length; keydex += 1) {\n    if (callback(array[keydex])) return keydex;\n  }\n  return -1;\n}\n\n// ** COPIED FROM UNDERSCORE JS **\n// Returns a function, that, when invoked, will only be triggered at most once\n// during a given window of time. Normally, the throttled function will run\n// as much as it can, without ever going more than once per `wait` duration;\n// but if you'd like to disable the execution on the leading edge, pass\n// `{leading: false}`. To disable execution on the trailing edge, ditto.\nfunction throttle(func, wait, options) {\n  var timeout, context, args, result;\n  var previous = 0;\n  if (!options) options = {};\n\n  var later = function later() {\n    previous = options.leading === false ? 0 : new Date().getTime();\n    timeout = null;\n    result = func.apply(context, args);\n    if (!timeout) context = args = null;\n  };\n\n  var throttled = function throttled() {\n    var now = new Date().getTime();\n    if (!previous && options.leading === false) previous = now;\n    var remaining = wait - (now - previous);\n    context = this;\n    args = arguments;\n    if (remaining <= 0 || remaining > wait) {\n      if (timeout) {\n        clearTimeout(timeout);\n        timeout = null;\n      }\n      previous = now;\n      result = func.apply(context, args);\n      if (!timeout) context = args = null;\n    } else if (!timeout && options.trailing !== false) {\n      timeout = setTimeout(later, remaining);\n    }\n    return result;\n  };\n\n  throttled.cancel = function () {\n    clearTimeout(timeout);\n    previous = 0;\n    timeout = context = args = null;\n  };\n\n  return throttled;\n}\n\nfunction getKeyFilledObject(key, value) {\n  if (key === null) return value;\n  var result = {};\n  (0, _objer.assurePathExists)(result, key);\n  (0, _objer.set)(result, key, value);\n  return result;\n}\n\n//# sourceURL=webpack://mutastate/./src/MutastateHelpers.js?");
-
-/***/ }),
-
-/***/ "./src/ProxyAgent.js":
-/*!***************************!*\
-  !*** ./src/ProxyAgent.js ***!
-  \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };\n\nvar _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (\"value\" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();\n\nvar _objer = __webpack_require__(/*! objer */ \"./node_modules/objer/dist/src/node.index.js\");\n\nvar _changeWrapper = __webpack_require__(/*! ./changeWrapper */ \"./src/changeWrapper.js\");\n\nvar _changeWrapper2 = _interopRequireDefault(_changeWrapper);\n\nvar _BaseAgent2 = __webpack_require__(/*! ./BaseAgent */ \"./src/BaseAgent.js\");\n\nvar _BaseAgent3 = _interopRequireDefault(_BaseAgent2);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nfunction _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(\"Cannot call a class as a function\"); } }\n\nfunction _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError(\"this hasn't been initialised - super() hasn't been called\"); } return call && (typeof call === \"object\" || typeof call === \"function\") ? call : self; }\n\nfunction _inherits(subClass, superClass) { if (typeof superClass !== \"function\" && superClass !== null) { throw new TypeError(\"Super expression must either be null or a function, not \" + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * The proxy agent uses the proxy() javascript functionality when it internalizes data it adds a proxy layer above\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * setting which sends change requests (=, push, splice, etc) to mutastate directly and subsequent changes are brought in\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * this allows us to listen to a deeply nested key and change the resulting data easily\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */\n\nvar ProxyAgent = function (_BaseAgent) {\n  _inherits(ProxyAgent, _BaseAgent);\n\n  function ProxyAgent(mutastate, onChange) {\n    _classCallCheck(this, ProxyAgent);\n\n    var _this = _possibleConstructorReturn(this, (ProxyAgent.__proto__ || Object.getPrototypeOf(ProxyAgent)).call(this, mutastate, onChange));\n\n    _this.proxyChange = function (data) {\n      if (!_this.ignoreChange) {\n        var type = data.type,\n            key = data.key,\n            value = data.value;\n\n        var firstKey = key instanceof Array ? key[0] : key;\n        var passKey = (0, _objer.has)(_this.aliasObject, firstKey) ? [].concat((0, _objer.get)(_this.aliasObject, firstKey)).concat(key.slice(1)) : key;\n        if (type === 'set') {\n          _this.mutastate.set(passKey, value);\n        } else if (type === 'delete') {\n          _this.mutastate.delete(passKey);\n        }\n      }\n    };\n\n    _this.unlisten = function (key) {\n      var result = _this.mutastate.unlisten(key, _this.handleChange);\n      var alias = (0, _objer.get)(_this.reverseAliasObject, key);\n      if (alias) {\n        (0, _objer.assassinate)(_this.reverseAliasObject, key);\n        (0, _objer.assassinate)(_this.aliasObject, alias);\n      }\n      return result;\n    };\n\n    _this.unlistenFromAll = function () {\n      _this.mutastate.unlistenBatch(_this);\n      _this.aliasObject = {};\n      _this.reverseAliasObject = {};\n    };\n\n    _this.getComposedState = function (initialData, key, value) {\n      if (key instanceof Array && key.length === 0 || key === null) return value;\n\n      (0, _objer.set)(initialData, key, value);\n      return initialData;\n    };\n\n    _this.setComposedState = function (key, value) {\n      var resultData = _this.getComposedState(_this.data, key, value);\n      if (resultData !== _this.data) _this.data = (0, _changeWrapper2.default)(resultData, _this.proxyChange);\n    };\n\n    _this.listen = function (key) {\n      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},\n          alias = _ref.alias,\n          transform = _ref.transform,\n          _ref$initialLoad = _ref.initialLoad,\n          initialLoad = _ref$initialLoad === undefined ? true : _ref$initialLoad,\n          defaultValue = _ref.defaultValue,\n          _ref$partOfMultiListe = _ref.partOfMultiListen,\n          partOfMultiListen = _ref$partOfMultiListe === undefined ? false : _ref$partOfMultiListe;\n\n      var modifiedListener = {\n        alias: alias,\n        transform: transform,\n        initialLoad: initialLoad,\n        defaultValue: defaultValue,\n        callback: _this.handleChange,\n        batch: _this\n      };\n      _this.mutastate.listen(key, modifiedListener);\n\n      if (alias) {\n        (0, _objer.set)(_this.aliasObject, alias, key);\n        (0, _objer.set)(_this.reverseAliasObject, key, alias);\n      }\n      if (initialLoad) {\n        _this.ignoreChange = true;\n        var listenData = _this.mutastate.getForListener(key, modifiedListener);\n        _this.setComposedState(alias || key, listenData.value);\n        if (!partOfMultiListen && _this.onChange) {\n          _this.onChange(_this.data);\n        }\n        _this.ignoreChange = false;\n      }\n    };\n\n    _this.multiListen = function (listeners) {\n      var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},\n          _ref2$initialLoad = _ref2.initialLoad,\n          initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad;\n\n      var loaded = false;\n\n      for (var listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {\n        var listener = listeners[listenerdex];\n        var hasKey = (0, _objer.get)(listener, 'key');\n        var key = hasKey ? listener.key : listener;\n        var alias = hasKey ? listener.alias : null;\n        var options = (hasKey ? listener.options : {}) || {};\n        _this.listen(key, _extends({}, options, { partOfMultiListen: true }));\n        if (initialLoad) {\n          _this.ignoreChange = true;\n          loaded = true;\n          var listenData = _this.mutastate.getForListener(key, listener);\n          _this.setComposedState(alias || key, listenData.value);\n          _this.ignoreChange = false;\n        }\n      }\n\n      if (loaded && _this.onChange) {\n        _this.onChange(_this.data);\n      }\n    };\n\n    _this.handleChange = function (changeEvents) {\n      _this.ignoreChange = true;\n      for (var changedex = 0; changedex < changeEvents.length; changedex += 1) {\n        var changeEvent = changeEvents[changedex];\n        var alias = changeEvent.alias,\n            key = changeEvent.key,\n            value = changeEvent.value;\n\n        _this.setComposedState(alias || key, value);\n      }\n\n      if (_this.onChange) {\n        _this.onChange(_this.data);\n      }\n      _this.ignoreChange = false;\n    };\n\n    _this.mutastate = mutastate;\n    _this.data = (0, _changeWrapper2.default)({}, _this.proxyChange);\n    _this.onChange = onChange;\n    _this.aliasObject = {};\n    _this.reverseAliasObject = {};\n    return _this;\n  }\n\n  // TODO manage push, pop, shift, unshift, splice, etc\n\n\n  _createClass(ProxyAgent, [{\n    key: 'cleanup',\n    value: function cleanup() {\n      return this.unlistenFromAll();\n    }\n  }]);\n\n  return ProxyAgent;\n}(_BaseAgent3.default);\n\nexports.default = ProxyAgent;\n\n//# sourceURL=webpack://mutastate/./src/ProxyAgent.js?");
-
-/***/ }),
-
-/***/ "./src/WithMutastate.js":
-/*!******************************!*\
-  !*** ./src/WithMutastate.js ***!
-  \******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };\n\nvar _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (\"value\" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();\n\nexports.default = withMutastateCreator;\n\nvar _index = __webpack_require__(/*! ./index */ \"./src/index.js\");\n\nfunction _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n\nfunction _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError(\"Cannot call a class as a function\"); } }\n\nfunction _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError(\"this hasn't been initialised - super() hasn't been called\"); } return call && (typeof call === \"object\" || typeof call === \"function\") ? call : self; }\n\nfunction _inherits(subClass, superClass) { if (typeof superClass !== \"function\" && superClass !== null) { throw new TypeError(\"Super expression must either be null or a function, not \" + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }\n\nfunction withMutastateCreator(React) {\n  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},\n      _ref$useProxy = _ref.useProxy,\n      useProxy = _ref$useProxy === undefined ? false : _ref$useProxy,\n      _ref$agentName = _ref.agentName,\n      agentName = _ref$agentName === undefined ? 'agent' : _ref$agentName;\n\n  return function withMutastate(WrappedComponent) {\n    var mutastateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (0, _index.singleton)();\n\n    return function (_React$Component) {\n      _inherits(_class2, _React$Component);\n\n      function _class2(props) {\n        _classCallCheck(this, _class2);\n\n        var _this = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, props));\n\n        _this.changeState = function () {\n          return _this.setState(_this.state);\n        };\n\n        _this.agent = useProxy ? mutastateInstance.getProxyAgent(_this.changeState) : mutastateInstance.getAgent(_this.changeState);\n        _this.state = {};\n        return _this;\n      }\n\n      _createClass(_class2, [{\n        key: 'componentWillUnmount',\n        value: function componentWillUnmount() {\n          return this.agent.cleanup();\n        }\n      }, {\n        key: 'render',\n        value: function render() {\n          return React.createElement(WrappedComponent, _extends(_defineProperty({ data: this.agent.data }, agentName, this.agent), this.props), null);\n        }\n      }]);\n\n      return _class2;\n    }(React.Component);\n  };\n}\n\n//# sourceURL=webpack://mutastate/./src/WithMutastate.js?");
-
-/***/ }),
-
-/***/ "./src/changeWrapper.js":
-/*!******************************!*\
-  !*** ./src/changeWrapper.js ***!
-  \******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nvar _objer = __webpack_require__(/*! objer */ \"./node_modules/objer/dist/src/node.index.js\");\n\n// const handleGetCreator = () => (target, property, receiver) => {\n//   console.log('getting', property)\n//   try {\n//     return new Proxy(target[property], handler);\n//   } catch (err) {\n//     return Reflect.get(target, property, receiver);\n//   }\n// }\n\n// const handleDefineCreator = ({ meta, onChange }) => (target, property, descriptor) => {\n//   onChange({ type: 'define', property, meta });\n//   return Reflect.defineProperty(target, property, descriptor);\n// }\n\n// const handleDeleteCreator = ({ meta, onChange }) => (target, property) => {\n//   onChange({ type: 'delete', property, meta });\n//   return Reflect.deleteProperty(target, property);\n// }\n\n// const handleSetCreator = ({ meta, handleDefine, onChange }) => (target, property, value, receiver) => {\n//   const incomingTypeString = getTypeString(value);\n\n//   if (incomingTypeString === 'object') {\n//     const passMeta = { ...(meta || {}), key: ((meta && meta.key) || []).concat(property) };\n//     console.log('creating proxy thing at', property)\n//     target[property] = wrapChanges(value, onChange, passMeta);\n//   } else {\n//     console.log('not proxying', property)\n//     target[property] = value;\n//   }\n\n//   handleDefine(target, property, { value });\n\n//   return true;\n// }\n\n// function wrapChanges(object, onChange, meta) {\n//   if (!meta) meta = { key: [] };\n//   // const handleGet = handleGetCreator({ meta });\n//   const handleDefine = handleDefineCreator({ meta, onChange });\n//   const handleDelete = handleDeleteCreator({ meta, onChange });\n//   const handleSet = handleSetCreator({ meta, onChange, handleDefine });\n\n//   const handler = {\n//     // get: handleGet,\n//     defineProperty: handleDefine,\n//     deleteProperty: handleDelete,\n//     set: handleSet,\n//   };\n\n//   return new Proxy(object, handler);\n// };\n\n\nfunction getHandler(onChange, keyInput) {\n\tvar key = (0, _objer.getObjectPath)(keyInput);\n\tvar handler = {\n\t\tget: function get(target, property, receiver) {\n\t\t\tvar desc = Object.getOwnPropertyDescriptor(target, property);\n\t\t\tvar value = Reflect.get(target, property, receiver);\n\n\t\t\tif (desc && !desc.writable && !desc.configurable) return value;\n\n\t\t\ttry {\n\t\t\t\treturn new Proxy(target[property], getHandler(onChange, key.concat(property)));\n\t\t\t} catch (err) {\n\t\t\t\treturn value;\n\t\t\t}\n\t\t},\n\t\tset: function set(target, property, value) {\n\t\t\tif (!(target instanceof Array && property === 'length')) {\n\t\t\t\t// ignore length changes\n\t\t\t\tonChange({ type: 'set', key: key.concat(property), value: value });\n\t\t\t}\n\n\t\t\treturn Reflect.set(target, property, value);\n\t\t},\n\n\t\t// defineProperty(target, property, descriptor) {\n\t\t// \tonChange({ type: 'define', key: key.concat(property) });\n\t\t// \treturn Reflect.defineProperty(target, property, descriptor);\n\t\t// },\n\t\tdeleteProperty: function deleteProperty(target, property) {\n\t\t\tonChange({ type: 'delete', key: key.concat(property) });\n\t\t\treturn Reflect.deleteProperty(target, property);\n\t\t}\n\t};\n\treturn handler;\n}\n\nmodule.exports = function (object, onChange) {\n\treturn new Proxy(object, getHandler(onChange, []));\n};\n\n//# sourceURL=webpack://mutastate/./src/changeWrapper.js?");
-
-/***/ }),
-
-/***/ "./src/index.js":
-/*!**********************!*\
-  !*** ./src/index.js ***!
-  \**********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.getLocalStorageSaveFunc = exports.getLocalStorageLoadFunc = exports.withMutastateCreator = exports.initializeSingleton = exports.singleton = exports.Mutastate = undefined;\n\nvar _Mutastate = __webpack_require__(/*! ./Mutastate */ \"./src/Mutastate.js\");\n\nvar _Mutastate2 = _interopRequireDefault(_Mutastate);\n\nvar _WithMutastate = __webpack_require__(/*! ./WithMutastate */ \"./src/WithMutastate.js\");\n\nvar _WithMutastate2 = _interopRequireDefault(_WithMutastate);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nfunction singleton() {\n  if (singleton.singleton === undefined) {\n    singleton.singleton = new _Mutastate2.default();\n  }\n  return singleton.singleton;\n}\nfunction initializeSingleton(parameters) {\n  return singleton().initialize(parameters);\n}\n\nvar mutastate = {\n  Mutastate: _Mutastate2.default,\n  singleton: singleton,\n  initializeSingleton: initializeSingleton,\n  withMutastateCreator: _WithMutastate2.default,\n  getLocalStorageLoadFunc: _Mutastate.getLocalStorageLoadFunc,\n  getLocalStorageSaveFunc: _Mutastate.getLocalStorageSaveFunc\n};\n\nexports.Mutastate = _Mutastate2.default;\nexports.singleton = singleton;\nexports.initializeSingleton = initializeSingleton;\nexports.withMutastateCreator = _WithMutastate2.default;\nexports.getLocalStorageLoadFunc = _Mutastate.getLocalStorageLoadFunc;\nexports.getLocalStorageSaveFunc = _Mutastate.getLocalStorageSaveFunc;\nexports.default = mutastate;\n\n//# sourceURL=webpack://mutastate/./src/index.js?");
-
-/***/ }),
-
-/***/ "./src/utility/blankKey.js":
-/*!*********************************!*\
-  !*** ./src/utility/blankKey.js ***!
-  \*********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.isBlankKey = isBlankKey;\nfunction isBlankKey(key) {\n  return key === null || key instanceof Array && key.length === 0;\n}\n\n//# sourceURL=webpack://mutastate/./src/utility/blankKey.js?");
-
-/***/ }),
-
-/***/ "./src/utility/promise.js":
-/*!********************************!*\
-  !*** ./src/utility/promise.js ***!
-  \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.default = getPromiseFunction;\n\nvar _bluebird = __webpack_require__(/*! bluebird */ \"./node_modules/bluebird/js/release/bluebird.js\");\n\nvar _bluebird2 = _interopRequireDefault(_bluebird);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\nfunction getPromiseFunction() {\n  if (typeof global !== 'undefined' && typeof global.Promise !== 'undefined') {\n    return global.Promise;\n  } else if (typeof window !== 'undefined' && typeof window.Promise !== 'undefined') {\n    return window.Promise;\n  }\n  return _bluebird2.default;\n}\n\n//# sourceURL=webpack://mutastate/./src/utility/promise.js?");
-
-/***/ })
-
-/******/ });
-});
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('bluebird'), require('objer')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'bluebird', 'objer'], factory) :
+  (factory((global.mutastate = {}),global.bluebird,global.objer));
+}(this, (function (exports,bluebird,objer) { 'use strict';
+
+  bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
+
+  var classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  var createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  var defineProperty = function (obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  };
+
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  var inherits = function (subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  };
+
+  var possibleConstructorReturn = function (self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  };
+
+  var BaseAgent = function BaseAgent(mutastate, onChange) {
+    var _this = this;
+
+    classCallCheck(this, BaseAgent);
+
+    this.getComposedState = function (initialData, key, value) {
+      if (key instanceof Array && key.length === 0 || key === null) return value;
+
+      objer.set(initialData, key, value);
+      return initialData;
+    };
+
+    this.setComposedState = function (key, value) {
+      _this.data = _this.getComposedState(_this.data, key, value);
+    };
+
+    this.translate = function (inputKey, outputKey, translationFunction) {
+      var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
+          _ref$killOnCleanup = _ref.killOnCleanup,
+          killOnCleanup = _ref$killOnCleanup === undefined ? true : _ref$killOnCleanup,
+          _ref$throttleTime = _ref.throttleTime,
+          throttleTime = _ref$throttleTime === undefined ? null : _ref$throttleTime;
+
+      _this.mutastate.translate(inputKey, outputKey, translationFunction, { batch: killOnCleanup ? _this : undefined, throttleTime: throttleTime });
+    };
+
+    this.get = function (key) {
+      return _this.mutastate.get(key);
+    };
+
+    this.set = function (key, value, options) {
+      return _this.mutastate.set(key, value, options);
+    };
+
+    this.delete = function (key) {
+      return _this.mutastate.delete(key);
+    };
+
+    this.assign = function (key, value) {
+      return _this.mutastate.assign(key, value);
+    };
+
+    this.push = function (key, value, options) {
+      return _this.mutastate.push(key, value, options);
+    };
+
+    this.pop = function (key, options) {
+      return _this.mutastate.pop(key, options);
+    };
+
+    this.has = function (key) {
+      return _this.mutastate.has(key);
+    };
+
+    this.getEverything = function () {
+      return _this.mutastate.getEverything();
+    };
+
+    this.setEverything = function (data) {
+      return _this.mutastate.setEverything(data);
+    };
+
+    this.mutastate = mutastate;
+    this.data = {};
+    this.onChange = onChange;
+  };
+
+  var MutastateAgent = function (_BaseAgent) {
+    inherits(MutastateAgent, _BaseAgent);
+
+    function MutastateAgent(mutastate, onChange) {
+      classCallCheck(this, MutastateAgent);
+
+      var _this = possibleConstructorReturn(this, (MutastateAgent.__proto__ || Object.getPrototypeOf(MutastateAgent)).call(this, mutastate, onChange));
+
+      _this.unlisten = function (key) {
+        var result = _this.mutastate.unlisten(key, _this.handleChange);
+        return result;
+      };
+
+      _this.unlistenFromAll = function () {
+        _this.mutastate.unlistenBatch(_this);
+      };
+
+      _this.listen = function (key) {
+        var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            alias = _ref.alias,
+            transform = _ref.transform,
+            _ref$initialLoad = _ref.initialLoad,
+            initialLoad = _ref$initialLoad === undefined ? true : _ref$initialLoad,
+            defaultValue = _ref.defaultValue,
+            _ref$partOfMultiListe = _ref.partOfMultiListen,
+            partOfMultiListen = _ref$partOfMultiListe === undefined ? false : _ref$partOfMultiListe;
+
+        var modifiedListener = {
+          alias: alias,
+          transform: transform,
+          initialLoad: initialLoad,
+          defaultValue: defaultValue,
+          callback: _this.handleChange,
+          batch: _this
+        };
+        _this.mutastate.listen(key, modifiedListener);
+
+        if (initialLoad) {
+          var listenData = _this.mutastate.getForListener(key, modifiedListener);
+          _this.setComposedState(alias || key, listenData.value);
+          if (!partOfMultiListen && _this.onChange) {
+            _this.onChange(_this.data);
+          }
+        }
+      };
+
+      _this.multiListen = function (listeners) {
+        var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref2$initialLoad = _ref2.initialLoad,
+            initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad;
+
+        var loaded = false;
+
+        for (var listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {
+          var listener = listeners[listenerdex];
+          var hasKey = objer.get(listener, 'key');
+          var key = hasKey ? listener.key : listener;
+          var alias = hasKey ? listener.alias : null;
+          var options = (hasKey ? listener.options : {}) || {};
+          _this.listen(key, _extends({}, options, { partOfMultiListen: true }));
+          if (initialLoad) {
+            loaded = true;
+            var listenData = _this.mutastate.getForListener(key, listener);
+            _this.setComposedState(alias || key, listenData.value);
+          }
+        }
+
+        if (loaded && _this.onChange) {
+          _this.onChange(_this.data);
+        }
+      };
+
+      _this.handleChange = function (changeEvents) {
+        for (var changedex = 0; changedex < changeEvents.length; changedex += 1) {
+          var changeEvent = changeEvents[changedex];
+          var alias = changeEvent.alias,
+              key = changeEvent.key,
+              value = changeEvent.value;
+
+          _this.setComposedState(alias || key, value);
+        }
+
+        if (_this.onChange) {
+          _this.onChange(_this.data);
+        }
+      };
+
+      _this.mutastate = mutastate;
+      _this.data = {};
+      _this.onChange = onChange;
+      return _this;
+    }
+
+    createClass(MutastateAgent, [{
+      key: 'cleanup',
+      value: function cleanup() {
+        return this.unlistenFromAll();
+      }
+    }]);
+    return MutastateAgent;
+  }(BaseAgent);
+
+  function findIndex(array, callback, context) {
+    for (var keydex = 0; keydex < array.length; keydex += 1) {
+      if (callback(array[keydex])) return keydex;
+    }
+    return -1;
+  }
+
+  // ** COPIED FROM UNDERSCORE JS **
+  // Returns a function, that, when invoked, will only be triggered at most once
+  // during a given window of time. Normally, the throttled function will run
+  // as much as it can, without ever going more than once per `wait` duration;
+  // but if you'd like to disable the execution on the leading edge, pass
+  // `{leading: false}`. To disable execution on the trailing edge, ditto.
+  function throttle(func, wait, options) {
+    var timeout, context, args, result;
+    var previous = 0;
+    if (!options) options = {};
+
+    var later = function later() {
+      previous = options.leading === false ? 0 : new Date().getTime();
+      timeout = null;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    };
+
+    var throttled = function throttled() {
+      var now = new Date().getTime();
+      if (!previous && options.leading === false) previous = now;
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0 || remaining > wait) {
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
+        previous = now;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+      } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
+    };
+
+    throttled.cancel = function () {
+      clearTimeout(timeout);
+      previous = 0;
+      timeout = context = args = null;
+    };
+
+    return throttled;
+  }
+
+  function getKeyFilledObject(key, value) {
+    if (key === null) return value;
+    var result = {};
+    objer.assurePathExists(result, key);
+    objer.set(result, key, value);
+    return result;
+  }
+
+  function isBlankKey(key) {
+    return key === null || key instanceof Array && key.length === 0;
+  }
+
+  function getPromiseFunction() {
+    if (typeof global !== 'undefined' && typeof global.Promise !== 'undefined') {
+      return global.Promise;
+    } else if (typeof window !== 'undefined' && typeof window.Promise !== 'undefined') {
+      return window.Promise;
+    }
+    return bluebird;
+  }
+
+  // const handleGetCreator = () => (target, property, receiver) => {
+  //   console.log('getting', property)
+  //   try {
+  //     return new Proxy(target[property], handler);
+  //   } catch (err) {
+  //     return Reflect.get(target, property, receiver);
+  //   }
+  // }
+
+  // const handleDefineCreator = ({ meta, onChange }) => (target, property, descriptor) => {
+  //   onChange({ type: 'define', property, meta });
+  //   return Reflect.defineProperty(target, property, descriptor);
+  // }
+
+  // const handleDeleteCreator = ({ meta, onChange }) => (target, property) => {
+  //   onChange({ type: 'delete', property, meta });
+  //   return Reflect.deleteProperty(target, property);
+  // }
+
+  // const handleSetCreator = ({ meta, handleDefine, onChange }) => (target, property, value, receiver) => {
+  //   const incomingTypeString = getTypeString(value);
+
+  //   if (incomingTypeString === 'object') {
+  //     const passMeta = { ...(meta || {}), key: ((meta && meta.key) || []).concat(property) };
+  //     console.log('creating proxy thing at', property)
+  //     target[property] = wrapChanges(value, onChange, passMeta);
+  //   } else {
+  //     console.log('not proxying', property)
+  //     target[property] = value;
+  //   }
+
+  //   handleDefine(target, property, { value });
+
+  //   return true;
+  // }
+
+  // function wrapChanges(object, onChange, meta) {
+  //   if (!meta) meta = { key: [] };
+  //   // const handleGet = handleGetCreator({ meta });
+  //   const handleDefine = handleDefineCreator({ meta, onChange });
+  //   const handleDelete = handleDeleteCreator({ meta, onChange });
+  //   const handleSet = handleSetCreator({ meta, onChange, handleDefine });
+
+  //   const handler = {
+  //     // get: handleGet,
+  //     defineProperty: handleDefine,
+  //     deleteProperty: handleDelete,
+  //     set: handleSet,
+  //   };
+
+  //   return new Proxy(object, handler);
+  // };
+
+
+  function getHandler(onChange, keyInput) {
+  	var key = objer.getObjectPath(keyInput);
+  	var handler = {
+  		get: function get(target, property, receiver) {
+  			var desc = Object.getOwnPropertyDescriptor(target, property);
+  			var value = Reflect.get(target, property, receiver);
+
+  			if (desc && !desc.writable && !desc.configurable) return value;
+
+  			try {
+  				return new Proxy(target[property], getHandler(onChange, key.concat(property)));
+  			} catch (err) {
+  				return value;
+  			}
+  		},
+  		set: function set(target, property, value) {
+  			if (!(target instanceof Array && property === 'length')) {
+  				// ignore length changes
+  				onChange({ type: 'set', key: key.concat(property), value: value });
+  			}
+
+  			return Reflect.set(target, property, value);
+  		},
+
+  		// defineProperty(target, property, descriptor) {
+  		// 	onChange({ type: 'define', key: key.concat(property) });
+  		// 	return Reflect.defineProperty(target, property, descriptor);
+  		// },
+  		deleteProperty: function deleteProperty(target, property) {
+  			onChange({ type: 'delete', key: key.concat(property) });
+  			return Reflect.deleteProperty(target, property);
+  		}
+  	};
+  	return handler;
+  }
+
+  var changeWrapper = (function (object, onChange) {
+  	return new Proxy(object, getHandler(onChange, []));
+  });
+
+  /**
+   * The proxy agent uses the proxy() javascript functionality when it internalizes data it adds a proxy layer above
+   * setting which sends change requests (=, push, splice, etc) to mutastate directly and subsequent changes are brought in
+   * this allows us to listen to a deeply nested key and change the resulting data easily
+   */
+
+  var ProxyAgent = function (_BaseAgent) {
+    inherits(ProxyAgent, _BaseAgent);
+
+    function ProxyAgent(mutastate, onChange) {
+      classCallCheck(this, ProxyAgent);
+
+      var _this = possibleConstructorReturn(this, (ProxyAgent.__proto__ || Object.getPrototypeOf(ProxyAgent)).call(this, mutastate, onChange));
+
+      _this.proxyChange = function (data) {
+        if (!_this.ignoreChange) {
+          var type = data.type,
+              key = data.key,
+              value = data.value;
+
+          var firstKey = key instanceof Array ? key[0] : key;
+          var passKey = objer.has(_this.aliasObject, firstKey) ? [].concat(objer.get(_this.aliasObject, firstKey)).concat(key.slice(1)) : key;
+          if (type === 'set') {
+            _this.mutastate.set(passKey, value);
+          } else if (type === 'delete') {
+            _this.mutastate.delete(passKey);
+          }
+        }
+      };
+
+      _this.unlisten = function (key) {
+        var result = _this.mutastate.unlisten(key, _this.handleChange);
+        var alias = objer.get(_this.reverseAliasObject, key);
+        if (alias) {
+          objer.assassinate(_this.reverseAliasObject, key);
+          objer.assassinate(_this.aliasObject, alias);
+        }
+        return result;
+      };
+
+      _this.unlistenFromAll = function () {
+        _this.mutastate.unlistenBatch(_this);
+        _this.aliasObject = {};
+        _this.reverseAliasObject = {};
+      };
+
+      _this.getComposedState = function (initialData, key, value) {
+        if (key instanceof Array && key.length === 0 || key === null) return value;
+
+        objer.set(initialData, key, value);
+        return initialData;
+      };
+
+      _this.setComposedState = function (key, value) {
+        var resultData = _this.getComposedState(_this.data, key, value);
+        if (resultData !== _this.data) _this.data = changeWrapper(resultData, _this.proxyChange);
+      };
+
+      _this.listen = function (key) {
+        var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            alias = _ref.alias,
+            transform = _ref.transform,
+            _ref$initialLoad = _ref.initialLoad,
+            initialLoad = _ref$initialLoad === undefined ? true : _ref$initialLoad,
+            defaultValue = _ref.defaultValue,
+            _ref$partOfMultiListe = _ref.partOfMultiListen,
+            partOfMultiListen = _ref$partOfMultiListe === undefined ? false : _ref$partOfMultiListe;
+
+        var modifiedListener = {
+          alias: alias,
+          transform: transform,
+          initialLoad: initialLoad,
+          defaultValue: defaultValue,
+          callback: _this.handleChange,
+          batch: _this
+        };
+        _this.mutastate.listen(key, modifiedListener);
+
+        if (alias) {
+          objer.set(_this.aliasObject, alias, key);
+          objer.set(_this.reverseAliasObject, key, alias);
+        }
+        if (initialLoad) {
+          _this.ignoreChange = true;
+          var listenData = _this.mutastate.getForListener(key, modifiedListener);
+          _this.setComposedState(alias || key, listenData.value);
+          if (!partOfMultiListen && _this.onChange) {
+            _this.onChange(_this.data);
+          }
+          _this.ignoreChange = false;
+        }
+      };
+
+      _this.multiListen = function (listeners) {
+        var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref2$initialLoad = _ref2.initialLoad,
+            initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad;
+
+        var loaded = false;
+
+        for (var listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {
+          var listener = listeners[listenerdex];
+          var hasKey = objer.get(listener, 'key');
+          var key = hasKey ? listener.key : listener;
+          var alias = hasKey ? listener.alias : null;
+          var options = (hasKey ? listener.options : {}) || {};
+          _this.listen(key, _extends({}, options, { partOfMultiListen: true }));
+          if (initialLoad) {
+            _this.ignoreChange = true;
+            loaded = true;
+            var listenData = _this.mutastate.getForListener(key, listener);
+            _this.setComposedState(alias || key, listenData.value);
+            _this.ignoreChange = false;
+          }
+        }
+
+        if (loaded && _this.onChange) {
+          _this.onChange(_this.data);
+        }
+      };
+
+      _this.handleChange = function (changeEvents) {
+        _this.ignoreChange = true;
+        for (var changedex = 0; changedex < changeEvents.length; changedex += 1) {
+          var changeEvent = changeEvents[changedex];
+          var alias = changeEvent.alias,
+              key = changeEvent.key,
+              value = changeEvent.value;
+
+          _this.setComposedState(alias || key, value);
+        }
+
+        if (_this.onChange) {
+          _this.onChange(_this.data);
+        }
+        _this.ignoreChange = false;
+      };
+
+      _this.mutastate = mutastate;
+      _this.data = changeWrapper({}, _this.proxyChange);
+      _this.onChange = onChange;
+      _this.aliasObject = {};
+      _this.reverseAliasObject = {};
+      return _this;
+    }
+
+    // TODO manage push, pop, shift, unshift, splice, etc
+
+
+    createClass(ProxyAgent, [{
+      key: 'cleanup',
+      value: function cleanup() {
+        return this.unlistenFromAll();
+      }
+    }]);
+    return ProxyAgent;
+  }(BaseAgent);
+
+  function missingCallback() {
+    console.error('Mutastate missing save or load callback', new Error().stack);
+    return {};
+  }
+
+  /**
+   * Use localstorage if the user hasn't specified a save function
+   */
+  function getLocalStorageSaveFunc() {
+    if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {
+      return function (key, data) {
+        return global.localStorage.setItem(key, JSON.stringify(data));
+      };
+    } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      return function (key, data) {
+        return window.localStorage.setItem(key, JSON.stringify(data));
+      };
+    }
+  }
+
+  function getLocalStorageLoadFunc() {
+    if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {
+      return function (key) {
+        return global.localStorage.getItem(key) ? JSON.parse(global.localStorage.getItem(key)) : {};
+      };
+    } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      return function (key) {
+        return window.localStorage.getItem(key) ? JSON.parse(window.localStorage.getItem(key)) : {};
+      };
+    }
+  }
+
+  var SAVE_THROTTLE_TIME = 100;
+
+  /**
+   * Core mutastate class, this class stores data and informes listeners of changes
+   */
+
+  var Mutastate = function () {
+    function Mutastate() {
+      var _this = this;
+
+      classCallCheck(this, Mutastate);
+
+      this.getAgent = function (onChange) {
+        return new MutastateAgent(_this, onChange);
+      };
+
+      this.getProxyAgent = function (onChange) {
+        return new ProxyAgent(_this, onChange);
+      };
+
+      this.initialize = function (_ref) {
+        var shards = _ref.shards,
+            save = _ref.save,
+            load = _ref.load;
+
+        _this.saveData = save !== undefined ? save : missingCallback;
+        _this.loadData = load !== undefined ? load : missingCallback;
+        _this.persistShards = shards;
+        return _this.load();
+      };
+
+      this.save = function () {
+        var result = {};
+        var promises = [];
+        var persistLength = (_this.persistShards || []).length;
+
+        var _loop = function _loop(dex) {
+          var key = _this.persistShards[dex];
+          var saveResults = _this.saveData(key, objer.get(_this.data, key));
+          if (saveResults instanceof _this.promise) {
+            promises.push(saveResults.then(function (result) {
+              return defineProperty({}, key, result);
+            }));
+          } else {
+            result[key] = saveResults;
+          }
+        };
+
+        for (var dex = 0; dex < persistLength; dex += 1) {
+          _loop(dex);
+        }
+
+        if (promises.length > 0) {
+          return _this.promise.all(promises).then(function (ray) {
+            (ray || []).forEach(function (obj) {
+              if (obj) {
+                Object.assign(result, obj);
+              }
+            });
+            return _this.data;
+          });
+        }
+
+        return _this.data;
+      };
+
+      this.load = function () {
+        var result = {};
+        var promises = [];
+        var persistLength = (_this.persistShards || []).length;
+
+        var _loop2 = function _loop2(dex) {
+          var key = _this.persistShards[dex];
+          var loadResults = _this.loadData(key);
+          if (loadResults instanceof _this.promise) {
+            promises.push(loadResults.then(function (result) {
+              return defineProperty({}, key, result);
+            }));
+          } else {
+            result[key] = loadResults;
+          }
+        };
+
+        for (var dex = 0; dex < persistLength; dex += 1) {
+          _loop2(dex);
+        }
+
+        if (promises.length > 0) {
+          return _this.promise.all(promises).then(function (ray) {
+            (ray || []).forEach(function (obj) {
+              Object.assign(result, obj);
+            });
+            _this.data = result;
+            return _this.data;
+          });
+        }
+
+        _this.data = result;
+        return Promise.resolve(_this.data);
+      };
+
+      this.throttledSave = throttle(this.save, SAVE_THROTTLE_TIME);
+
+      this.getListenersAtPath = function (key) {
+        var keyArray = isBlankKey(key) ? ['default'] : objer.getObjectPath(key);
+
+        var currentListenObject = _this.listenerObject;
+        for (var keydex = 0; keydex < keyArray.length - 1; keydex += 1) {
+          // Go through all keys except the last, which is where out final request will go
+          var subKey = keyArray[keydex];
+          currentListenObject = objer.assurePathExists(currentListenObject, ['subkeys', subKey], {});
+        }
+        var finalKey = keyArray[keyArray.length - 1];
+        return objer.assurePathExists(currentListenObject, ['subkeys', finalKey, 'listeners'], []);
+      };
+
+      this.listen = function (key) {
+        var listener = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { callback: function callback() {}, alias: null, batch: null, transform: null, defaultValue: undefined };
+
+        var listeners = _this.getListenersAtPath(key);
+        var matchedListeners = listeners.reduce(function (results, existingListener, dex) {
+          if (existingListener.callback === listener.callback) results.push(dex);
+          return results;
+        }, []);
+
+        for (var dex = matchedListeners.length - 1; dex >= 0; dex -= 1) {
+          listeners.splice(matchedListeners[dex], 1);
+        }
+
+        listeners.push(listener);
+        return true;
+      };
+
+      this.unlisten = function (key, callback) {
+        var listeners = _this.getListenersAtPath(key);
+
+        var matchedListeners = listeners.reduce(function (results, existingListener, dex) {
+          if (existingListener.callback === callback) results.push(dex);
+          return results;
+        }, []);
+
+        for (var dex = matchedListeners.length - 1; dex >= 0; dex -= 1) {
+          listeners.splice(matchedListeners[dex], 1);
+        }
+      };
+
+      this.unlistenBatch = function (batch, basePath) {
+        var patharray = basePath || [];
+        var subkeypath = (basePath || []).concat('subkeys');
+        var subKeys = objer.keys(objer.get(_this.listenerObject, subkeypath));
+        for (var keydex = 0; keydex < subKeys.length; keydex += 1) {
+          _this.unlistenBatch(batch, subkeypath.concat([subKeys[keydex]]));
+        }
+
+        var listeners = objer.get(_this.listenerObject, patharray.concat('listeners'));
+
+        var matchedListeners = (listeners || []).reduce(function (results, existingListener, dex) {
+          if (existingListener.batch === batch) results.push(dex);
+          return results;
+        }, []);
+
+        for (var dex = matchedListeners.length - 1; dex >= 0; dex -= 1) {
+          listeners.splice(matchedListeners[dex], 1);
+        }
+      };
+
+      this.getForListener = function (key, listener, keyChange) {
+        var alias = listener.alias,
+            callback = listener.callback,
+            transform = listener.transform,
+            defaultValue = listener.defaultValue;
+
+        var value = null;
+
+        if (objer.has(_this.data, key)) {
+          value = objer.get(_this.data, key);
+        } else {
+          if (defaultValue !== undefined) {
+            objer.set(_this.data, key, defaultValue);
+          }
+          value = defaultValue;
+        }
+
+        return { keyChange: keyChange, alias: alias, callback: callback, key: key, value: transform ? transform(value) : value };
+      };
+
+      this.getAllChildListeners = function (listenerObject) {
+        var currentKey = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+        var type = arguments[2];
+
+        var result = [];
+        var currentListeners = objer.get(listenerObject, 'listeners') || [];
+        var subkeyObject = objer.get(listenerObject, 'subkeys') || {};
+        var subkeys = objer.keys(subkeyObject);
+        for (var listenerdex = 0; listenerdex < currentListeners.length; listenerdex += 1) {
+          result.push({ listener: currentListeners[listenerdex], key: currentKey, type: type });
+        }
+        for (var keydex = 0; keydex < subkeys.length; keydex += 1) {
+          var subkey = subkeys[keydex];
+          result = result.concat(_this.getAllChildListeners(subkeyObject[subkey], currentKey.concat(subkey), type));
+        }
+        return result;
+      };
+
+      this.getDeleteListeners = function (original, incoming, listenerObject) {
+        var currentKey = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+
+        var result = [];
+        var originalType = objer.getTypeString(original);
+        if (originalType === 'object' || originalType === 'array') {
+          var incomingType = objer.getTypeString(incoming);
+          if (incomingType !== originalType) {
+            result = result.concat(_this.getAllChildListeners(listenerObject, currentKey, 'delete'));
+            // Send delete notification to every child of the original key
+          } else {
+            var originalKeys = objer.keys(original);
+            if (objer.has(listenerObject, 'subkeys')) {
+              for (var keydex = 0; keydex < originalKeys.length; keydex += 1) {
+                var originalKey = originalKeys[keydex];
+                if (objer.has(listenerObject.subkeys, originalKey)) {
+                  if (!objer.has(incoming, originalKey)) {
+                    result = result.concat(_this.getAllChildListeners(listenerObject.subkeys[originalKey], currentKey.concat(originalKey), 'delete'));
+                  } else {
+                    result = result.concat(_this.getDeleteListeners(objer.get(original, originalKey), objer.get(incoming, originalKey), listenerObject.subkeys[originalKey], currentKey.concat(originalKey)));
+                  }
+                }
+              }
+            }
+          }
+        }
+        return result;
+      };
+
+      this.get = function (key) {
+        return objer.get(_this.data, key);
+      };
+
+      this.set = function (key, value) {
+        var _ref4 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+            _ref4$notify = _ref4.notify,
+            notify = _ref4$notify === undefined ? true : _ref4$notify,
+            _ref4$immediate = _ref4.immediate,
+            immediate = _ref4$immediate === undefined ? false : _ref4$immediate,
+            _ref4$save = _ref4.save,
+            save = _ref4$save === undefined ? true : _ref4$save;
+
+        var keyArray = objer.getObjectPath(key);
+        var listeners = _this.getRelevantListeners(keyArray, value);
+        // Consider a pre-notify here
+        objer.set(_this.data, key, value);
+        if (notify) _this.notify(listeners);
+        if (save) {
+          if (immediate) _this.save();else _this.throttledSave();
+        }
+      };
+
+      this.delete = function (key) {
+        _this.set(key, undefined);
+        objer.assassinate(_this.data, key);
+      };
+
+      this.assign = function (key, value) {
+        var original = objer.get(_this.data, key);
+        var originalType = objer.getTypeString(original);
+        var incomingType = objer.getTypeString(value);
+
+        if (originalType === 'object' && incomingType === 'object') {
+          _this.set(key, Object.assign({}, original, value));
+        } else {
+          _this.set(key, value);
+        }
+      };
+
+      this.push = function (key, value) {
+        var _ref5 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+            _ref5$notify = _ref5.notify,
+            notify = _ref5$notify === undefined ? true : _ref5$notify,
+            _ref5$immediate = _ref5.immediate,
+            immediate = _ref5$immediate === undefined ? false : _ref5$immediate,
+            _ref5$save = _ref5.save,
+            save = _ref5$save === undefined ? true : _ref5$save;
+
+        var keyArray = objer.getObjectPath(key);
+        var original = objer.get(_this.data, keyArray);
+        var originalType = objer.getTypeString(original);
+        if (originalType === 'array') {
+          var extendedKey = keyArray.concat(original.length);
+          var listeners = _this.getRelevantListeners(extendedKey, value);
+          // Consider a pre-notify here
+          original.push(value);
+          if (notify) _this.notify(listeners);
+          if (save) {
+            if (immediate) _this.save();else _this.throttledSave();
+          }
+        }
+      };
+
+      this.pop = function (key) {
+        var _ref6 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref6$notify = _ref6.notify,
+            notify = _ref6$notify === undefined ? true : _ref6$notify,
+            _ref6$immediate = _ref6.immediate,
+            immediate = _ref6$immediate === undefined ? false : _ref6$immediate,
+            _ref6$save = _ref6.save,
+            save = _ref6$save === undefined ? true : _ref6$save;
+
+        var keyArray = objer.getObjectPath(key);
+        var original = objer.get(_this.data, keyArray);
+        var originalType = objer.getTypeString(original);
+        if (originalType === 'array' && original.length > 0) {
+          var extendedKey = keyArray.concat(original.length - 1);
+          var listeners = _this.getRelevantListeners(extendedKey, undefined);
+          // Consider a pre-notify here
+          original.pop();
+          if (notify) _this.notify(listeners);
+          if (save) {
+            if (immediate) _this.save();else _this.throttledSave();
+          }
+        }
+      };
+
+      this.has = function (key) {
+        return objer.has(_this.data, key);
+      };
+
+      this.getEverything = function () {
+        return _this.data;
+      };
+
+      this.setEverything = function (data) {
+        return _this.data = data;
+      };
+
+      this.translate = function (inputKey, outputKey, translationFunction) {
+        var _ref7 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
+            batch = _ref7.batch,
+            _ref7$throttleTime = _ref7.throttleTime,
+            throttleTime = _ref7$throttleTime === undefined ? null : _ref7$throttleTime;
+
+        var callback = function callback(input) {
+          if (input.length > 0) {
+            var output = translationFunction(input[input.length - 1].value, objer.get(_this.data, inputKey));
+            if (output instanceof Promise) {
+              output.then(function (result) {
+                return _this.set(outputKey, result);
+              });
+            } else {
+              _this.set(outputKey, output);
+            }
+          }
+        };
+        var shouldThrottle = objer.getTypeString(throttleTime) === 'number' && throttleTime > 0;
+        _this.listen(inputKey, { initialLoad: true, batch: batch, callback: shouldThrottle ? throttle(callback, throttleTime) : callback });
+      };
+
+      this.listenerObject = { subkeys: {} };
+      this.data = {};
+      this.promise = getPromiseFunction();
+    }
+
+    /**
+     * An agent is a listener with alias and transform capabilities
+     * @param {function} onChange
+     */
+
+
+    /**
+     * Set save and load functionality, as well as indicate shards we need to load and save
+     */
+    // TODO: consider adding persistData option here
+
+
+    /**
+     * Save data from each persisted shard, persisted shards are indicated by initialize
+     */
+
+
+    /**
+     * Load data from persisted shards, typically only called on app init
+     */
+
+
+    /**
+     * Retrieve a list of relevant listeners given a change at a key;
+     */
+
+
+    // getChildListenersAtPath = (key) => {
+
+    // }
+
+    /**
+     * Add a path listener, dedupes by callback function, careful with anonymous functions!
+     */
+
+
+    /**
+     * Unlisten by callback, careful with anonymous functions!
+     */
+
+
+    /**
+     * Unlisten by the batch parameter passed into the options of the listen function
+     */
+
+
+    /**
+     * Get data for a particular listener, apply transformation to the value
+     */
+
+
+    /**
+     * Get a full list of listeners under a subkey
+     */
+
+
+    /**
+     * recurse original against incoming for changed keys, if original type is an object or array and incoming type is not the same
+     * pass all child listeners. If incoming and original are both either objects or arrays, recurse the children using this function.
+     */
+
+
+    createClass(Mutastate, [{
+      key: 'getChangeListeners',
+
+
+      /**
+       * given a change, notify all parents of the relevant key, and for every subkey of the incoming data notify listeners
+       * this function does not notify any listers of removed data, getDeleteListeners fulfills that role
+       */
+      value: function getChangeListeners(change, sublistener) {
+        var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+        var originalChangeDepth = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+        var currentChangeDepth = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+
+        var changeRelativity = originalChangeDepth - currentChangeDepth; // Parent change > 0, child change < 0, currentChange == 0
+        var result = [];
+        if (objer.has(sublistener, 'listeners')) {
+          for (var listenerdex = 0; listenerdex < sublistener.listeners.length; listenerdex += 1) {
+            var listener = sublistener.listeners[listenerdex];
+            if (listener.noChildUpdates === true && changeRelativity > 0) ; // Skip informing parents who don't care
+            else if (listener.noParentUpdates === true && changeRelativity < 0) ; // Skip informing children who don't care
+              else {
+                  result.push({ listener: listener, key: key, type: 'change' });
+                }
+          }
+        }
+
+        var changetype = objer.getTypeString(change);
+        if (objer.has(sublistener, 'subkeys') && (changetype === 'array' || changetype === 'object')) {
+          var changeKeys = objer.keys(change);
+          for (var keydex = 0; keydex < changeKeys.length; keydex += 1) {
+            var changeKey = changeKeys[keydex];
+            if (objer.has(sublistener.subkeys, changeKey)) {
+              result = result.concat(this.getChangeListeners(change[changeKey], sublistener.subkeys[changeKey], key.concat(changeKey), originalChangeDepth, currentChangeDepth + 1));
+            }
+          }
+        }
+
+        return result;
+      }
+
+      /**
+       * Listeners are nested by a pattern of subkeys.key.subkeys.otherkey, this function turns ['key', 'otherkey'] into the expected array
+       */
+
+    }, {
+      key: 'getListenerObjectAtKey',
+      value: function getListenerObjectAtKey(key) {
+        var result = this.listenerObject;
+        for (var keydex = 0; keydex < key.length; keydex += 1) {
+          if (objer.has(result, ['subkeys', key[keydex]])) {
+            result = result.subkeys[key[keydex]];
+          } else {
+            return null;
+          }
+        }
+        return result;
+      }
+
+      /**
+       * Concatenate change and delete listeners for a given change
+       */
+
+    }, {
+      key: 'getRelevantListeners',
+      value: function getRelevantListeners(key, value) {
+        var keyArray = objer.getObjectPath(key);
+        var changeListeners = this.getChangeListeners(getKeyFilledObject(keyArray, value), this.listenerObject, [], keyArray.length);
+        var original = objer.get(this.data, keyArray);
+        var deleteListeners = this.getDeleteListeners(original, value, this.getListenerObjectAtKey(keyArray), keyArray);
+
+        return changeListeners.concat(deleteListeners);
+      }
+
+      /**
+       * Execute notify callbacks for a batch in format [{ listener, key }]
+       */
+
+    }, {
+      key: 'notify',
+      value: function notify(notifyBatch) {
+        var _this2 = this;
+
+        var callbackBatches = [];
+
+        var _loop3 = function _loop3(keydex) {
+          var keyChange = notifyBatch[keydex];
+          var listenerIndex = findIndex(callbackBatches, function (callbackBatch) {
+            return callbackBatch.callback === keyChange.listener.callback;
+          });
+
+          if (listenerIndex !== -1) {
+            callbackBatches[listenerIndex].changes.push(_this2.getForListener(keyChange.key, keyChange.listener));
+          } else {
+            callbackBatches.push({ callback: keyChange.listener.callback, changes: [_this2.getForListener(keyChange.key, keyChange.listener)] });
+          }
+        };
+
+        for (var keydex = 0; keydex < notifyBatch.length; keydex += 1) {
+          _loop3(keydex);
+        }
+
+        for (var callbatch = 0; callbatch < callbackBatches.length; callbatch += 1) {
+          var listenerBatch = callbackBatches[callbatch];
+          var callback = listenerBatch.callback,
+              changes = listenerBatch.changes;
+
+
+          callback(changes);
+        }
+      }
+
+      // Complication: must notify all array keys of updates due to key changes
+      // unshift = (key, value) => {
+      //   const keyArray = getObjectPath(key);
+      //   const original = get(this.data, keyArray);
+      //   const originalType = getTypeString(original);
+      //   if (originalType === 'array') {
+      //     const extendedKey = keyArray.concat(0);
+      //     const listeners = this.getRelevantListeners(extendedKey, value);
+      //     // Consider a pre-notify here
+      //     original.unshift(value);
+      //     if (notify) this.notify(listeners);
+      //     if (immediate) this.save();
+      //   }
+      // }
+
+      // shift = (key) => {
+      //   const keyArray = getObjectPath(key);
+      //   const original = get(this.data, keyArray);
+      //   const originalType = getTypeString(original);
+      //   if (originalType === 'array' && original.length > 0) {
+      //     const extendedKey = keyArray.concat(0);
+      //     const listeners = this.getRelevantListeners(extendedKey, undefined);
+      //     // Consider a pre-notify here
+      //     original.shift();
+      //     if (notify) this.notify(listeners);
+      //     if (immediate) this.save();
+      //   }
+      // }
+
+      // TODO: deduplicate translations!!
+
+    }]);
+    return Mutastate;
+  }();
+
+  function withMutastateCreator$$1(React) {
+    var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        _ref$useProxy = _ref.useProxy,
+        useProxy = _ref$useProxy === undefined ? false : _ref$useProxy,
+        _ref$agentName = _ref.agentName,
+        agentName = _ref$agentName === undefined ? 'agent' : _ref$agentName;
+
+    return function withMutastate(WrappedComponent) {
+      var mutastateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : singleton();
+
+      return function (_React$Component) {
+        inherits(_class2, _React$Component);
+
+        function _class2(props) {
+          classCallCheck(this, _class2);
+
+          var _this = possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, props));
+
+          _this.changeState = function () {
+            return _this.setState(_this.state);
+          };
+
+          _this.agent = useProxy ? mutastateInstance.getProxyAgent(_this.changeState) : mutastateInstance.getAgent(_this.changeState);
+          _this.state = {};
+          return _this;
+        }
+
+        createClass(_class2, [{
+          key: 'componentWillUnmount',
+          value: function componentWillUnmount() {
+            return this.agent.cleanup();
+          }
+        }, {
+          key: 'render',
+          value: function render() {
+            return React.createElement(WrappedComponent, _extends(defineProperty({ data: this.agent.data }, agentName, this.agent), this.props), null);
+          }
+        }]);
+        return _class2;
+      }(React.Component);
+    };
+  }
+
+  function singleton() {
+    if (singleton.singleton === undefined) {
+      singleton.singleton = new Mutastate();
+    }
+    return singleton.singleton;
+  }
+  function initializeSingleton(parameters) {
+    return singleton().initialize(parameters);
+  }
+
+  var mutastate = {
+    Mutastate: Mutastate,
+    singleton: singleton,
+    initializeSingleton: initializeSingleton,
+    withMutastateCreator: withMutastateCreator$$1,
+    getLocalStorageLoadFunc: getLocalStorageLoadFunc,
+    getLocalStorageSaveFunc: getLocalStorageSaveFunc
+  };
+
+  exports.Mutastate = Mutastate;
+  exports.singleton = singleton;
+  exports.initializeSingleton = initializeSingleton;
+  exports.withMutastateCreator = withMutastateCreator$$1;
+  exports.getLocalStorageLoadFunc = getLocalStorageLoadFunc;
+  exports.getLocalStorageSaveFunc = getLocalStorageSaveFunc;
+  exports.default = mutastate;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+})));

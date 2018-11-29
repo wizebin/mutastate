@@ -88,6 +88,6 @@ function getHandler(onChange, keyInput) {
   return handler;
 }
 
-module.exports = (object, onChange) => {
+export default (object, onChange) => {
 	return new Proxy(object, getHandler(onChange, []));
 };
