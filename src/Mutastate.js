@@ -366,11 +366,24 @@ export default class Mutastate {
   // }
 
   getEverything = () => this.data;
-  setEverything = (data) => {
-    const listeners = this.getRelevantListeners([], data);
-    this.data = data;
-    this.notify(listeners, [], data);
+  setEverything = (data, { noDefaults = false } = {}) => {
+    const defaultedData = noDefaults ? data : Object.assign(this.getDefaults(), data || {});
+    const listeners = this.getRelevantListeners([], defaultedData);
+    this.data = defaultedData;
+    this.notify(listeners, [], defaultedData);
   };
+
+  getDefaults = (subkey = []) => {
+    if (!this.listenerObject) return {};
+    const result = {};
+    const listeners = this.getAllChildListeners(this.listenerObject, []);
+    listeners.forEach(listener => {
+      if (has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
+        set(result, listener.key, listener.defaultValue);
+      }
+    });
+    return result;
+  }
 
   // TODO: deduplicate translations!!
   translate = (inputKey, outputKey, translationFunction, { batch, throttleTime = null } = {}) => {

@@ -201,5 +201,18 @@ describe('Mutastate', () => {
       expect(agent.data).to.deep.equal({ basic: undefined });
       expect(agent2.data).to.deep.equal({ nonbasic: { forth: 'sixth' } });
     });
+    it('applies defaults to setEverything', () => {
+      const manager = new Mutastate();
+      const agent = manager.getProxyAgent();
+      agent.listen('basic', { defaultValue: 'ohio' });
+
+      expect(agent.data.basic).to.equal('ohio');
+      expect(manager.data).to.deep.equal({ basic: 'ohio' });
+
+      manager.setEverything({ unrelated: 5 });
+
+      expect(agent.data.basic).to.equal('ohio');
+      expect(manager.data).to.deep.equal({ basic: 'ohio', unrelated: 5 });
+    });
   });
 });
