@@ -252,6 +252,10 @@
     return MutastateAgent;
   }(BaseAgent);
 
+  function isBlankKey(key) {
+    return key === null || key instanceof Array && key.length === 0;
+  }
+
   function findIndex(array, callback, context) {
     for (var keydex = 0; keydex < array.length; keydex += 1) {
       if (callback(array[keydex])) return keydex;
@@ -307,15 +311,11 @@
   }
 
   function getKeyFilledObject(key, value) {
-    if (key === null) return value;
+    if (isBlankKey(key)) return value;
     var result = {};
     objer.assurePathExists(result, key);
     objer.set(result, key, value);
     return result;
-  }
-
-  function isBlankKey(key) {
-    return key === null || key instanceof Array && key.length === 0;
   }
 
   function getPromiseFunction() {
@@ -579,40 +579,6 @@
     return ProxyAgent;
   }(BaseAgent);
 
-  function missingCallback() {
-    console.error('Mutastate missing save or load callback', new Error().stack);
-    return {};
-  }
-
-  /**
-   * Use localstorage if the user hasn't specified a save function
-   */
-  function getLocalStorageSaveFunc() {
-    if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {
-      return function (key, data) {
-        return global.localStorage.setItem(key, JSON.stringify(data));
-      };
-    } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-      return function (key, data) {
-        return window.localStorage.setItem(key, JSON.stringify(data));
-      };
-    }
-  }
-
-  function getLocalStorageLoadFunc() {
-    if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {
-      return function (key) {
-        return global.localStorage.getItem(key) ? JSON.parse(global.localStorage.getItem(key)) : {};
-      };
-    } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-      return function (key) {
-        return window.localStorage.getItem(key) ? JSON.parse(window.localStorage.getItem(key)) : {};
-      };
-    }
-  }
-
-  var SAVE_THROTTLE_TIME = 100;
-
   /**
    * Core mutastate class, this class stores data and informes listeners of changes
    */
@@ -631,89 +597,6 @@
         return new ProxyAgent(_this, onChange);
       };
 
-      this.initialize = function (_ref) {
-        var shards = _ref.shards,
-            save = _ref.save,
-            load = _ref.load;
-
-        _this.saveData = save !== undefined ? save : missingCallback;
-        _this.loadData = load !== undefined ? load : missingCallback;
-        _this.persistShards = shards;
-        return _this.load();
-      };
-
-      this.save = function () {
-        var result = {};
-        var promises = [];
-        var persistLength = (_this.persistShards || []).length;
-
-        var _loop = function _loop(dex) {
-          var key = _this.persistShards[dex];
-          var saveResults = _this.saveData(key, objer.get(_this.data, key));
-          if (saveResults instanceof _this.promise) {
-            promises.push(saveResults.then(function (result) {
-              return defineProperty({}, key, result);
-            }));
-          } else {
-            result[key] = saveResults;
-          }
-        };
-
-        for (var dex = 0; dex < persistLength; dex += 1) {
-          _loop(dex);
-        }
-
-        if (promises.length > 0) {
-          return _this.promise.all(promises).then(function (ray) {
-            (ray || []).forEach(function (obj) {
-              if (obj) {
-                Object.assign(result, obj);
-              }
-            });
-            return _this.data;
-          });
-        }
-
-        return _this.data;
-      };
-
-      this.load = function () {
-        var result = {};
-        var promises = [];
-        var persistLength = (_this.persistShards || []).length;
-
-        var _loop2 = function _loop2(dex) {
-          var key = _this.persistShards[dex];
-          var loadResults = _this.loadData(key);
-          if (loadResults instanceof _this.promise) {
-            promises.push(loadResults.then(function (result) {
-              return defineProperty({}, key, result);
-            }));
-          } else {
-            result[key] = loadResults;
-          }
-        };
-
-        for (var dex = 0; dex < persistLength; dex += 1) {
-          _loop2(dex);
-        }
-
-        if (promises.length > 0) {
-          return _this.promise.all(promises).then(function (ray) {
-            (ray || []).forEach(function (obj) {
-              Object.assign(result, obj);
-            });
-            _this.data = result;
-            return _this.data;
-          });
-        }
-
-        _this.data = result;
-        return Promise.resolve(_this.data);
-      };
-
-      this.throttledSave = throttle(this.save, SAVE_THROTTLE_TIME);
-
       this.getListenersAtPath = function (key) {
         var keyArray = isBlankKey(key) ? ['default'] : objer.getObjectPath(key);
 
@@ -725,6 +608,22 @@
         }
         var finalKey = keyArray[keyArray.length - 1];
         return objer.assurePathExists(currentListenObject, ['subkeys', finalKey, 'listeners'], []);
+      };
+
+      this.addChangeHook = function (listener) {
+        _this.removeChangeHook(listener);
+        _this.globalListeners.push(listener);
+      };
+
+      this.removeChangeHook = function (listener) {
+        var removed = 0;
+        for (var dex = _this.globalListeners.length - 1; dex >= 0; dex -= 1) {
+          if (_this.globalListeners[dex] === listener) {
+            _this.globalListeners.splice(dex, 1);
+            removed += 1;
+          }
+        }
+        return removed;
       };
 
       this.listen = function (key) {
@@ -783,18 +682,20 @@
             transform = listener.transform,
             defaultValue = listener.defaultValue;
 
+        var keyArray = objer.getObjectPath(key);
         var value = null;
 
-        if (objer.has(_this.data, key)) {
-          value = objer.get(_this.data, key);
+        if (objer.has(_this.data, keyArray)) {
+          value = objer.get(_this.data, keyArray);
         } else {
           if (defaultValue !== undefined) {
-            objer.set(_this.data, key, defaultValue);
+            objer.set(_this.data, keyArray, defaultValue);
+            _this.notifyGlobals(keyArray, defaultValue, { defaultValue: true });
           }
           value = defaultValue;
         }
 
-        return { keyChange: keyChange, alias: alias, callback: callback, key: key, value: transform ? transform(value) : value };
+        return { keyChange: keyChange, alias: alias, callback: callback, key: keyArray, value: transform ? transform(value) : value };
       };
 
       this.getAllChildListeners = function (listenerObject) {
@@ -844,27 +745,30 @@
         return result;
       };
 
+      this.notifyGlobals = function (keyArray, value, meta) {
+        for (var dex = 0; dex < _this.globalListeners.length; dex += 1) {
+          var passData = { key: keyArray, value: value };
+          if (meta) passData.meta = meta;
+          _this.globalListeners[dex](passData);
+        }
+      };
+
       this.get = function (key) {
         return objer.get(_this.data, key);
       };
 
       this.set = function (key, value) {
-        var _ref4 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-            _ref4$notify = _ref4.notify,
-            notify = _ref4$notify === undefined ? true : _ref4$notify,
-            _ref4$immediate = _ref4.immediate,
-            immediate = _ref4$immediate === undefined ? false : _ref4$immediate,
-            _ref4$save = _ref4.save,
-            save = _ref4$save === undefined ? true : _ref4$save;
+        var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+            _ref$notify = _ref.notify,
+            notify = _ref$notify === undefined ? true : _ref$notify,
+            _ref$immediate = _ref.immediate,
+            _ref$save = _ref.save;
 
         var keyArray = objer.getObjectPath(key);
         var listeners = _this.getRelevantListeners(keyArray, value);
         // Consider a pre-notify here
         objer.set(_this.data, key, value);
-        if (notify) _this.notify(listeners);
-        if (save) {
-          if (immediate) _this.save();else _this.throttledSave();
-        }
+        if (notify) _this.notify(listeners, keyArray, value);
       };
 
       this.delete = function (key) {
@@ -885,13 +789,11 @@
       };
 
       this.push = function (key, value) {
-        var _ref5 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-            _ref5$notify = _ref5.notify,
-            notify = _ref5$notify === undefined ? true : _ref5$notify,
-            _ref5$immediate = _ref5.immediate,
-            immediate = _ref5$immediate === undefined ? false : _ref5$immediate,
-            _ref5$save = _ref5.save,
-            save = _ref5$save === undefined ? true : _ref5$save;
+        var _ref2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+            _ref2$notify = _ref2.notify,
+            notify = _ref2$notify === undefined ? true : _ref2$notify,
+            _ref2$immediate = _ref2.immediate,
+            _ref2$save = _ref2.save;
 
         var keyArray = objer.getObjectPath(key);
         var original = objer.get(_this.data, keyArray);
@@ -902,20 +804,15 @@
           // Consider a pre-notify here
           original.push(value);
           if (notify) _this.notify(listeners);
-          if (save) {
-            if (immediate) _this.save();else _this.throttledSave();
-          }
         }
       };
 
       this.pop = function (key) {
-        var _ref6 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref6$notify = _ref6.notify,
-            notify = _ref6$notify === undefined ? true : _ref6$notify,
-            _ref6$immediate = _ref6.immediate,
-            immediate = _ref6$immediate === undefined ? false : _ref6$immediate,
-            _ref6$save = _ref6.save,
-            save = _ref6$save === undefined ? true : _ref6$save;
+        var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref3$notify = _ref3.notify,
+            notify = _ref3$notify === undefined ? true : _ref3$notify,
+            _ref3$immediate = _ref3.immediate,
+            _ref3$save = _ref3.save;
 
         var keyArray = objer.getObjectPath(key);
         var original = objer.get(_this.data, keyArray);
@@ -926,9 +823,6 @@
           // Consider a pre-notify here
           original.pop();
           if (notify) _this.notify(listeners);
-          if (save) {
-            if (immediate) _this.save();else _this.throttledSave();
-          }
         }
       };
 
@@ -941,14 +835,34 @@
       };
 
       this.setEverything = function (data) {
-        return _this.data = data;
+        var _ref4 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref4$noDefaults = _ref4.noDefaults,
+            noDefaults = _ref4$noDefaults === undefined ? false : _ref4$noDefaults;
+
+        var defaultedData = noDefaults ? data : Object.assign(_this.getDefaults(), data || {});
+        var listeners = _this.getRelevantListeners([], defaultedData);
+        _this.data = defaultedData;
+        _this.notify(listeners, [], defaultedData);
+      };
+
+      this.getDefaults = function () {
+
+        if (!_this.listenerObject) return {};
+        var result = {};
+        var listeners = _this.getAllChildListeners(_this.listenerObject, []);
+        listeners.forEach(function (listener) {
+          if (objer.has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
+            objer.set(result, listener.key, listener.defaultValue);
+          }
+        });
+        return result;
       };
 
       this.translate = function (inputKey, outputKey, translationFunction) {
-        var _ref7 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
-            batch = _ref7.batch,
-            _ref7$throttleTime = _ref7.throttleTime,
-            throttleTime = _ref7$throttleTime === undefined ? null : _ref7$throttleTime;
+        var _ref5 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
+            batch = _ref5.batch,
+            _ref5$throttleTime = _ref5.throttleTime,
+            throttleTime = _ref5$throttleTime === undefined ? null : _ref5$throttleTime;
 
         var callback = function callback(input) {
           if (input.length > 0) {
@@ -967,6 +881,7 @@
       };
 
       this.listenerObject = { subkeys: {} };
+      this.globalListeners = [];
       this.data = {};
       this.promise = getPromiseFunction();
     }
@@ -978,29 +893,9 @@
 
 
     /**
-     * Set save and load functionality, as well as indicate shards we need to load and save
-     */
-    // TODO: consider adding persistData option here
-
-
-    /**
-     * Save data from each persisted shard, persisted shards are indicated by initialize
-     */
-
-
-    /**
-     * Load data from persisted shards, typically only called on app init
-     */
-
-
-    /**
      * Retrieve a list of relevant listeners given a change at a key;
      */
 
-
-    // getChildListenersAtPath = (key) => {
-
-    // }
 
     /**
      * Add a path listener, dedupes by callback function, careful with anonymous functions!
@@ -1081,6 +976,7 @@
       key: 'getListenerObjectAtKey',
       value: function getListenerObjectAtKey(key) {
         var result = this.listenerObject;
+        if (key.length === 0) return result;
         for (var keydex = 0; keydex < key.length; keydex += 1) {
           if (objer.has(result, ['subkeys', key[keydex]])) {
             result = result.subkeys[key[keydex]];
@@ -1112,12 +1008,12 @@
 
     }, {
       key: 'notify',
-      value: function notify(notifyBatch) {
+      value: function notify(notifyBatch, keyArray, value) {
         var _this2 = this;
 
         var callbackBatches = [];
 
-        var _loop3 = function _loop3(keydex) {
+        var _loop = function _loop(keydex) {
           var keyChange = notifyBatch[keydex];
           var listenerIndex = findIndex(callbackBatches, function (callbackBatch) {
             return callbackBatch.callback === keyChange.listener.callback;
@@ -1131,7 +1027,7 @@
         };
 
         for (var keydex = 0; keydex < notifyBatch.length; keydex += 1) {
-          _loop3(keydex);
+          _loop(keydex);
         }
 
         for (var callbatch = 0; callbatch < callbackBatches.length; callbatch += 1) {
@@ -1142,6 +1038,8 @@
 
           callback(changes);
         }
+
+        this.notifyGlobals(keyArray, value);
       }
 
       // Complication: must notify all array keys of updates due to key changes
@@ -1155,7 +1053,6 @@
       //     // Consider a pre-notify here
       //     original.unshift(value);
       //     if (notify) this.notify(listeners);
-      //     if (immediate) this.save();
       //   }
       // }
 
@@ -1169,7 +1066,6 @@
       //     // Consider a pre-notify here
       //     original.shift();
       //     if (notify) this.notify(listeners);
-      //     if (immediate) this.save();
       //   }
       // }
 
@@ -1181,13 +1077,15 @@
 
   function withMutastateCreator$$1(React) {
     var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        _ref$instance = _ref.instance,
+        instance = _ref$instance === undefined ? singleton() : _ref$instance,
         _ref$useProxy = _ref.useProxy,
         useProxy = _ref$useProxy === undefined ? false : _ref$useProxy,
         _ref$agentName = _ref.agentName,
         agentName = _ref$agentName === undefined ? 'agent' : _ref$agentName;
 
     return function withMutastate(WrappedComponent) {
-      var mutastateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : singleton();
+      var mutastateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : instance;
 
       return function (_React$Component) {
         inherits(_class2, _React$Component);
@@ -1228,26 +1126,11 @@
     }
     return singleton.singleton;
   }
-  function initializeSingleton(parameters) {
-    return singleton().initialize(parameters);
-  }
-
-  var mutastate = {
-    Mutastate: Mutastate,
-    singleton: singleton,
-    initializeSingleton: initializeSingleton,
-    withMutastateCreator: withMutastateCreator$$1,
-    getLocalStorageLoadFunc: getLocalStorageLoadFunc,
-    getLocalStorageSaveFunc: getLocalStorageSaveFunc
-  };
 
   exports.Mutastate = Mutastate;
   exports.singleton = singleton;
-  exports.initializeSingleton = initializeSingleton;
   exports.withMutastateCreator = withMutastateCreator$$1;
-  exports.getLocalStorageLoadFunc = getLocalStorageLoadFunc;
-  exports.getLocalStorageSaveFunc = getLocalStorageSaveFunc;
-  exports.default = mutastate;
+  exports.default = Mutastate;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
