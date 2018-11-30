@@ -688,10 +688,10 @@
         if (objer.has(_this.data, keyArray)) {
           value = objer.get(_this.data, keyArray);
         } else {
+          var clonedValue = objer.clone(defaultValue);
           if (defaultValue !== undefined) {
-            var _clonedValue = objer.clone(defaultValue);
-            objer.set(_this.data, keyArray, _clonedValue);
-            _this.notifyGlobals(keyArray, _clonedValue, { defaultValue: true });
+            objer.set(_this.data, keyArray, clonedValue);
+            _this.notifyGlobals(keyArray, clonedValue, { defaultValue: true });
           }
           value = clonedValue;
         }
@@ -853,7 +853,7 @@
         var listeners = _this.getAllChildListeners(_this.listenerObject, []);
         listeners.forEach(function (listener) {
           if (objer.has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
-            objer.set(result, listener.key, objer.clone(listener.defaultValue));
+            objer.set(result, listener.key, listener.defaultValue);
           }
         });
         return result;

@@ -127,8 +127,8 @@ export default class Mutastate {
     if (has(this.data, keyArray)) {
       value = get(this.data, keyArray);
     } else {
+      const clonedValue = clone(defaultValue);
       if (defaultValue !== undefined) {
-        const clonedValue = clone(defaultValue);
         set(this.data, keyArray, clonedValue);
         this.notifyGlobals(keyArray, clonedValue, { defaultValue: true });
       }
@@ -380,7 +380,7 @@ export default class Mutastate {
     const listeners = this.getAllChildListeners(this.listenerObject, []);
     listeners.forEach(listener => {
       if (has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
-        set(result, listener.key, clone(listener.defaultValue));
+        set(result, listener.key, listener.defaultValue);
       }
     });
     return result;
