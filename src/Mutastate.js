@@ -5,38 +5,13 @@ import { isBlankKey } from './utility/blankKey';
 import getPromiseFunction from './utility/promise';
 import ProxyAgent from './ProxyAgent';
 
-function missingCallback() {
-  console.error('Mutastate missing save or load callback', new Error().stack);
-  return {};
-}
-
-/**
- * Use localstorage if the user hasn't specified a save function
- */
-export function getLocalStorageSaveFunc() {
-  if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {
-    return (key, data) => global.localStorage.setItem(key, JSON.stringify(data));
-  } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-    return (key, data) => window.localStorage.setItem(key, JSON.stringify(data));
-  }
-}
-
-export function getLocalStorageLoadFunc() {
-  if (typeof global !== 'undefined' && typeof global.localStorage !== 'undefined') {
-    return (key) => global.localStorage.getItem(key) ? JSON.parse(global.localStorage.getItem(key)) : {};
-  } else if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-    return (key) => window.localStorage.getItem(key) ? JSON.parse(window.localStorage.getItem(key)) : {};
-  }
-}
-
-const SAVE_THROTTLE_TIME = 100;
-
 /**
  * Core mutastate class, this class stores data and informes listeners of changes
  */
 export default class Mutastate {
   constructor() {
     this.listenerObject = { subkeys: {} };
+    this.globalListeners = [];
     this.data = {};
     this.promise = getPromiseFunction();
   }
@@ -54,81 +29,6 @@ export default class Mutastate {
   }
 
   /**
-   * Set save and load functionality, as well as indicate shards we need to load and save
-   */
-  // TODO: consider adding persistData option here
-  initialize = ({ shards, save, load }) => {
-    this.saveData = save !== undefined ? save : missingCallback;
-    this.loadData = load !== undefined ? load : missingCallback;
-    this.persistShards = shards;
-    return this.load();
-  }
-
-  /**
-   * Save data from each persisted shard, persisted shards are indicated by initialize
-   */
-  save = () => {
-    const result = {};
-    const promises = [];
-    const persistLength = (this.persistShards || []).length;
-    for(let dex = 0; dex < persistLength; dex += 1) {
-      const key = this.persistShards[dex];
-      const saveResults = this.saveData(key, get(this.data, key));
-      if (saveResults instanceof this.promise) {
-        promises.push(saveResults.then(result => ({ [key]: result })));
-      } else {
-        result[key] = saveResults;
-      }
-    }
-
-    if (promises.length > 0) {
-      return this.promise.all(promises).then(ray => {
-        (ray || []).forEach(obj => {
-          if (obj) {
-            Object.assign(result, obj);
-          }
-        });
-        return this.data;
-      });
-    }
-
-    return this.data;
-  };
-
-  /**
-   * Load data from persisted shards, typically only called on app init
-   */
-  load = () => {
-    const result = {};
-    const promises = [];
-    const persistLength = (this.persistShards || []).length;
-    for(let dex = 0; dex < persistLength; dex += 1) {
-      const key = this.persistShards[dex];
-      const loadResults = this.loadData(key);
-      if (loadResults instanceof this.promise) {
-        promises.push(loadResults.then(result => ({ [key]: result })));
-      } else {
-        result[key] = loadResults;
-      }
-    }
-
-    if (promises.length > 0) {
-      return this.promise.all(promises).then(ray => {
-        (ray || []).forEach(obj => {
-          Object.assign(result, obj);
-        });
-        this.data = result;
-        return this.data;
-      });
-    }
-
-    this.data = result;
-    return Promise.resolve(this.data);
-  };
-
-  throttledSave = throttle(this.save, SAVE_THROTTLE_TIME);
-
-  /**
    * Retrieve a list of relevant listeners given a change at a key;
    */
   getListenersAtPath = (key) => {
@@ -143,9 +43,21 @@ export default class Mutastate {
     return assurePathExists(currentListenObject, ['subkeys', finalKey, 'listeners'], []);
   }
 
-  // getChildListenersAtPath = (key) => {
+  addChangeHook = (listener) => {
+    this.removeChangeHook(listener);
+    this.globalListeners.push(listener);
+  }
 
-  // }
+  removeChangeHook = (listener) => {
+    let removed = 0;
+    for (let dex = this.globalListeners.length - 1; dex >= 0; dex -= 1) {
+      if (this.globalListeners[dex] === listener) {
+        this.globalListeners.splice(dex, 1);
+        removed += 1;
+      }
+    }
+    return removed;
+  }
 
   /**
    * Add a path listener, dedupes by callback function, careful with anonymous functions!
@@ -209,18 +121,20 @@ export default class Mutastate {
    */
   getForListener = (key, listener, keyChange) => {
     const { alias, callback, transform, defaultValue } = listener;
+    const keyArray = getObjectPath(key);
     let value = null;
 
-    if (has(this.data, key)) {
-      value = get(this.data, key);
+    if (has(this.data, keyArray)) {
+      value = get(this.data, keyArray);
     } else {
       if (defaultValue !== undefined) {
-        set(this.data, key, defaultValue);
+        set(this.data, keyArray, defaultValue);
+        this.notifyGlobals(keyArray, defaultValue, { defaultValue: true });
       }
       value = defaultValue;
     }
 
-    return { keyChange, alias, callback, key, value: transform ? transform(value) : value };
+    return { keyChange, alias, callback, key: keyArray, value: transform ? transform(value) : value };
   }
 
   /**
@@ -334,7 +248,7 @@ export default class Mutastate {
   /**
    * Execute notify callbacks for a batch in format [{ listener, key }]
    */
-  notify(notifyBatch) {
+  notify(notifyBatch, keyArray, value) {
     const callbackBatches = [];
     for (let keydex = 0; keydex < notifyBatch.length; keydex += 1) {
       const keyChange = notifyBatch[keydex];
@@ -353,6 +267,16 @@ export default class Mutastate {
 
       callback(changes);
     }
+
+    this.notifyGlobals(keyArray, value);
+  }
+
+  notifyGlobals = (keyArray, value, meta) => {
+    for (let dex = 0; dex < this.globalListeners.length; dex += 1) {
+      const passData = { key: keyArray, value };
+      if (meta) passData.meta = meta;
+      this.globalListeners[dex](passData);
+    }
   }
 
   get = (key) => {
@@ -364,11 +288,7 @@ export default class Mutastate {
     const listeners = this.getRelevantListeners(keyArray, value);
     // Consider a pre-notify here
     set(this.data, key, value);
-    if (notify) this.notify(listeners);
-    if (save) {
-      if (immediate) this.save();
-      else this.throttledSave();
-    }
+    if (notify) this.notify(listeners, keyArray, value);
   }
 
   delete = (key) => {
@@ -398,10 +318,6 @@ export default class Mutastate {
       // Consider a pre-notify here
       original.push(value);
       if (notify) this.notify(listeners);
-      if (save) {
-      if (immediate) this.save();
-        else this.throttledSave();
-      }
     }
   }
 
@@ -415,10 +331,6 @@ export default class Mutastate {
       // Consider a pre-notify here
       original.pop();
       if (notify) this.notify(listeners);
-      if (save) {
-      if (immediate) this.save();
-        else this.throttledSave();
-      }
     }
   }
 
@@ -436,7 +348,6 @@ export default class Mutastate {
   //     // Consider a pre-notify here
   //     original.unshift(value);
   //     if (notify) this.notify(listeners);
-  //     if (immediate) this.save();
   //   }
   // }
 
@@ -450,12 +361,14 @@ export default class Mutastate {
   //     // Consider a pre-notify here
   //     original.shift();
   //     if (notify) this.notify(listeners);
-  //     if (immediate) this.save();
   //   }
   // }
 
   getEverything = () => this.data;
-  setEverything = (data) => (this.data = data);
+  setEverything = (data) => {
+    this.data = data;
+    this.notifyGlobals([], data, { setEverything: true });
+  };
 
   // TODO: deduplicate translations!!
   translate = (inputKey, outputKey, translationFunction, { batch, throttleTime = null } = {}) => {

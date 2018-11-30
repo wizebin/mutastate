@@ -1,71 +1,8 @@
 import Mutastate from './Mutastate';
 import { expect } from 'chai';
 
-function getTestFunctions() {
-  let lambdaData = {};
-  return {
-    save: (shard, data) => lambdaData[shard] = data,
-    load: (shard) => lambdaData[shard],
-  };
-}
-
-function getTestPromiseFunctions() {
-  let lambdaData = {};
-  return {
-    save: (shard, data) => {
-      lambdaData[shard] = data
-      return Promise.resolve(lambdaData);
-    },
-    load: (shard) => {
-      return Promise.resolve(lambdaData[shard]);
-    },
-  };
-}
-
 describe('Mutastate', () => {
   describe('Save and load', () => {
-    it('saves and loads shards', () => {
-      const manager = new Mutastate();
-      const manager2 = new Mutastate();
-
-      const testFunctions = getTestFunctions();
-
-      manager.initialize({ shards: ['first'], save: testFunctions.save, load: testFunctions.load });
-      manager2.initialize({ shards: ['first', 'third'], save: testFunctions.save, load: testFunctions.load });
-
-      manager.assign('first', { fishy: 'fist' });
-      manager.assign('second', { spooky: 'ghost' });
-
-      expect(manager.getEverything()).to.deep.equal({ first: { fishy: 'fist' }, second: { spooky: 'ghost' } });
-      expect(manager2.getEverything()).to.deep.equal({ first: undefined, third: undefined });
-      expect(manager.get('first.fishy')).to.deep.equal('fist');
-      expect(manager2.get('first.fishy')).to.deep.equal(undefined);
-
-      manager.save();
-      manager.load();
-      manager2.load();
-
-      // Notice the missing 'second' key, we didn't indicate we wanted to save or load in manager.initialize
-      expect(manager.getEverything()).to.deep.equal({ first: { fishy: 'fist' } });
-      expect(manager2.getEverything()).to.deep.equal({ first: { fishy: 'fist' }, third: undefined });
-      expect(manager.get('first.fishy')).to.deep.equal('fist');
-      expect(manager2.get('first.fishy')).to.deep.equal('fist');
-    });
-    it('saves and loads via promise', (done) => {
-      const testFunctions = getTestPromiseFunctions();
-
-      const manager = new Mutastate();
-      manager.initialize({ shards: ['myth'], save: testFunctions.save, load: testFunctions.load });
-
-      manager.assign('myth', { a: 'b' });
-      manager.save();
-      manager.setEverything(null);
-      expect(manager.getEverything()).to.deep.equal(null);
-      manager.load().then(() => {
-        expect(manager.getEverything()).to.deep.equal({ myth: { a: 'b' } });
-        done();
-      });
-    });
     it('cruds', () => {
       const manager = new Mutastate();
       let agentData = {};
@@ -227,6 +164,21 @@ describe('Mutastate', () => {
         expect(manager.get('translated')).to.equal(101);
         done();
       }, 80);
+    });
+    it('allows global hooks', () => {
+      const manager = new Mutastate();
+      let changes = [];
+      const changeHook = data => changes.push(data);
+      manager.addChangeHook(changeHook);
+      const agent = manager.getProxyAgent();
+      agent.listen('phio', { alias: 'indifferent', defaultValue: 0 });
+      manager.set('phio', 1);
+      agent.data.indifferent = 2;
+      expect(changes).to.deep.equal([
+        { key: ['phio'], value: 0, meta: { defaultValue: true } },
+        { key: ['phio'], value: 1 },
+        { key: ['phio'], value: 2 },
+      ]);
     });
   });
 });

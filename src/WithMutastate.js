@@ -1,7 +1,7 @@
 import { singleton } from './index';
 
-export default function withMutastateCreator(React, { useProxy = false, agentName = 'agent' } = {}) {
-  return function withMutastate(WrappedComponent, mutastateInstance = singleton()) {
+export default function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
+  return function withMutastate(WrappedComponent, mutastateInstance = instance) {
     return class extends React.Component {
       constructor(props) {
         super(props);

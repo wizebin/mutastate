@@ -10,29 +10,16 @@ Mutastate is designed to manage state and send notifications to listeners when s
 
 importables
 ```javascript
-import mutastate, {
-    Mutastate,
-    singleton,
-    initializeSingleton,
+import Mutastate, {
     withMutastateCreator,
-    getLocalStorageLoadFunc,
-    getLocalStorageSaveFunc,
 } from 'mutastate';
 ```
 
-#### Default import
-Contains an object of all importables, such as
-```javascript
-import mutastate from 'mutastate';
-mutastate.initializeSingleton({ shards: ['default', 'storage'] });
-```
-
-#### Mutastate
+#### Mutastate (default import)
 The mutastate class, this class is responsible for maintaining state and sending notifications to listeners
 ```javascript
-import { Mutastate } from 'mutastate';
+import Mutastate from 'mutastate';
 const mutastate = new Mutastate();
-mutastate.initialize({ shards: ['first', 'second'] });
 mutastate.set('foghorn', 'leghorn');
 console.log(mutastate.get('foghorn')) // returns leghorn
 ```
@@ -42,12 +29,6 @@ console.log(mutastate.get('foghorn')) // returns leghorn
     * Get a new mutastate agent attached to this instance of mutastate
 * `getProxyAgent(onChangeFunction)`
     * Get a new proxy enabled mutastate agent attached to this instance
-* `initialize({ shards, save, load })`
-    * Setup this instance of mutastate with a list of shards we want to load and save, and functions that allow it
-* `save()`
-    * Force an immediate data save
-* `load()`
-    * Force an immediate data load
 * `listen(key, listener = { callback: () => {}}, alias: null, batch: null, transform: null, defaultValue: undefined })`
     * listen for changes, notify callback when they occur, defaultValue will directly affect the current data if nothing exists! use batch for easy batch unlistening
 * `unlisten(key, callback)`
@@ -74,16 +55,20 @@ console.log(mutastate.get('foghorn')) // returns leghorn
     * return all data for all shards
 * `setEverything(data)`
     * update all data for all shards
+* `addChangeHook(callback)`
+    * notify callback whenever any data changes, `({ key: [], value: any, meta: { defaultValue: true|undefined, setEverything: true|undefined }}) => {}` this is most useful for automated persistence functionality
+* `removeChangeHook(callback)`
+    * stops notifying callback on any data change
 
 ## Use with React
 
-This example demonstrates how to create a connected react component, this particular component listens for data in the default shard, under the key `['default', 'assignments', props.id]`. This means if the data at that key is updated, this component will receive new an update indicating the new data.
+This example demonstrates how to create a connected react component, this particular component listens for data in the default shard, under the key `['default', 'assignments', props.id]`. This means if the data at that key is updated, this component will receive an update including the new data.
 
-It is important to note that the common pattern of incoming props checking for component updating when using mutastate will not apply, unless you make a deep copy of your incoming props for comparison yourself. The data passed into your component will be the original data.
+It is important to note that the common pattern of incoming props checking for component updating when using mutastate will not function correctly, unless you make a deep copy of your incoming props for comparison yourself. The data passed into your component will be mutated!
 
 Indicating `{ useProxy: true }` will allow you to modify the data directly (only simple data, objects, arrays, strings, numbers, no custom classes or functions) as we do in this example (see `assignment.count += 1`). The data will not, in fact, be modified; the modification will be captured and converted into function calls to the current mutastate. (the previous `assignment.count += 1` becomes `mutastate.set('default.assignments[1].count', assignment.count + 1)`)
 
-Also please note that the function is `withMutastateCreator` instead of `withMutastate`, this is to avoid the ambiguity of having a separate repository for react, this is subject to change in a major version far in the future, currently if you want a `withMutastate` function you can create one by executing: `const withMutastate = withMutastateCreator(React, { useProxy: true });`;
+Also please note that the function is `withMutastateCreator` instead of `withMutastate`, this is to avoid the ambiguity of having a separate repository for react, this is subject to change in a major version far in the future, currently if you want a `withMutastate` function you can create one by executing: `const withMutastate = withMutastateCreator(React, { instance: yourMutastateInstance, useProxy: true });`;
 
 ```javascript
 import React from 'react';
