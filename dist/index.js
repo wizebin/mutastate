@@ -689,10 +689,11 @@
           value = objer.get(_this.data, keyArray);
         } else {
           if (defaultValue !== undefined) {
-            objer.set(_this.data, keyArray, defaultValue);
-            _this.notifyGlobals(keyArray, defaultValue, { defaultValue: true });
+            var _clonedValue = objer.clone(defaultValue);
+            objer.set(_this.data, keyArray, _clonedValue);
+            _this.notifyGlobals(keyArray, _clonedValue, { defaultValue: true });
           }
-          value = defaultValue;
+          value = clonedValue;
         }
 
         return { keyChange: keyChange, alias: alias, callback: callback, key: keyArray, value: transform ? transform(value) : value };
@@ -852,7 +853,7 @@
         var listeners = _this.getAllChildListeners(_this.listenerObject, []);
         listeners.forEach(function (listener) {
           if (objer.has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
-            objer.set(result, listener.key, listener.defaultValue);
+            objer.set(result, listener.key, objer.clone(listener.defaultValue));
           }
         });
         return result;

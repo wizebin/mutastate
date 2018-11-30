@@ -1,6 +1,6 @@
 import MutastateAgent from './MutastateAgent';
 import { throttle, getKeyFilledObject, findIndex } from './MutastateHelpers';
-import { assurePathExists, getObjectPath, has, get, getTypeString, keys, set, assassinate } from 'objer';
+import { assurePathExists, getObjectPath, has, get, getTypeString, keys, set, assassinate, clone } from 'objer';
 import { isBlankKey } from './utility/blankKey';
 import getPromiseFunction from './utility/promise';
 import ProxyAgent from './ProxyAgent';
@@ -128,10 +128,11 @@ export default class Mutastate {
       value = get(this.data, keyArray);
     } else {
       if (defaultValue !== undefined) {
-        set(this.data, keyArray, defaultValue);
-        this.notifyGlobals(keyArray, defaultValue, { defaultValue: true });
+        const clonedValue = clone(defaultValue);
+        set(this.data, keyArray, clonedValue);
+        this.notifyGlobals(keyArray, clonedValue, { defaultValue: true });
       }
-      value = defaultValue;
+      value = clonedValue;
     }
 
     return { keyChange, alias, callback, key: keyArray, value: transform ? transform(value) : value };
@@ -379,7 +380,7 @@ export default class Mutastate {
     const listeners = this.getAllChildListeners(this.listenerObject, []);
     listeners.forEach(listener => {
       if (has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
-        set(result, listener.key, listener.defaultValue);
+        set(result, listener.key, clone(listener.defaultValue));
       }
     });
     return result;
