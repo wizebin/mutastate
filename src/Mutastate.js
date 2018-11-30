@@ -223,6 +223,7 @@ export default class Mutastate {
    */
   getListenerObjectAtKey(key) {
     let result = this.listenerObject;
+    if (key.length === 0) return result;
     for (let keydex = 0; keydex < key.length; keydex += 1) {
       if (has(result, ['subkeys', key[keydex]])) {
         result = result.subkeys[key[keydex]];
@@ -366,8 +367,9 @@ export default class Mutastate {
 
   getEverything = () => this.data;
   setEverything = (data) => {
+    const listeners = this.getRelevantListeners([], data);
     this.data = data;
-    this.notifyGlobals([], data, { setEverything: true });
+    this.notify(listeners, [], data);
   };
 
   // TODO: deduplicate translations!!

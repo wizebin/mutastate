@@ -1,4 +1,5 @@
 import { assurePathExists, set } from 'objer';
+import { isBlankKey } from './utility/blankKey';
 
 export function findIndex(array, callback, context) {
   for (let keydex = 0; keydex < array.length; keydex += 1) {
@@ -55,7 +56,7 @@ export function throttle(func, wait, options) {
 }
 
 export function getKeyFilledObject(key, value) {
-  if (key === null) return value;
+  if (isBlankKey(key)) return value;
   const result = {};
   assurePathExists(result, key);
   set(result, key, value);

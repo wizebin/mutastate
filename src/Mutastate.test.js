@@ -180,5 +180,26 @@ describe('Mutastate', () => {
         { key: ['phio'], value: 2 },
       ]);
     });
+    it('setEverything notifies children of updates', () => {
+      const manager = new Mutastate();
+      const agent = manager.getProxyAgent();
+      const agent2 = manager.getProxyAgent();
+      agent.listen('basic');
+      agent2.listen('nonbasic')
+      manager.set('basic', 'first');
+
+      manager.setEverything({ basic: 'second', nonbasic: 'third' });
+      expect(agent.data).to.deep.equal({ basic: 'second' });
+      expect(agent2.data).to.deep.equal({ nonbasic: 'third' });
+      manager.setEverything({});
+      expect(agent.data).to.deep.equal({ basic: undefined });
+      expect(agent2.data).to.deep.equal({ nonbasic: undefined });
+      manager.setEverything({ nonbasic: { forth: 'fifth' }});
+      expect(agent.data).to.deep.equal({ basic: undefined });
+      expect(agent2.data).to.deep.equal({ nonbasic: { forth: 'fifth' } });
+      manager.setEverything({ nonbasic: { forth: 'sixth' }});
+      expect(agent.data).to.deep.equal({ basic: undefined });
+      expect(agent2.data).to.deep.equal({ nonbasic: { forth: 'sixth' } });
+    });
   });
 });
