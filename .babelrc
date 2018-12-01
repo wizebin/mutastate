@@ -1,6 +1,22 @@
 {
-  "plugins": [
-    "transform-class-properties"
-  ],
-  "presets": ["stage-2", "es2015-rollup"]
+  "env": {
+    "test": {
+      "plugins": [
+        "transform-class-properties"
+      ],
+      "presets": ["stage-2", "es2015"]
+    },
+    "development": {
+      "plugins": [
+        "transform-class-properties"
+      ],
+      "presets": ["stage-2", "es2015-rollup"]
+    },
+    "production": {
+      "plugins": [
+        "transform-class-properties"
+      ],
+      "presets": ["stage-2", "es2015-rollup"]
+    }
+  }
 }

@@ -8,9 +8,10 @@
     "/dist"
   ],
   "scripts": {
-    "test": "./node_modules/.bin/mocha --opts ./.mocharc",
-    "dev": "webpack --mode development",
-    "build": "rollup -c rollup.config.js && cp ./src/index.d.ts ./dist/index.d.ts"
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --opts ./.mocharc",
+    "dev": "NODE_ENV=development rollup -c rollup.config.js && npm run copyextras",
+    "build": "NODE_ENV=production rollup -c rollup.config.js && npm run copyextras",
+    "copyextras": "cp ./src/index.d.ts ./dist/index.d.ts"
   },
   "keywords": [
     "nexuscript",
