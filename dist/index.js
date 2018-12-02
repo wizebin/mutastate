@@ -1113,7 +1113,7 @@
         }, {
           key: 'render',
           value: function render() {
-            return React.createElement(WrappedComponent, _extends(defineProperty({ data: this.agent.data }, agentName, this.agent), this.props), null);
+            return React.createElement(WrappedComponent, _extends(defineProperty({ data: this.agent.data }, agentName, this.agent), this.props), this.props.children);
           }
         }]);
         return _class2;

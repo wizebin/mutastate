@@ -16,7 +16,7 @@ export default function withMutastateCreator(React, { instance = singleton(), us
       }
 
       render() {
-        return React.createElement(WrappedComponent, { data: this.agent.data, [agentName]: this.agent, ...this.props }, null);
+        return React.createElement(WrappedComponent, { data: this.agent.data, [agentName]: this.agent, ...this.props }, this.props.children);
       }
     };
   }
