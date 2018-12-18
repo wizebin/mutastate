@@ -809,7 +809,7 @@
           var listeners = _this.getRelevantListeners(extendedKey, value);
           // Consider a pre-notify here
           original.push(value);
-          if (notify) _this.notify(listeners, keyArray, value);
+          if (notify) _this.notify(listeners, extendedKey, value);
         }
       };
 
@@ -828,7 +828,7 @@
           var listeners = _this.getRelevantListeners(extendedKey, undefined);
           // Consider a pre-notify here
           original.pop();
-          if (notify) _this.notify(listeners, keyArray);
+          if (notify) _this.notify(listeners, extendedKey);
         }
       };
 

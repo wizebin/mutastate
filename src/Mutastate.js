@@ -319,7 +319,7 @@ export default class Mutastate {
       const listeners = this.getRelevantListeners(extendedKey, value);
       // Consider a pre-notify here
       original.push(value);
-      if (notify) this.notify(listeners, keyArray, value);
+      if (notify) this.notify(listeners, extendedKey, value);
     }
   }
 
@@ -332,7 +332,7 @@ export default class Mutastate {
       const listeners = this.getRelevantListeners(extendedKey, undefined);
       // Consider a pre-notify here
       original.pop();
-      if (notify) this.notify(listeners, keyArray);
+      if (notify) this.notify(listeners, extendedKey);
     }
   }
 
