@@ -214,5 +214,15 @@ describe('Mutastate', () => {
       expect(agent.data.basic).to.equal('ohio');
       expect(manager.data).to.deep.equal({ basic: 'ohio', unrelated: 5 });
     });
+    it('assures', () => {
+      const manager = new Mutastate();
+      const agent = manager.getProxyAgent();
+      agent.multiListen([{ key: 'basic' }, { key: 'another' }]);
+      agent.assure('basic', []).push('hi');
+      agent.assure('another', {}).plop = 'dop';
+      // agent.assure('somekey', 0) += 1; // you may not do this, lvalue reference from a function is not possible
+      // this would be possible with basic operator overloading, but javascript is silly and doesn't have that
+      expect(agent.data).to.deep.equal({ basic: ['hi'], another: { plop: 'dop' } });
+    });
   });
 });

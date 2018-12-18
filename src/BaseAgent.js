@@ -29,6 +29,10 @@ export default class BaseAgent {
   push = (key, value, options) => this.mutastate.push(key, value, options);
   pop = (key, options) => this.mutastate.pop(key, options);
   has = (key) => this.mutastate.has(key);
+  assure = (key, defaultValue) => {
+    if (!this.mutastate.has(key)) this.mutastate.set(key, defaultValue);
+    return this.mutastate.get(key);
+  }
   getEverything = () => this.mutastate.getEverything();
   setEverything = (data) => this.mutastate.setEverything(data);
 }

@@ -137,6 +137,11 @@
       return _this.mutastate.has(key);
     };
 
+    this.assure = function (key, defaultValue) {
+      if (!_this.mutastate.has(key)) _this.mutastate.set(key, defaultValue);
+      return _this.mutastate.get(key);
+    };
+
     this.getEverything = function () {
       return _this.mutastate.getEverything();
     };
@@ -804,7 +809,7 @@
           var listeners = _this.getRelevantListeners(extendedKey, value);
           // Consider a pre-notify here
           original.push(value);
-          if (notify) _this.notify(listeners);
+          if (notify) _this.notify(listeners, keyArray, value);
         }
       };
 
@@ -823,7 +828,7 @@
           var listeners = _this.getRelevantListeners(extendedKey, undefined);
           // Consider a pre-notify here
           original.pop();
-          if (notify) _this.notify(listeners);
+          if (notify) _this.notify(listeners, keyArray);
         }
       };
 
