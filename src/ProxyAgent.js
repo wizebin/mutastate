@@ -4,7 +4,7 @@
  * this allows us to listen to a deeply nested key and change the resulting data easily
  */
 
-import { set, get, assassinate, has, getTypeString } from 'objer';
+import { set, get, assassinate, has, getTypeString, getObjectPath } from 'objer';
 import changeWrapper from './changeWrapper';
 import BaseAgent from './BaseAgent';
 
@@ -64,7 +64,7 @@ export default class ProxyAgent extends BaseAgent{
     if (resultData !== this.data) this.data = changeWrapper(resultData, this.proxyChange);
   }
 
-  listen = (key, { alias, transform, initialLoad = true, defaultValue, partOfMultiListen = false } = {}) => {
+  listen = (key, { alias, transform, initialLoad = true, defaultValue } = {}) => {
     const modifiedListener = {
       alias,
       transform,
@@ -83,35 +83,39 @@ export default class ProxyAgent extends BaseAgent{
       this.ignoreChange = true;
       const listenData = this.mutastate.getForListener(key, modifiedListener);
       this.setComposedState(alias || key, listenData.value);
-      if (!partOfMultiListen && this.onChange) {
+      if (!this.inListenBatch && this.onChange) {
         this.onChange(this.data);
       }
       this.ignoreChange = false;
     }
   }
 
-  multiListen = (listeners, { initialLoad = true } = {}) => {
-    let loaded = false;
+  listenFlat = (key, { alias, transform, initialLoad = true, defaultValue } = {}) => {
+    const fullKey = getObjectPath(key);
+    const derivedAlias = alias ? alias : fullKey[fullKey.length - 1];
+    return this.listen(fullKey, { alias: derivedAlias, transform, initialLoad, defaultValue });
+  }
 
-    for (let listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {
-      const listener = listeners[listenerdex];
-      const hasKey = get(listener, 'key');
-      const key = hasKey ? listener.key : listener;
-      const alias = hasKey ? listener.alias : null;
-      const options = (hasKey ? listener.options : {}) || {};
-      this.listen(key, { ...options, partOfMultiListen: true });
-      if (initialLoad) {
-        this.ignoreChange = true;
-        loaded = true;
-        const listenData = this.mutastate.getForListener(key, listener);
-        this.setComposedState(alias || key, listenData.value)
-        this.ignoreChange = false;
-      }
+  batchListen = (childFunction) => {
+    this.inListenBatch = true;
+    try {
+      childFunction();
+    } finally {
+      if (this.onChange) this.onChange(this.data);
+      this.inListenBatch = false;
     }
+  }
 
-    if (loaded && this.onChange) {
-      this.onChange(this.data);
-    }
+  multiListen = (listeners, { flat = true } = {}) => {
+    const listenFunc = (flat ? this.listenFlat : this.listen);
+
+    this.batchListen(() => {
+      listeners.forEach((listener) => {
+        const isString = (getTypeString(listener) === 'string');
+        const key = isString ? listener : get(listener, 'key');
+        listenFunc(key, isString ? undefined : listener);
+      })
+    });
   }
 
   handleChange = (changeEvents) => {

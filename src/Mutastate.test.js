@@ -224,5 +224,15 @@ describe('Mutastate', () => {
       // this would be possible with basic operator overloading, but javascript is silly and doesn't have that
       expect(agent.data).to.deep.equal({ basic: ['hi'], another: { plop: 'dop' } });
     });
+    it('executes multilisten', () => {
+      const manager = new Mutastate();
+      let changeCount = 0;
+      const agent = manager.getProxyAgent(() => changeCount += 1);
+      agent.multiListen(['basic.something.another', 'weeble.wobble']);
+      expect(changeCount).to.equal(1);
+      agent.set('basic.something.another', 'first');
+      agent.set('weeble.wobble', 'second');
+      expect(agent.data).to.deep.equal({ another: 'first', wobble: 'second' });
+    });
   });
 });
