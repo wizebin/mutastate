@@ -234,5 +234,24 @@ describe('Mutastate', () => {
       agent.set('weeble.wobble', 'second');
       expect(agent.data).to.deep.equal({ another: 'first', wobble: 'second' });
     });
+    it('resolves aliases', () => {
+      const manager = new Mutastate();
+      const agent = manager.getProxyAgent();
+      agent.listen('a.b.c.d.e.f.g', { alias: 'z' });
+      agent.multiListen(['one.two.three']);
+      expect(agent.resolveKey('z')).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+      expect(agent.resolveKey(['three'])).to.deep.equal(['one', 'two', 'three']);
+      agent.unlistenFromAll();
+      expect(agent.resolveKey('z')).to.deep.equal(['z']);
+      expect(agent.resolveKey(['three'])).to.deep.equal(['three']);
+    });
+    it('clears individual aliases', () => {
+      const manager = new Mutastate();
+      const agent = manager.getProxyAgent();
+      agent.listen('a.b.c.d.e.f.g', { alias: 'z' });
+      expect(agent.resolveKey('z')).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+      agent.unlisten(agent.resolveKey('z'));
+      expect(agent.resolveKey('z')).to.deep.equal(['z']);
+    });
   });
 });

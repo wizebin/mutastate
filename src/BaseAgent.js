@@ -1,10 +1,12 @@
-import { set } from 'objer';
+import { set, has, get, assassinate, getObjectPath, getTypeString } from 'objer';
 
 export default class BaseAgent {
   constructor(mutastate, onChange) {
     this.mutastate = mutastate;
     this.data = {};
     this.onChange = onChange;
+    this.aliasObject = {};
+    this.reverseAliasObject = {};
   }
 
   getComposedState = (initialData, key, value) => {
@@ -20,6 +22,117 @@ export default class BaseAgent {
 
   translate = (inputKey, outputKey, translationFunction, { killOnCleanup = true, throttleTime = null } = {}) => {
     this.mutastate.translate(inputKey, outputKey, translationFunction, { batch: killOnCleanup ? this : undefined, throttleTime });
+  }
+
+  setAlias = (key, alias) => {
+    set(this.aliasObject, alias, key);
+    set(this.reverseAliasObject, key, alias);
+  }
+
+  clearAlias = (key) => {
+    const alias = get(this.reverseAliasObject, key);
+    if (alias) {
+      assassinate(this.reverseAliasObject, key);
+      assassinate(this.aliasObject, alias);
+    }
+  }
+
+  clearAllAliases = () => {
+    this.aliasObject = {};
+    this.reverseAliasObject = {};
+  }
+
+  resolveKey = (key) => {
+    const keyArray = getObjectPath(key);
+    const firstKey = keyArray instanceof Array ? keyArray[0] : keyArray;
+    return has(this.aliasObject, firstKey) ? [].concat(get(this.aliasObject, firstKey)).concat(keyArray.slice(1)) : keyArray;
+  }
+
+  listen = (key, { alias, transform, initialLoad = true, defaultValue } = {}) => {
+    const keyArray = getObjectPath(key);
+    const modifiedListener = {
+      alias,
+      transform,
+      initialLoad,
+      defaultValue,
+      callback: this.handleChange,
+      batch: this,
+    };
+    this.mutastate.listen(keyArray, modifiedListener);
+
+    if (alias) {
+      this.setAlias(keyArray, alias);
+    }
+    if (initialLoad) {
+      this.ignoreChange = true;
+      const listenData = this.mutastate.getForListener(keyArray, modifiedListener);
+      this.setComposedState(alias || keyArray, listenData.value);
+      if (!this.inListenBatch && this.onChange) {
+        this.onChange(this.data);
+      }
+      this.ignoreChange = false;
+    }
+
+    return this.data;
+  }
+
+  listenFlat = (key, { alias, transform, initialLoad = true, defaultValue } = {}) => {
+    const fullKey = getObjectPath(key);
+    const derivedAlias = alias ? alias : fullKey[fullKey.length - 1];
+    return this.listen(fullKey, { alias: derivedAlias, transform, initialLoad, defaultValue });
+  }
+
+  batchListen = (childFunction) => {
+    this.inListenBatch = true;
+    try {
+      childFunction();
+    } finally {
+      if (this.onChange) this.onChange(this.data);
+      this.inListenBatch = false;
+    }
+    return this.data;
+  }
+
+  multiListen = (listeners, { flat = true } = {}) => {
+    const listenFunc = (flat ? this.listenFlat : this.listen);
+
+    return this.batchListen(() => {
+      listeners.forEach((listener) => {
+        const isString = (getTypeString(listener) === 'string');
+        const key = isString ? listener : get(listener, 'key');
+        listenFunc(key, isString ? undefined : listener);
+      })
+    });
+  }
+
+  cleanup() {
+    return this.unlistenFromAll();
+  }
+
+  unlisten = (key) => {
+    const keyArray = getObjectPath(key);
+    const result = this.mutastate.unlisten(keyArray, this.handleChange);
+    this.clearAlias(keyArray);
+    return result;
+  }
+
+  unlistenFromAll = () => {
+    this.mutastate.unlistenBatch(this);
+    this.clearAllAliases();
+  }
+
+  handleChange = (changeEvents) => {
+    this.ignoreChange = true;
+    for (let changedex = 0; changedex < changeEvents.length; changedex += 1) {
+      const changeEvent = changeEvents[changedex];
+      const { alias, key, value } = changeEvent;
+      this.setComposedState(alias || key, value);
+    }
+
+    if (this.onChange) {
+      this.onChange(this.data);
+    }
+    this.ignoreChange = false;
   }
 
   get = (key) => this.mutastate.get(key);

@@ -285,7 +285,7 @@ export default class Mutastate {
     return get(this.data, key);
   }
 
-  set = (key, value, { notify = true, immediate = false, save = true } = {}) => {
+  set = (key, value, { notify = true } = {}) => {
     const keyArray = getObjectPath(key);
     const listeners = this.getRelevantListeners(keyArray, value);
     // Consider a pre-notify here
@@ -310,7 +310,7 @@ export default class Mutastate {
     }
   }
 
-  push = (key, value, { notify = true, immediate = false, save = true } = {}) => {
+  push = (key, value, { notify = true } = {}) => {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
@@ -323,7 +323,7 @@ export default class Mutastate {
     }
   }
 
-  pop = (key, { notify = true, immediate = false, save = true } = {}) => {
+  pop = (key, { notify = true } = {}) => {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
