@@ -83,105 +83,66 @@
     return call && (typeof call === "object" || typeof call === "function") ? call : self;
   };
 
-  var BaseAgent = function BaseAgent(mutastate, onChange) {
-    var _this = this;
+  var BaseAgent = function () {
+    function BaseAgent(mutastate, onChange) {
+      var _this = this;
 
-    classCallCheck(this, BaseAgent);
+      classCallCheck(this, BaseAgent);
 
-    this.getComposedState = function (initialData, key, value) {
-      if (key instanceof Array && key.length === 0 || key === null) return value;
+      this.getComposedState = function (initialData, key, value) {
+        if (key instanceof Array && key.length === 0 || key === null) return value;
 
-      objer.set(initialData, key, value);
-      return initialData;
-    };
-
-    this.setComposedState = function (key, value) {
-      _this.data = _this.getComposedState(_this.data, key, value);
-    };
-
-    this.translate = function (inputKey, outputKey, translationFunction) {
-      var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
-          _ref$killOnCleanup = _ref.killOnCleanup,
-          killOnCleanup = _ref$killOnCleanup === undefined ? true : _ref$killOnCleanup,
-          _ref$throttleTime = _ref.throttleTime,
-          throttleTime = _ref$throttleTime === undefined ? null : _ref$throttleTime;
-
-      _this.mutastate.translate(inputKey, outputKey, translationFunction, { batch: killOnCleanup ? _this : undefined, throttleTime: throttleTime });
-    };
-
-    this.get = function (key) {
-      return _this.mutastate.get(key);
-    };
-
-    this.set = function (key, value, options) {
-      return _this.mutastate.set(key, value, options);
-    };
-
-    this.delete = function (key) {
-      return _this.mutastate.delete(key);
-    };
-
-    this.assign = function (key, value) {
-      return _this.mutastate.assign(key, value);
-    };
-
-    this.push = function (key, value, options) {
-      return _this.mutastate.push(key, value, options);
-    };
-
-    this.pop = function (key, options) {
-      return _this.mutastate.pop(key, options);
-    };
-
-    this.has = function (key) {
-      return _this.mutastate.has(key);
-    };
-
-    this.assure = function (key, defaultValue) {
-      if (!_this.mutastate.has(key)) _this.mutastate.set(key, defaultValue);
-      return _this.mutastate.get(key);
-    };
-
-    this.getEverything = function () {
-      return _this.mutastate.getEverything();
-    };
-
-    this.setEverything = function (data) {
-      return _this.mutastate.setEverything(data);
-    };
-
-    this.mutastate = mutastate;
-    this.data = {};
-    this.onChange = onChange;
-  };
-
-  var MutastateAgent = function (_BaseAgent) {
-    inherits(MutastateAgent, _BaseAgent);
-
-    function MutastateAgent(mutastate, onChange) {
-      classCallCheck(this, MutastateAgent);
-
-      var _this = possibleConstructorReturn(this, (MutastateAgent.__proto__ || Object.getPrototypeOf(MutastateAgent)).call(this, mutastate, onChange));
-
-      _this.unlisten = function (key) {
-        var result = _this.mutastate.unlisten(key, _this.handleChange);
-        return result;
+        objer.set(initialData, key, value);
+        return initialData;
       };
 
-      _this.unlistenFromAll = function () {
-        _this.mutastate.unlistenBatch(_this);
+      this.setComposedState = function (key, value) {
+        _this.data = _this.getComposedState(_this.data, key, value);
       };
 
-      _this.listen = function (key) {
-        var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            alias = _ref.alias,
-            transform = _ref.transform,
-            _ref$initialLoad = _ref.initialLoad,
-            initialLoad = _ref$initialLoad === undefined ? true : _ref$initialLoad,
-            defaultValue = _ref.defaultValue,
-            _ref$partOfMultiListe = _ref.partOfMultiListen,
-            partOfMultiListen = _ref$partOfMultiListe === undefined ? false : _ref$partOfMultiListe;
+      this.translate = function (inputKey, outputKey, translationFunction) {
+        var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
+            _ref$killOnCleanup = _ref.killOnCleanup,
+            killOnCleanup = _ref$killOnCleanup === undefined ? true : _ref$killOnCleanup,
+            _ref$throttleTime = _ref.throttleTime,
+            throttleTime = _ref$throttleTime === undefined ? null : _ref$throttleTime;
 
+        _this.mutastate.translate(inputKey, outputKey, translationFunction, { batch: killOnCleanup ? _this : undefined, throttleTime: throttleTime });
+      };
+
+      this.setAlias = function (key, alias) {
+        objer.set(_this.aliasObject, alias, key);
+        objer.set(_this.reverseAliasObject, key, alias);
+      };
+
+      this.clearAlias = function (key) {
+        var alias = objer.get(_this.reverseAliasObject, key);
+        if (alias) {
+          objer.assassinate(_this.reverseAliasObject, key);
+          objer.assassinate(_this.aliasObject, alias);
+        }
+      };
+
+      this.clearAllAliases = function () {
+        _this.aliasObject = {};
+        _this.reverseAliasObject = {};
+      };
+
+      this.resolveKey = function (key) {
+        var keyArray = objer.getObjectPath(key);
+        var firstKey = keyArray instanceof Array ? keyArray[0] : keyArray;
+        return objer.has(_this.aliasObject, firstKey) ? [].concat(objer.get(_this.aliasObject, firstKey)).concat(keyArray.slice(1)) : keyArray;
+      };
+
+      this.listen = function (key) {
+        var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            alias = _ref2.alias,
+            transform = _ref2.transform,
+            _ref2$initialLoad = _ref2.initialLoad,
+            initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad,
+            defaultValue = _ref2.defaultValue;
+
+        var keyArray = objer.getObjectPath(key);
         var modifiedListener = {
           alias: alias,
           transform: transform,
@@ -190,44 +151,78 @@
           callback: _this.handleChange,
           batch: _this
         };
-        _this.mutastate.listen(key, modifiedListener);
+        _this.mutastate.listen(keyArray, modifiedListener);
 
+        if (alias) {
+          _this.setAlias(keyArray, alias);
+        }
         if (initialLoad) {
-          var listenData = _this.mutastate.getForListener(key, modifiedListener);
-          _this.setComposedState(alias || key, listenData.value);
-          if (!partOfMultiListen && _this.onChange) {
+          _this.ignoreChange = true;
+          var listenData = _this.mutastate.getForListener(keyArray, modifiedListener);
+          _this.setComposedState(alias || keyArray, listenData.value);
+          if (!_this.inListenBatch && _this.onChange) {
             _this.onChange(_this.data);
           }
+          _this.ignoreChange = false;
         }
+
+        return _this.data;
       };
 
-      _this.multiListen = function (listeners) {
-        var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref2$initialLoad = _ref2.initialLoad,
-            initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad;
+      this.listenFlat = function (key) {
+        var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            alias = _ref3.alias,
+            transform = _ref3.transform,
+            _ref3$initialLoad = _ref3.initialLoad,
+            initialLoad = _ref3$initialLoad === undefined ? true : _ref3$initialLoad,
+            defaultValue = _ref3.defaultValue;
 
-        var loaded = false;
-
-        for (var listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {
-          var listener = listeners[listenerdex];
-          var hasKey = objer.get(listener, 'key');
-          var key = hasKey ? listener.key : listener;
-          var alias = hasKey ? listener.alias : null;
-          var options = (hasKey ? listener.options : {}) || {};
-          _this.listen(key, _extends({}, options, { partOfMultiListen: true }));
-          if (initialLoad) {
-            loaded = true;
-            var listenData = _this.mutastate.getForListener(key, listener);
-            _this.setComposedState(alias || key, listenData.value);
-          }
-        }
-
-        if (loaded && _this.onChange) {
-          _this.onChange(_this.data);
-        }
+        var fullKey = objer.getObjectPath(key);
+        var derivedAlias = alias ? alias : fullKey[fullKey.length - 1];
+        return _this.listen(fullKey, { alias: derivedAlias, transform: transform, initialLoad: initialLoad, defaultValue: defaultValue });
       };
 
-      _this.handleChange = function (changeEvents) {
+      this.batchListen = function (childFunction) {
+        _this.inListenBatch = true;
+        try {
+          childFunction();
+        } finally {
+          if (_this.onChange) _this.onChange(_this.data);
+          _this.inListenBatch = false;
+        }
+        return _this.data;
+      };
+
+      this.multiListen = function (listeners) {
+        var _ref4 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+            _ref4$flat = _ref4.flat,
+            flat = _ref4$flat === undefined ? true : _ref4$flat;
+
+        var listenFunc = flat ? _this.listenFlat : _this.listen;
+
+        return _this.batchListen(function () {
+          listeners.forEach(function (listener) {
+            var isString = objer.getTypeString(listener) === 'string';
+            var key = isString ? listener : objer.get(listener, 'key');
+            listenFunc(key, isString ? undefined : listener);
+          });
+        });
+      };
+
+      this.unlisten = function (key) {
+        var keyArray = objer.getObjectPath(key);
+        var result = _this.mutastate.unlisten(keyArray, _this.handleChange);
+        _this.clearAlias(keyArray);
+        return result;
+      };
+
+      this.unlistenFromAll = function () {
+        _this.mutastate.unlistenBatch(_this);
+        _this.clearAllAliases();
+      };
+
+      this.handleChange = function (changeEvents) {
+        _this.ignoreChange = true;
         for (var changedex = 0; changedex < changeEvents.length; changedex += 1) {
           var changeEvent = changeEvents[changedex];
           var alias = changeEvent.alias,
@@ -240,7 +235,73 @@
         if (_this.onChange) {
           _this.onChange(_this.data);
         }
+        _this.ignoreChange = false;
       };
+
+      this.get = function (key) {
+        return _this.mutastate.get(key);
+      };
+
+      this.set = function (key, value, options) {
+        return _this.mutastate.set(key, value, options);
+      };
+
+      this.delete = function (key) {
+        return _this.mutastate.delete(key);
+      };
+
+      this.assign = function (key, value) {
+        return _this.mutastate.assign(key, value);
+      };
+
+      this.push = function (key, value, options) {
+        return _this.mutastate.push(key, value, options);
+      };
+
+      this.pop = function (key, options) {
+        return _this.mutastate.pop(key, options);
+      };
+
+      this.has = function (key) {
+        return _this.mutastate.has(key);
+      };
+
+      this.assure = function (key, defaultValue) {
+        if (!_this.mutastate.has(key)) _this.mutastate.set(key, defaultValue);
+        return _this.mutastate.get(key);
+      };
+
+      this.getEverything = function () {
+        return _this.mutastate.getEverything();
+      };
+
+      this.setEverything = function (data) {
+        return _this.mutastate.setEverything(data);
+      };
+
+      this.mutastate = mutastate;
+      this.data = {};
+      this.onChange = onChange;
+      this.aliasObject = {};
+      this.reverseAliasObject = {};
+    }
+
+    createClass(BaseAgent, [{
+      key: 'cleanup',
+      value: function cleanup() {
+        return this.unlistenFromAll();
+      }
+    }]);
+    return BaseAgent;
+  }();
+
+  var MutastateAgent = function (_BaseAgent) {
+    inherits(MutastateAgent, _BaseAgent);
+
+    function MutastateAgent(mutastate, onChange) {
+      classCallCheck(this, MutastateAgent);
+
+      var _this = possibleConstructorReturn(this, (MutastateAgent.__proto__ || Object.getPrototypeOf(MutastateAgent)).call(this, mutastate, onChange));
 
       _this.mutastate = mutastate;
       _this.data = {};
@@ -248,12 +309,6 @@
       return _this;
     }
 
-    createClass(MutastateAgent, [{
-      key: 'cleanup',
-      value: function cleanup() {
-        return this.unlistenFromAll();
-      }
-    }]);
     return MutastateAgent;
   }(BaseAgent);
 
@@ -446,30 +501,13 @@
               key = data.key,
               value = data.value;
 
-          var firstKey = key instanceof Array ? key[0] : key;
-          var passKey = objer.has(_this.aliasObject, firstKey) ? [].concat(objer.get(_this.aliasObject, firstKey)).concat(key.slice(1)) : key;
+
           if (type === 'set') {
-            _this.mutastate.set(passKey, value);
+            _this.set(_this.resolveKey(key), value);
           } else if (type === 'delete') {
-            _this.mutastate.delete(passKey);
+            _this.delete(_this.resolveKey(key));
           }
         }
-      };
-
-      _this.unlisten = function (key) {
-        var result = _this.mutastate.unlisten(key, _this.handleChange);
-        var alias = objer.get(_this.reverseAliasObject, key);
-        if (alias) {
-          objer.assassinate(_this.reverseAliasObject, key);
-          objer.assassinate(_this.aliasObject, alias);
-        }
-        return result;
-      };
-
-      _this.unlistenFromAll = function () {
-        _this.mutastate.unlistenBatch(_this);
-        _this.aliasObject = {};
-        _this.reverseAliasObject = {};
       };
 
       _this.getComposedState = function (initialData, key, value) {
@@ -484,103 +522,15 @@
         if (resultData !== _this.data) _this.data = changeWrapper(resultData, _this.proxyChange);
       };
 
-      _this.listen = function (key) {
-        var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            alias = _ref.alias,
-            transform = _ref.transform,
-            _ref$initialLoad = _ref.initialLoad,
-            initialLoad = _ref$initialLoad === undefined ? true : _ref$initialLoad,
-            defaultValue = _ref.defaultValue,
-            _ref$partOfMultiListe = _ref.partOfMultiListen,
-            partOfMultiListen = _ref$partOfMultiListe === undefined ? false : _ref$partOfMultiListe;
-
-        var modifiedListener = {
-          alias: alias,
-          transform: transform,
-          initialLoad: initialLoad,
-          defaultValue: defaultValue,
-          callback: _this.handleChange,
-          batch: _this
-        };
-        _this.mutastate.listen(key, modifiedListener);
-
-        if (alias) {
-          objer.set(_this.aliasObject, alias, key);
-          objer.set(_this.reverseAliasObject, key, alias);
-        }
-        if (initialLoad) {
-          _this.ignoreChange = true;
-          var listenData = _this.mutastate.getForListener(key, modifiedListener);
-          _this.setComposedState(alias || key, listenData.value);
-          if (!partOfMultiListen && _this.onChange) {
-            _this.onChange(_this.data);
-          }
-          _this.ignoreChange = false;
-        }
-      };
-
-      _this.multiListen = function (listeners) {
-        var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-            _ref2$initialLoad = _ref2.initialLoad,
-            initialLoad = _ref2$initialLoad === undefined ? true : _ref2$initialLoad;
-
-        var loaded = false;
-
-        for (var listenerdex = 0; listenerdex < listeners.length; listenerdex += 1) {
-          var listener = listeners[listenerdex];
-          var hasKey = objer.get(listener, 'key');
-          var key = hasKey ? listener.key : listener;
-          var alias = hasKey ? listener.alias : null;
-          var options = (hasKey ? listener.options : {}) || {};
-          _this.listen(key, _extends({}, options, { partOfMultiListen: true }));
-          if (initialLoad) {
-            _this.ignoreChange = true;
-            loaded = true;
-            var listenData = _this.mutastate.getForListener(key, listener);
-            _this.setComposedState(alias || key, listenData.value);
-            _this.ignoreChange = false;
-          }
-        }
-
-        if (loaded && _this.onChange) {
-          _this.onChange(_this.data);
-        }
-      };
-
-      _this.handleChange = function (changeEvents) {
-        _this.ignoreChange = true;
-        for (var changedex = 0; changedex < changeEvents.length; changedex += 1) {
-          var changeEvent = changeEvents[changedex];
-          var alias = changeEvent.alias,
-              key = changeEvent.key,
-              value = changeEvent.value;
-
-          _this.setComposedState(alias || key, value);
-        }
-
-        if (_this.onChange) {
-          _this.onChange(_this.data);
-        }
-        _this.ignoreChange = false;
-      };
-
       _this.mutastate = mutastate;
       _this.data = changeWrapper({}, _this.proxyChange);
       _this.onChange = onChange;
-      _this.aliasObject = {};
-      _this.reverseAliasObject = {};
       return _this;
     }
 
     // TODO manage push, pop, shift, unshift, splice, etc
 
 
-    createClass(ProxyAgent, [{
-      key: 'cleanup',
-      value: function cleanup() {
-        return this.unlistenFromAll();
-      }
-    }]);
     return ProxyAgent;
   }(BaseAgent);
 
@@ -766,9 +716,7 @@
       this.set = function (key, value) {
         var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
             _ref$notify = _ref.notify,
-            notify = _ref$notify === undefined ? true : _ref$notify,
-            _ref$immediate = _ref.immediate,
-            _ref$save = _ref.save;
+            notify = _ref$notify === undefined ? true : _ref$notify;
 
         var keyArray = objer.getObjectPath(key);
         var listeners = _this.getRelevantListeners(keyArray, value);
@@ -797,9 +745,7 @@
       this.push = function (key, value) {
         var _ref2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
             _ref2$notify = _ref2.notify,
-            notify = _ref2$notify === undefined ? true : _ref2$notify,
-            _ref2$immediate = _ref2.immediate,
-            _ref2$save = _ref2.save;
+            notify = _ref2$notify === undefined ? true : _ref2$notify;
 
         var keyArray = objer.getObjectPath(key);
         var original = objer.get(_this.data, keyArray);
@@ -816,9 +762,7 @@
       this.pop = function (key) {
         var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
             _ref3$notify = _ref3.notify,
-            notify = _ref3$notify === undefined ? true : _ref3$notify,
-            _ref3$immediate = _ref3.immediate,
-            _ref3$save = _ref3.save;
+            notify = _ref3$notify === undefined ? true : _ref3$notify;
 
         var keyArray = objer.getObjectPath(key);
         var original = objer.get(_this.data, keyArray);
