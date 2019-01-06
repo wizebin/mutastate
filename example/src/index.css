@@ -5,16 +5,29 @@ body {
   padding: 0;
   font-family: 'Roboto', sans-serif;
 }
-.button {
-  background-color: #da251c;
+
+button {
+  padding: 10px;
+  background: none;
+  border: none;
+  color: #444;
+  border-radius: 3px;
+  margin: 5px;
+  background-color: white;
 }
 
-.content {
-  padding-left: 24px;
-  padding-right: 24px;
-  padding-bottom: 16px;
+.idrow {
+  margin-bottom: 10px;
 }
 
-.radio {
-  display: block;
+.assignmentUi {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.assignment {
+  padding: 20px;
+  display: inline-flex;
+  flex-direction: column;
 }

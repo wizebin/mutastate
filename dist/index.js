@@ -535,7 +535,7 @@
   }(BaseAgent);
 
   /**
-   * Core mutastate class, this class stores data and informes listeners of changes
+   * Core mutastate class, this class stores data and informs listeners of changes
    */
 
   var Mutastate = function () {

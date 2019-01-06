@@ -4,7 +4,7 @@ import Assignment from './Assignment';
 export default class App extends React.Component {
   render() {
     return (
-      <div>
+      <div className="app">
         <Assignment id={0} />
         <Assignment id={1} />
         <Assignment id={2} />
