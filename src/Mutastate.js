@@ -320,7 +320,12 @@ export default class Mutastate {
       // Consider a pre-notify here
       original.push(value);
       if (notify) this.notify(listeners, extendedKey, value);
+      return true;
+    } else if (originalType === 'undefined' || originalType === 'null') {
+      this.set(keyArray, [value]);
+      return true;
     }
+    return false;
   }
 
   pop = (key, { notify = true } = {}) => {
@@ -333,11 +338,17 @@ export default class Mutastate {
       // Consider a pre-notify here
       original.pop();
       if (notify) this.notify(listeners, extendedKey);
+      return true;
     }
+    return false;
   }
 
   has = (key) => has(this.data, key);
 
+  assure = (key, defaultValue) => {
+    if (!this.has(key)) this.set(key, defaultValue);
+    return this.get(key);
+  }
 
   // Complication: must notify all array keys of updates due to key changes
   // unshift = (key, value) => {

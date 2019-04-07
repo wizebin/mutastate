@@ -48,6 +48,8 @@ export default class BaseAgent {
     return has(this.aliasObject, firstKey) ? [].concat(get(this.aliasObject, firstKey)).concat(keyArray.slice(1)) : keyArray;
   }
 
+  resolve = this.resolveKey;
+
   listen = (key, { alias, transform, initialLoad = true, defaultValue } = {}) => {
     const keyArray = getObjectPath(key);
     const modifiedListener = {
@@ -129,7 +131,7 @@ export default class BaseAgent {
       this.setComposedState(alias || key, value);
     }
 
-    if (this.onChange) {
+    if (this.onChange && !this.paused) {
       this.onChange(this.data);
     }
     this.ignoreChange = false;
@@ -142,10 +144,13 @@ export default class BaseAgent {
   push = (key, value, options) => this.mutastate.push(key, value, options);
   pop = (key, options) => this.mutastate.pop(key, options);
   has = (key) => this.mutastate.has(key);
-  assure = (key, defaultValue) => {
-    if (!this.mutastate.has(key)) this.mutastate.set(key, defaultValue);
-    return this.mutastate.get(key);
-  }
+  assure = (key, defaultValue) => this.mutastate.assure(key, defaultValue);
   getEverything = () => this.mutastate.getEverything();
   setEverything = (data) => this.mutastate.setEverything(data);
+  getAgentData = () => this.data;
+  pause = () => this.paused = true;
+  resume = (executeCallback = true) => {
+    this.paused = false;
+    if (executeCallback) this.onChange(this.data);
+  };
 }

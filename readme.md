@@ -60,6 +60,48 @@ console.log(mutastate.get('foghorn')) // returns leghorn
 * `removeChangeHook(callback)`
     * stops notifying callback on any data change
 
+#### Mutastate Agent
+
+*functions*
+* `new MutastateAgent(mutastateInstance, callbackFunction)` or `mutastateInstance.getAgent(callbackFunction)`
+    * Connect to the mutastateInstance and execute callbackFunction when data changes.
+* `listen(key, { alias, transform, initialLoad = true, defaultValue } = {})`
+    * Listen for changes at key in mutastate, then call `callbackFunction` from the constructor
+* `listenFlat(key, { alias, transform, initialLoad = true, defaultValue } = {})`
+    * Listen for data at key, automatically set alias to the last key section. ['a', 'b', 'c'] sets the alias to 'c'
+* `batchListen(childFunction)`
+    * Execute a lambda, during the lambda execution don't send callback information, after the lambda execute the callback
+* `multiListen(listeners, { flat = true } = {})`
+    * Same as listen or listenFlat, but include a { key } in the listener
+* `get(key)`
+    * Get data at key from mutastate
+* `set(key, value)`
+    * Set data at key in mutastate
+* `delete(key)`
+    * Delete data at key in mutastate
+* `assign(baseKey, value)`
+    * Perform an Object.assign() on the object that is at the baseKey in mutastate
+* `push(baseKey, value)`
+    * Push into an array found at baseKey in mutastate
+* `pop(key)`
+    * Remove the last item in an array found at key
+* `has(key)`
+    * Detect if mutastate contains data at this key
+* `assure(key, defaultValue)`
+    * If `has` fails on this `key`, use `set` at that `key` with `defaultValue`
+* `getEverything()`
+    * Return all of mutastate
+* `setEverything(data)`
+    * Overwrite all data in mutastate
+* `getAgentData()`
+    * Get current agent data (including aliased data)
+* `pause()`
+    * Pause callback (data will still flow to the agent unless you manually unlisten)
+* `resume()`
+    * Resume callbacks, you may want to manually re-target information found in getAgentData after resuming
+* `resolve(aliasedKey)`
+    * Resolve an alias to the full mutastate path. `agent.listen('a.b.c', { alias: 'bobby' });` then `agent.resolve('bobby')` will return `['a', 'b', 'c']`
+
 ## Use with React
 
 This example demonstrates how to create a connected react component, this particular component listens for data in the default shard, under the key `['default', 'assignments', props.id]`. This means if the data at that key is updated, this component will receive an update including the new data.
@@ -119,6 +161,3 @@ If you must avoid `useProxy`, the following mutastate methods are available:
 * `has(key)`
 * `getEverything(key)`
 * `setEverything(key)`
-
-These functions are accessible throught the agent props object (this can be modified by passing agentName into your withMutastateCreator function) like so:
-`this.props.agent.set('default.bobby', 'tables');`
