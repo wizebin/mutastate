@@ -7,15 +7,27 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha Tests",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "name": "Jest Test Current File",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "internalConsoleOptions": "openOnSessionStart",
       "args": [
-        "--opts",
-        ".mocharc"
-      ],
-      "env": {
-        "NODE_ENV": "test"
-      },
+        "${file}"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Execute Current File",
+      "program": "${file}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/babel-node",
+      "runtimeArgs": ["--nolazy"],
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Test Everything",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "internalConsoleOptions": "openOnSessionStart"
     }
   ]
