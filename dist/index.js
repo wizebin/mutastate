@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('bluebird'), require('objer')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'bluebird', 'objer'], factory) :
-  (factory((global.mutastate = {}),global.bluebird,global.objer));
-}(this, (function (exports,bluebird,objer) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird'], factory) :
+  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird));
+}(this, function (exports, objer, bluebird) { 'use strict';
 
   bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
 
@@ -1176,10 +1176,10 @@
   }
 
   exports.Mutastate = Mutastate$1;
-  exports.withMutastateCreator = withMutastateCreator;
-  exports.singleton = singleton;
   exports.default = Mutastate$1;
+  exports.singleton = singleton;
+  exports.withMutastateCreator = withMutastateCreator;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
