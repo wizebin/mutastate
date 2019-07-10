@@ -1,4 +1,4 @@
-import { singleton } from './index';
+import singleton from './singleton';
 
 export default function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
   return function withMutastate(WrappedComponent, mutastateInstance = instance) {
@@ -21,4 +21,3 @@ export default function withMutastateCreator(React, { instance = singleton(), us
     };
   }
 }
-

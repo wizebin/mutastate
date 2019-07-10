@@ -1,12 +1,5 @@
-import Mutastate from './Mutastate';
-import withMutastateCreator from './WithMutastate';
+export { default as Mutastate } from './Mutastate';
+export { default as withMutastateCreator } from './WithMutastate';
+export { default as singleton } from './singleton';
 
-function singleton() {
-  if (singleton.singleton === undefined) {
-    singleton.singleton = new Mutastate();
-  }
-  return singleton.singleton;
-}
-
-export { Mutastate, singleton, withMutastateCreator };
-export default Mutastate;
+export { default } from './Mutastate';

@@ -134,6 +134,8 @@
         return objer.has(_this.aliasObject, firstKey) ? [].concat(objer.get(_this.aliasObject, firstKey)).concat(keyArray.slice(1)) : keyArray;
       };
 
+      this.resolve = this.resolveKey;
+
       this.listen = function (key) {
         var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
             alias = _ref2.alias,
@@ -232,7 +234,7 @@
           _this.setComposedState(alias || key, value);
         }
 
-        if (_this.onChange) {
+        if (_this.onChange && !_this.paused) {
           _this.onChange(_this.data);
         }
         _this.ignoreChange = false;
@@ -267,8 +269,7 @@
       };
 
       this.assure = function (key, defaultValue) {
-        if (!_this.mutastate.has(key)) _this.mutastate.set(key, defaultValue);
-        return _this.mutastate.get(key);
+        return _this.mutastate.assure(key, defaultValue);
       };
 
       this.getEverything = function () {
@@ -277,6 +278,21 @@
 
       this.setEverything = function (data) {
         return _this.mutastate.setEverything(data);
+      };
+
+      this.getAgentData = function () {
+        return _this.data;
+      };
+
+      this.pause = function () {
+        return _this.paused = true;
+      };
+
+      this.resume = function () {
+        var executeCallback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        _this.paused = false;
+        if (executeCallback) _this.onChange(_this.data);
       };
 
       this.mutastate = mutastate;
@@ -538,7 +554,7 @@
    * Core mutastate class, this class stores data and informs listeners of changes
    */
 
-  var Mutastate = function () {
+  var Mutastate$1 = function () {
     function Mutastate() {
       var _this = this;
 
@@ -756,7 +772,12 @@
           // Consider a pre-notify here
           original.push(value);
           if (notify) _this.notify(listeners, extendedKey, value);
+          return true;
+        } else if (originalType === 'undefined' || originalType === 'null') {
+          _this.set(keyArray, [value]);
+          return true;
         }
+        return false;
       };
 
       this.pop = function (key) {
@@ -773,11 +794,18 @@
           // Consider a pre-notify here
           original.pop();
           if (notify) _this.notify(listeners, extendedKey);
+          return true;
         }
+        return false;
       };
 
       this.has = function (key) {
         return objer.has(_this.data, key);
+      };
+
+      this.assure = function (key, defaultValue) {
+        if (!_this.has(key)) _this.set(key, defaultValue);
+        return _this.get(key);
       };
 
       this.getEverything = function () {
@@ -1025,7 +1053,14 @@
     return Mutastate;
   }();
 
-  function withMutastateCreator$$1(React) {
+  function singleton() {
+    if (singleton.singleton === undefined) {
+      singleton.singleton = new Mutastate();
+    }
+    return singleton.singleton;
+  }
+
+  function withMutastateCreator(React) {
     var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
         _ref$instance = _ref.instance,
         instance = _ref$instance === undefined ? singleton() : _ref$instance,
@@ -1070,17 +1105,10 @@
     };
   }
 
-  function singleton() {
-    if (singleton.singleton === undefined) {
-      singleton.singleton = new Mutastate();
-    }
-    return singleton.singleton;
-  }
-
-  exports.Mutastate = Mutastate;
+  exports.Mutastate = Mutastate$1;
+  exports.withMutastateCreator = withMutastateCreator;
   exports.singleton = singleton;
-  exports.withMutastateCreator = withMutastateCreator$$1;
-  exports.default = Mutastate;
+  exports.default = Mutastate$1;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
