@@ -1,5 +1,4 @@
 import Mutastate from './Mutastate';
-import { expect } from 'chai';
 
 describe('Mutastate', () => {
   describe('Save and load', () => {
@@ -11,22 +10,22 @@ describe('Mutastate', () => {
       });
       agent.listen('speckled.bobs', { alias: 'speks' });
       manager.set('speckled', { dots: 5, bits: 9 });
-      expect(manager.getEverything()).to.deep.equal({ speckled: { dots: 5, bits: 9 } });
+      expect(manager.getEverything()).toEqual({ speckled: { dots: 5, bits: 9 } });
       manager.delete('speckled.dots');
-      expect(manager.getEverything()).to.deep.equal({ speckled: { bits: 9 } });
+      expect(manager.getEverything()).toEqual({ speckled: { bits: 9 } });
       manager.delete('speckled.dots');
-      expect(manager.getEverything()).to.deep.equal({ speckled: { bits: 9 } });
-      expect(agentData).to.deep.equal({ speks: undefined });
+      expect(manager.getEverything()).toEqual({ speckled: { bits: 9 } });
+      expect(agentData).toEqual({ speks: undefined });
       manager.set('speckled.bobs', []);
-      expect(agentData).to.deep.equal({ speks: [] });
-      expect(manager.getEverything()).to.deep.equal({ speckled: { bits: 9, bobs: [] } });
+      expect(agentData).toEqual({ speks: [] });
+      expect(manager.getEverything()).toEqual({ speckled: { bits: 9, bobs: [] } });
       manager.push('speckled.bobs', 'first');
-      expect(manager.getEverything()).to.deep.equal({ speckled: { bits: 9, bobs: ['first'] } });
+      expect(manager.getEverything()).toEqual({ speckled: { bits: 9, bobs: ['first'] } });
       manager.push('speckled.bobs', 'second');
-      expect(manager.getEverything()).to.deep.equal({ speckled: { bits: 9, bobs: ['first', 'second'] } });
+      expect(manager.getEverything()).toEqual({ speckled: { bits: 9, bobs: ['first', 'second'] } });
       manager.pop('speckled.bobs');
-      expect(manager.getEverything()).to.deep.equal({ speckled: { bits: 9, bobs: ['first'] } });
-      expect(agentData).to.deep.equal({ speks: ['first'] });
+      expect(manager.getEverything()).toEqual({ speckled: { bits: 9, bobs: ['first'] } });
+      expect(agentData).toEqual({ speks: ['first'] });
     });
     it('proxy agents', () => {
       const manager = new Mutastate();
@@ -48,27 +47,27 @@ describe('Mutastate', () => {
 
       updateCount = 0;
       agentData.flipper = 'johnny';
-      expect(updateCount).to.equal(1);
+      expect(updateCount).toEqual(1);
 
       updateCount = 0;
       agentData.second = 'bango';
-      expect(updateCount).to.equal(1);
+      expect(updateCount).toEqual(1);
 
       updateCount = 0;
       agentData.third.push('another');
-      expect(updateCount).to.equal(1);
+      expect(updateCount).toEqual(1);
 
-      expect(manager.get('third')).to.deep.equal(['another']);
-      expect(agentData2.third).to.deep.equal(['another']);
+      expect(manager.get('third')).toEqual(['another']);
+      expect(agentData2.third).toEqual(['another']);
 
       updateCount = 0;
       agent2.push('third', 'qwop');
-      expect(updateCount).to.equal(1);
+      expect(updateCount).toEqual(1);
 
-      expect(manager.get('first')).to.equal('johnny');
-      expect(manager.get('second')).to.equal('bango');
-      expect(manager.get('third')).to.deep.equal(['another', 'qwop']);
-      expect(agentData2.third).to.deep.equal(['another', 'qwop']);
+      expect(manager.get('first')).toEqual('johnny');
+      expect(manager.get('second')).toEqual('bango');
+      expect(manager.get('third')).toEqual(['another', 'qwop']);
+      expect(agentData2.third).toEqual(['another', 'qwop']);
     });
     it('executes basic translations', () => {
       const manager = new Mutastate();
@@ -83,11 +82,11 @@ describe('Mutastate', () => {
 
       updateCount = 0;
       manager.set('a', 'jello');
-      expect(updateCount).to.equal(1);
+      expect(updateCount).toEqual(1);
 
-      expect(manager.get('a')).to.equal('jello');
-      expect(manager.get('b')).to.equal('jello2');
-      expect(agentData.q).to.deep.equal('jello2');
+      expect(manager.get('a')).toEqual('jello');
+      expect(manager.get('b')).toEqual('jello2');
+      expect(agentData.q).toEqual('jello2');
     });
     it('executes advanced translations', () => {
       const manager = new Mutastate();
@@ -106,9 +105,9 @@ describe('Mutastate', () => {
       updateCount = 0;
 
       manager.set('original', [{ id: 1, name: 'bob' }, { id: 2, name: 'jimmy' }]);
-      expect(updateCount).to.equal(1);
+      expect(updateCount).toEqual(1);
 
-      expect(agentData.tran).to.deep.equal({
+      expect(agentData.tran).toEqual({
         1: { key: `original[0]`, value: { id: 1, name: 'bob' } },
         2: { key: `original[1]`, value: { id: 2, name: 'jimmy' } }
       });
@@ -118,28 +117,28 @@ describe('Mutastate', () => {
       const agent = manager.getProxyAgent(() => {});
       agent.translate('original', 'translated', input => input + 2, { killOnCleanup: false });
       manager.set('original', 2);
-      expect(manager.get('original')).to.equal(2);
-      expect(manager.get('translated')).to.equal(4);
+      expect(manager.get('original')).toEqual(2);
+      expect(manager.get('translated')).toEqual(4);
 
       agent.cleanup();
 
       manager.set('original', 5);
-      expect(manager.get('original')).to.equal(5);
-      expect(manager.get('translated')).to.equal(7);
+      expect(manager.get('original')).toEqual(5);
+      expect(manager.get('translated')).toEqual(7);
     });
     it('kills translations during cleanup of agent if required', () => {
       const manager = new Mutastate();
       const agent = manager.getProxyAgent(() => {});
       agent.translate('original', 'translated', input => input + 2, { killOnCleanup: true });
       manager.set('original', 2);
-      expect(manager.get('original')).to.equal(2);
-      expect(manager.get('translated')).to.equal(4);
+      expect(manager.get('original')).toEqual(2);
+      expect(manager.get('translated')).toEqual(4);
 
       agent.cleanup();
 
       manager.set('original', 5);
-      expect(manager.get('original')).to.equal(5);
-      expect(manager.get('translated')).to.equal(4);
+      expect(manager.get('original')).toEqual(5);
+      expect(manager.get('translated')).toEqual(4);
     });
 
     // IF THIS TURNS INTO A BLINKER (sometimes failing) INCREASE THE TIMEOUT FROM 80 TO SOMETHING HIGHER LIKE 200
@@ -159,9 +158,9 @@ describe('Mutastate', () => {
         manager.set('original', dex);
       }
       setTimeout(() => {
-        expect(updateCount).to.be.lessThan(20);
-        expect(manager.get('original')).to.equal(99);
-        expect(manager.get('translated')).to.equal(101);
+        expect(updateCount).toBeLessThan(20);
+        expect(manager.get('original')).toEqual(99);
+        expect(manager.get('translated')).toEqual(101);
         done();
       }, 80);
     });
@@ -174,7 +173,7 @@ describe('Mutastate', () => {
       agent.listen('phio', { alias: 'indifferent', defaultValue: 0 });
       manager.set('phio', 1);
       agent.data.indifferent = 2;
-      expect(changes).to.deep.equal([
+      expect(changes).toEqual([
         { key: ['phio'], value: 0, meta: { defaultValue: true } },
         { key: ['phio'], value: 1 },
         { key: ['phio'], value: 2 },
@@ -189,30 +188,30 @@ describe('Mutastate', () => {
       manager.set('basic', 'first');
 
       manager.setEverything({ basic: 'second', nonbasic: 'third' });
-      expect(agent.data).to.deep.equal({ basic: 'second' });
-      expect(agent2.data).to.deep.equal({ nonbasic: 'third' });
+      expect(agent.data).toEqual({ basic: 'second' });
+      expect(agent2.data).toEqual({ nonbasic: 'third' });
       manager.setEverything({});
-      expect(agent.data).to.deep.equal({ basic: undefined });
-      expect(agent2.data).to.deep.equal({ nonbasic: undefined });
+      expect(agent.data).toEqual({ basic: undefined });
+      expect(agent2.data).toEqual({ nonbasic: undefined });
       manager.setEverything({ nonbasic: { forth: 'fifth' }});
-      expect(agent.data).to.deep.equal({ basic: undefined });
-      expect(agent2.data).to.deep.equal({ nonbasic: { forth: 'fifth' } });
+      expect(agent.data).toEqual({ basic: undefined });
+      expect(agent2.data).toEqual({ nonbasic: { forth: 'fifth' } });
       manager.setEverything({ nonbasic: { forth: 'sixth' }});
-      expect(agent.data).to.deep.equal({ basic: undefined });
-      expect(agent2.data).to.deep.equal({ nonbasic: { forth: 'sixth' } });
+      expect(agent.data).toEqual({ basic: undefined });
+      expect(agent2.data).toEqual({ nonbasic: { forth: 'sixth' } });
     });
     it('applies defaults to setEverything', () => {
       const manager = new Mutastate();
       const agent = manager.getProxyAgent();
       agent.listen('basic', { defaultValue: 'ohio' });
 
-      expect(agent.data.basic).to.equal('ohio');
-      expect(manager.data).to.deep.equal({ basic: 'ohio' });
+      expect(agent.data.basic).toEqual('ohio');
+      expect(manager.data).toEqual({ basic: 'ohio' });
 
       manager.setEverything({ unrelated: 5 });
 
-      expect(agent.data.basic).to.equal('ohio');
-      expect(manager.data).to.deep.equal({ basic: 'ohio', unrelated: 5 });
+      expect(agent.data.basic).toEqual('ohio');
+      expect(manager.data).toEqual({ basic: 'ohio', unrelated: 5 });
     });
     it('assures', () => {
       const manager = new Mutastate();
@@ -222,36 +221,36 @@ describe('Mutastate', () => {
       agent.assure('another', {}).plop = 'dop';
       // agent.assure('somekey', 0) += 1; // you may not do this, lvalue reference from a function is not possible
       // this would be possible with basic operator overloading, but javascript is silly and doesn't have that
-      expect(agent.data).to.deep.equal({ basic: ['hi'], another: { plop: 'dop' } });
+      expect(agent.data).toEqual({ basic: ['hi'], another: { plop: 'dop' } });
     });
     it('executes multilisten', () => {
       const manager = new Mutastate();
       let changeCount = 0;
       const agent = manager.getProxyAgent(() => changeCount += 1);
       agent.multiListen(['basic.something.another', 'weeble.wobble']);
-      expect(changeCount).to.equal(1);
+      expect(changeCount).toEqual(1);
       agent.set('basic.something.another', 'first');
       agent.set('weeble.wobble', 'second');
-      expect(agent.data).to.deep.equal({ another: 'first', wobble: 'second' });
+      expect(agent.data).toEqual({ another: 'first', wobble: 'second' });
     });
     it('resolves aliases', () => {
       const manager = new Mutastate();
       const agent = manager.getProxyAgent();
       agent.listen('a.b.c.d.e.f.g', { alias: 'z' });
       agent.multiListen(['one.two.three']);
-      expect(agent.resolveKey('z')).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
-      expect(agent.resolveKey(['three'])).to.deep.equal(['one', 'two', 'three']);
+      expect(agent.resolveKey('z')).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+      expect(agent.resolveKey(['three'])).toEqual(['one', 'two', 'three']);
       agent.unlistenFromAll();
-      expect(agent.resolveKey('z')).to.deep.equal(['z']);
-      expect(agent.resolveKey(['three'])).to.deep.equal(['three']);
+      expect(agent.resolveKey('z')).toEqual(['z']);
+      expect(agent.resolveKey(['three'])).toEqual(['three']);
     });
     it('clears individual aliases', () => {
       const manager = new Mutastate();
       const agent = manager.getProxyAgent();
       agent.listen('a.b.c.d.e.f.g', { alias: 'z' });
-      expect(agent.resolveKey('z')).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+      expect(agent.resolveKey('z')).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
       agent.unlisten(agent.resolveKey('z'));
-      expect(agent.resolveKey('z')).to.deep.equal(['z']);
+      expect(agent.resolveKey('z')).toEqual(['z']);
     });
   });
 });
