@@ -1,10 +1,11 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird'], factory) :
-  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird));
-}(this, function (exports, objer, bluebird) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('react'), require('mutastate')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'react', 'mutastate'], factory) :
+  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.React, global.mutastate));
+}(this, function (exports, objer, bluebird, React, mutastate) { 'use strict';
 
   bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
+  React = React && React.hasOwnProperty('default') ? React['default'] : React;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -105,6 +106,42 @@
     };
 
     return _setPrototypeOf(o, p);
+  }
+
+  function _objectWithoutPropertiesLoose(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+
+  function _objectWithoutProperties(source, excluded) {
+    if (source == null) return {};
+
+    var target = _objectWithoutPropertiesLoose(source, excluded);
+
+    var key, i;
+
+    if (Object.getOwnPropertySymbols) {
+      var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+      for (i = 0; i < sourceSymbolKeys.length; i++) {
+        key = sourceSymbolKeys[i];
+        if (excluded.indexOf(key) >= 0) continue;
+        if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+        target[key] = source[key];
+      }
+    }
+
+    return target;
   }
 
   function _assertThisInitialized(self) {
@@ -984,6 +1021,8 @@
       this.promise = getPromiseFunction();
     }
     /**
+     * @method
+     * @description
      * An agent is a listener with alias and transform capabilities
      * @param {function} onChange
      */
@@ -993,6 +1032,8 @@
       key: "getChangeListeners",
 
       /**
+       * @method
+       * @description
        * given a change, notify all parents of the relevant key, and for every subkey of the incoming data notify listeners
        * this function does not notify any listers of removed data, getDeleteListeners fulfills that role
        */
@@ -1037,6 +1078,8 @@
         return result;
       }
       /**
+       * @method
+       * @description
        * Listeners are nested by a pattern of subkeys.key.subkeys.otherkey, this function turns ['key', 'otherkey'] into the expected array
        */
 
@@ -1057,6 +1100,8 @@
         return result;
       }
       /**
+       * @method
+       * @description
        * Concatenate change and delete listeners for a given change
        */
 
@@ -1070,6 +1115,8 @@
         return changeListeners.concat(deleteListeners);
       }
       /**
+       * @method
+       * @description
        * Execute notify callbacks for a batch in format [{ listener, key }]
        */
 
@@ -1114,18 +1161,10 @@
     return Mutastate;
   }();
 
-  function singleton() {
-    if (singleton.singleton === undefined) {
-      singleton.singleton = new Mutastate();
-    }
-
-    return singleton.singleton;
-  }
-
   function withMutastateCreator(React) {
     var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
         _ref$instance = _ref.instance,
-        instance = _ref$instance === void 0 ? singleton() : _ref$instance,
+        instance = _ref$instance === void 0 ? mutastate.singleton() : _ref$instance,
         _ref$useProxy = _ref.useProxy,
         useProxy = _ref$useProxy === void 0 ? false : _ref$useProxy,
         _ref$agentName = _ref.agentName,
@@ -1135,17 +1174,17 @@
       var _temp;
 
       var mutastateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : instance;
-      return _temp =
+      var ToForward = (_temp =
       /*#__PURE__*/
       function (_React$Component) {
-        _inherits(_temp, _React$Component);
+        _inherits(ToForward, _React$Component);
 
-        function _temp(props) {
+        function ToForward(props) {
           var _this;
 
-          _classCallCheck(this, _temp);
+          _classCallCheck(this, ToForward);
 
-          _this = _possibleConstructorReturn(this, _getPrototypeOf(_temp).call(this, props));
+          _this = _possibleConstructorReturn(this, _getPrototypeOf(ToForward).call(this, props));
 
           _defineProperty(_assertThisInitialized(_this), "changeState", function () {
             return _this.setState(_this.state);
@@ -1156,7 +1195,7 @@
           return _this;
         }
 
-        _createClass(_temp, [{
+        _createClass(ToForward, [{
           key: "componentWillUnmount",
           value: function componentWillUnmount() {
             return this.agent.cleanup();
@@ -1164,21 +1203,44 @@
         }, {
           key: "render",
           value: function render() {
-            return React.createElement(WrappedComponent, _objectSpread2(_defineProperty({
+            var _objectSpread2$1;
+
+            var _this$props = this.props,
+                forwardedRef = _this$props.forwardedRef,
+                rest = _objectWithoutProperties(_this$props, ["forwardedRef"]);
+
+            return React.createElement(WrappedComponent, _objectSpread2((_objectSpread2$1 = {
               data: this.agent.data
-            }, agentName, this.agent), this.props), this.props.children);
+            }, _defineProperty(_objectSpread2$1, agentName, this.agent), _defineProperty(_objectSpread2$1, "ref", forwardedRef), _objectSpread2$1), rest), this.props.children);
           }
         }]);
 
-        return _temp;
-      }(React.Component), _temp;
+        return ToForward;
+      }(React.Component), _temp);
+      return React.forwardRef(function (props, ref) {
+        return React.createElement(ToForward, _objectSpread2({}, props, {
+          forwardedRef: ref
+        }));
+      });
     };
+  }
+
+  var WithMutastate = withMutastateCreator(React, {
+    useProxy: false
+  });
+
+  function singleton() {
+    if (singleton.singleton === undefined) {
+      singleton.singleton = new Mutastate();
+    }
+
+    return singleton.singleton;
   }
 
   exports.Mutastate = Mutastate$1;
   exports.default = Mutastate$1;
   exports.singleton = singleton;
-  exports.withMutastateCreator = withMutastateCreator;
+  exports.withMutastateCreator = WithMutastate;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

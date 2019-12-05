@@ -1,6 +1,7 @@
-import singleton from './singleton';
+import React from 'react';
+import { singleton } from 'mutastate';
 
-export default function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
+function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
   return function withMutastate(WrappedComponent, mutastateInstance = instance) {
     const ToForward = class extends React.Component {
       constructor(props) {
@@ -23,7 +24,10 @@ export default function withMutastateCreator(React, { instance = singleton(), us
     };
 
     return React.forwardRef((props, ref) => {
-      return <ToForward {...props} forwardedRef={ref} />;
+      return React.createElement(ToForward, { ...props, forwardedRef: ref });
     });
   };
 }
+
+
+export default withMutastateCreator(React, { useProxy: false });
