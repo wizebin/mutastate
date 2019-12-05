@@ -1,4 +1,45 @@
-import MutastateAgent from './MutastateAgent';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mutastate.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Mutastate.html">Mutastate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#addChangeHook">addChangeHook</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getAgent">getAgent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getAllChildListeners">getAllChildListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getChangeListeners">getChangeListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getDeleteListeners">getDeleteListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getForListener">getForListener</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getListenerObjectAtKey">getListenerObjectAtKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getRelevantListeners">getRelevantListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#listen">listen</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#notify">notify</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#unlisten">unlisten</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#unlistenBatch">unlistenBatch</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Mutastate.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import MutastateAgent from './MutastateAgent';
 import { throttle, getKeyFilledObject, findIndex } from './MutastateHelpers';
 import { assurePathExists, getObjectPath, has, get, getTypeString, keys, set, assassinate, clone } from 'objer';
 import { isBlankKey } from './utility/blankKey';
@@ -40,7 +81,7 @@ export default class Mutastate {
     const keyArray = isBlankKey(key) ? ['default'] : getObjectPath(key);
 
     let currentListenObject = this.listenerObject;
-    for (let keydex = 0; keydex < keyArray.length - 1; keydex += 1) { // Go through all keys except the last, which is where out final request will go
+    for (let keydex = 0; keydex &lt; keyArray.length - 1; keydex += 1) { // Go through all keys except the last, which is where out final request will go
       const subKey = keyArray[keydex];
       currentListenObject = assurePathExists(currentListenObject, ['subkeys', subKey], {});
     }
@@ -116,7 +157,7 @@ export default class Mutastate {
     const patharray = (basePath || []);
     const subkeypath = (basePath || []).concat('subkeys');
     const subKeys = keys(get(this.listenerObject, subkeypath));
-    for (let keydex = 0; keydex < subKeys.length; keydex += 1) {
+    for (let keydex = 0; keydex &lt; subKeys.length; keydex += 1) {
       this.unlistenBatch(batch, subkeypath.concat([subKeys[keydex]]));
     }
 
@@ -166,10 +207,10 @@ export default class Mutastate {
     const currentListeners = get(listenerObject, 'listeners') || [];
     const subkeyObject = get(listenerObject, 'subkeys') || {};
     const subkeys = keys(subkeyObject);
-    for (let listenerdex = 0; listenerdex < currentListeners.length; listenerdex += 1) {
+    for (let listenerdex = 0; listenerdex &lt; currentListeners.length; listenerdex += 1) {
       result.push({ listener: currentListeners[listenerdex], key: currentKey, type })
     }
-    for (let keydex = 0; keydex < subkeys.length; keydex += 1) {
+    for (let keydex = 0; keydex &lt; subkeys.length; keydex += 1) {
       const subkey = subkeys[keydex];
       result = result.concat(this.getAllChildListeners(subkeyObject[subkey], currentKey.concat(subkey), type));
     }
@@ -193,7 +234,7 @@ export default class Mutastate {
       } else {
         const originalKeys = keys(original);
         if (has(listenerObject, 'subkeys')) {
-          for (let keydex = 0; keydex < originalKeys.length; keydex += 1) {
+          for (let keydex = 0; keydex &lt; originalKeys.length; keydex += 1) {
             const originalKey = originalKeys[keydex];
             if (has(listenerObject.subkeys, originalKey)) {
               if (!has(incoming, originalKey)) {
@@ -216,13 +257,13 @@ export default class Mutastate {
    * this function does not notify any listers of removed data, getDeleteListeners fulfills that role
    */
   getChangeListeners(change, sublistener, key = [], originalChangeDepth = 0, currentChangeDepth = 0) {
-    const changeRelativity = originalChangeDepth - currentChangeDepth; // Parent change > 0, child change < 0, currentChange == 0
+    const changeRelativity = originalChangeDepth - currentChangeDepth; // Parent change > 0, child change &lt; 0, currentChange == 0
     let result = [];
     if (has(sublistener, 'listeners')) {
-      for (let listenerdex = 0; listenerdex < sublistener.listeners.length; listenerdex += 1) {
+      for (let listenerdex = 0; listenerdex &lt; sublistener.listeners.length; listenerdex += 1) {
         const listener = sublistener.listeners[listenerdex];
-        if (listener.noChildUpdates === true && changeRelativity > 0) {} // Skip informing parents who don't care
-        else if (listener.noParentUpdates === true && changeRelativity < 0) {} // Skip informing children who don't care
+        if (listener.noChildUpdates === true &amp;&amp; changeRelativity > 0) {} // Skip informing parents who don't care
+        else if (listener.noParentUpdates === true &amp;&amp; changeRelativity &lt; 0) {} // Skip informing children who don't care
         else {
           result.push({ listener, key, type: 'change' });
         }
@@ -230,9 +271,9 @@ export default class Mutastate {
     }
 
     const changetype = getTypeString(change);
-    if (has(sublistener, 'subkeys') && (changetype === 'array' || changetype === 'object')) {
+    if (has(sublistener, 'subkeys') &amp;&amp; (changetype === 'array' || changetype === 'object')) {
       const changeKeys = keys(change);
-      for (let keydex = 0; keydex < changeKeys.length; keydex += 1) {
+      for (let keydex = 0; keydex &lt; changeKeys.length; keydex += 1) {
         const changeKey = changeKeys[keydex];
         if (has(sublistener.subkeys, changeKey)) {
           result = result.concat(this.getChangeListeners(change[changeKey], sublistener.subkeys[changeKey], key.concat(changeKey), originalChangeDepth, currentChangeDepth + 1));
@@ -251,7 +292,7 @@ export default class Mutastate {
   getListenerObjectAtKey(key) {
     let result = this.listenerObject;
     if (key.length === 0) return result;
-    for (let keydex = 0; keydex < key.length; keydex += 1) {
+    for (let keydex = 0; keydex &lt; key.length; keydex += 1) {
       if (has(result, ['subkeys', key[keydex]])) {
         result = result.subkeys[key[keydex]];
       } else {
@@ -282,7 +323,7 @@ export default class Mutastate {
    */
   notify(notifyBatch, keyArray, value) {
     const callbackBatches = [];
-    for (let keydex = 0; keydex < notifyBatch.length; keydex += 1) {
+    for (let keydex = 0; keydex &lt; notifyBatch.length; keydex += 1) {
       const keyChange = notifyBatch[keydex];
       const listenerIndex = findIndex(callbackBatches, callbackBatch => callbackBatch.callback === keyChange.listener.callback);
 
@@ -293,7 +334,7 @@ export default class Mutastate {
       }
     }
 
-    for (let callbatch = 0; callbatch < callbackBatches.length; callbatch += 1) {
+    for (let callbatch = 0; callbatch &lt; callbackBatches.length; callbatch += 1) {
       const listenerBatch = callbackBatches[callbatch];
       const { callback, changes } = listenerBatch;
 
@@ -304,7 +345,7 @@ export default class Mutastate {
   }
 
   notifyGlobals = (keyArray, value, meta) => {
-    for (let dex = 0; dex < this.globalListeners.length; dex += 1) {
+    for (let dex = 0; dex &lt; this.globalListeners.length; dex += 1) {
       const passData = { key: keyArray, value };
       if (meta) passData.meta = meta;
       this.globalListeners[dex](passData);
@@ -333,7 +374,7 @@ export default class Mutastate {
     const originalType = getTypeString(original);
     const incomingType = getTypeString(value);
 
-    if (originalType === 'object' && incomingType === 'object') {
+    if (originalType === 'object' &amp;&amp; incomingType === 'object') {
       this.set(key, Object.assign({}, original, value));
     } else {
       this.set(key, value);
@@ -362,7 +403,7 @@ export default class Mutastate {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
-    if (originalType === 'array' && original.length > 0) {
+    if (originalType === 'array' &amp;&amp; original.length > 0) {
       const extendedKey = keyArray.concat(original.length - 1);
       const listeners = this.getRelevantListeners(extendedKey, undefined);
       // Consider a pre-notify here
@@ -398,7 +439,7 @@ export default class Mutastate {
   //   const keyArray = getObjectPath(key);
   //   const original = get(this.data, keyArray);
   //   const originalType = getTypeString(original);
-  //   if (originalType === 'array' && original.length > 0) {
+  //   if (originalType === 'array' &amp;&amp; original.length > 0) {
   //     const extendedKey = keyArray.concat(0);
   //     const listeners = this.getRelevantListeners(extendedKey, undefined);
   //     // Consider a pre-notify here
@@ -420,7 +461,7 @@ export default class Mutastate {
     const result = {};
     const listeners = this.getAllChildListeners(this.listenerObject, []);
     listeners.forEach(listener => {
-      if (has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
+      if (has(listener, 'defaultValue') &amp;&amp; listener.defaultValue !== undefined) {
         set(result, listener.key, listener.defaultValue);
       }
     });
@@ -439,7 +480,26 @@ export default class Mutastate {
         }
       }
     };
-    const shouldThrottle = getTypeString(throttleTime) === 'number' && throttleTime > 0;
+    const shouldThrottle = getTypeString(throttleTime) === 'number' &amp;&amp; throttleTime > 0;
     this.listen(inputKey, { initialLoad: true, batch, callback: shouldThrottle ? throttle(callback, throttleTime) : callback });
   }
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> on Wed Jul 10 2019 14:39:32 GMT-0400 (Eastern Daylight Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
