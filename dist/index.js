@@ -1,11 +1,10 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('react'), require('mutastate')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'react', 'mutastate'], factory) :
-  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.React, global.mutastate));
-}(this, function (exports, objer, bluebird, React, mutastate) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('mutastate')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'mutastate'], factory) :
+  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.mutastate));
+}(this, function (exports, objer, bluebird, mutastate) { 'use strict';
 
   bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
-  React = React && React.hasOwnProperty('default') ? React['default'] : React;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -756,7 +755,7 @@
         }
       });
 
-      _defineProperty(this, "getForListener", function (key, listener, keyChange) {
+      _defineProperty(this, "getForListener", function (key, listener) {
         var alias = listener.alias,
             callback = listener.callback,
             transform = listener.transform,
@@ -781,7 +780,6 @@
         }
 
         return {
-          keyChange: keyChange,
           alias: alias,
           callback: callback,
           key: keyArray,
@@ -1225,10 +1223,6 @@
     };
   }
 
-  var WithMutastate = withMutastateCreator(React, {
-    useProxy: false
-  });
-
   function singleton() {
     if (singleton.singleton === undefined) {
       singleton.singleton = new Mutastate();
@@ -1240,7 +1234,7 @@
   exports.Mutastate = Mutastate$1;
   exports.default = Mutastate$1;
   exports.singleton = singleton;
-  exports.withMutastateCreator = WithMutastate;
+  exports.withMutastateCreator = withMutastateCreator;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

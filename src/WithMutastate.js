@@ -1,7 +1,6 @@
-import React from 'react';
 import { singleton } from 'mutastate';
 
-function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
+export default function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
   return function withMutastate(WrappedComponent, mutastateInstance = instance) {
     const ToForward = class extends React.Component {
       constructor(props) {
@@ -28,6 +27,3 @@ function withMutastateCreator(React, { instance = singleton(), useProxy = false,
     });
   };
 }
-
-
-export default withMutastateCreator(React, { useProxy: false });

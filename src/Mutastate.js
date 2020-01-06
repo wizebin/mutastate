@@ -137,7 +137,7 @@ export default class Mutastate {
    * @description
    * Get data for a particular listener, apply transformation to the value
    */
-  getForListener = (key, listener, keyChange) => {
+  getForListener = (key, listener) => {
     const { alias, callback, transform, defaultValue } = listener;
     const keyArray = getObjectPath(key);
     let value = null;
@@ -153,7 +153,7 @@ export default class Mutastate {
       value = clonedValue;
     }
 
-    return { keyChange, alias, callback, key: keyArray, value: transform ? transform(value) : value };
+    return { alias, callback, key: keyArray, value: transform ? transform(value) : value };
   }
 
   /**
