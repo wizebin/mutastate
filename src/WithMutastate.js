@@ -1,4 +1,4 @@
-import { singleton } from 'mutastate';
+import singleton from './singleton';
 
 export default function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
   return function withMutastate(WrappedComponent, mutastateInstance = instance) {

@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('mutastate')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'mutastate'], factory) :
-  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.mutastate));
-}(this, function (exports, objer, bluebird, mutastate) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird'], factory) :
+  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird));
+}(this, function (exports, objer, bluebird) { 'use strict';
 
   bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
 
@@ -648,7 +648,7 @@
    * Core mutastate class, this class stores data and informs listeners of changes
    */
 
-  var Mutastate$1 =
+  var Mutastate =
   /*#__PURE__*/
   function () {
     function Mutastate() {
@@ -1159,10 +1159,18 @@
     return Mutastate;
   }();
 
+  function singleton() {
+    if (singleton.singleton === undefined) {
+      singleton.singleton = new Mutastate();
+    }
+
+    return singleton.singleton;
+  }
+
   function withMutastateCreator(React) {
     var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
         _ref$instance = _ref.instance,
-        instance = _ref$instance === void 0 ? mutastate.singleton() : _ref$instance,
+        instance = _ref$instance === void 0 ? singleton() : _ref$instance,
         _ref$useProxy = _ref.useProxy,
         useProxy = _ref$useProxy === void 0 ? false : _ref$useProxy,
         _ref$agentName = _ref.agentName,
@@ -1223,16 +1231,8 @@
     };
   }
 
-  function singleton() {
-    if (singleton.singleton === undefined) {
-      singleton.singleton = new Mutastate();
-    }
-
-    return singleton.singleton;
-  }
-
-  exports.Mutastate = Mutastate$1;
-  exports.default = Mutastate$1;
+  exports.Mutastate = Mutastate;
+  exports.default = Mutastate;
   exports.singleton = singleton;
   exports.withMutastateCreator = withMutastateCreator;
 
