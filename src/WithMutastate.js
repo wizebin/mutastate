@@ -1,6 +1,6 @@
 import singleton from './singleton';
 
-export default function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
+export function withMutastateCreator(React, { instance = singleton(), useProxy = false, agentName = 'agent' } = {}) {
   return function withMutastate(WrappedComponent, mutastateInstance = instance) {
     const ToForward = class extends React.Component {
       constructor(props) {
@@ -27,3 +27,15 @@ export default function withMutastateCreator(React, { instance = singleton(), us
     });
   };
 }
+
+let React;
+try {
+  React = require('react');
+} catch (err) {
+  const errorFunc = () => { throw new Error('REACT IS NOT AVAILABLE, withMutastate IS NOT AVAILABLE WITHOUT REACT') };
+  React = { useState: errorFunc, useEffect: errorFunc, useRef: errorFunc };
+}
+
+const withMutastate = withMutastateCreator(React);
+
+export { withMutastate };

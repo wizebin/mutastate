@@ -1,10 +1,11 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird'], factory) :
-  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird));
-}(this, function (exports, objer, bluebird) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('lodash.clone')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'lodash.clone'], factory) :
+  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.clone));
+}(this, function (exports, objer, bluebird, clone) { 'use strict';
 
   bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
+  clone = clone && clone.hasOwnProperty('default') ? clone['default'] : clone;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -157,6 +158,44 @@
     }
 
     return _assertThisInitialized(self);
+  }
+
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  }
+
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
+  function _iterableToArrayLimit(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
   var BaseAgent =
@@ -1230,10 +1269,95 @@
       });
     };
   }
+  var React;
+
+  try {
+    React = require('react');
+  } catch (err) {
+    var errorFunc = function errorFunc() {
+      throw new Error('REACT IS NOT AVAILABLE, withMutastate IS NOT AVAILABLE WITHOUT REACT');
+    };
+
+    React = {
+      useState: errorFunc,
+      useEffect: errorFunc,
+      useRef: errorFunc
+    };
+  }
+
+  var withMutastate = withMutastateCreator(React);
+
+  var React$1;
+
+  try {
+    React$1 = require('react');
+  } catch (err) {
+    var errorFunc$1 = function errorFunc() {
+      throw new Error('REACT IS NOT AVAILABLE, useMutastate IS NOT AVAILABLE WITHOUT REACT');
+    };
+
+    React$1 = {
+      useState: errorFunc$1,
+      useEffect: errorFunc$1,
+      useRef: errorFunc$1
+    };
+  }
+
+  var _React = React$1,
+      useState = _React.useState,
+      useEffect = _React.useEffect,
+      useRef = _React.useRef;
+  /**
+   *
+   * @param {string} key
+   * @param {{ defaultValue: any, globalState: Mutastate }} listenerParams
+   */
+
+  function useMutastate(key) {
+    var listenerParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var defaultValue = listenerParams.defaultValue,
+        _listenerParams$globa = listenerParams.globalState,
+        globalState = _listenerParams$globa === void 0 ? singleton() : _listenerParams$globa;
+    var startingValue = globalState.has(key) ? globalState.get(key) : defaultValue;
+
+    var _useState = useState(clone(startingValue)),
+        _useState2 = _slicedToArray(_useState, 2),
+        data = _useState2[0],
+        setData = _useState2[1];
+
+    var refKey = useRef(key);
+    useEffect(function () {
+      var func = function func() {
+        return setData(clone(globalState.get(key)));
+      };
+
+      globalState.listen(key, {
+        callback: func,
+        defaultValue: defaultValue
+      });
+
+      if (!objer.deepEq(refKey.current, key)) {
+        func();
+        refKey.current = key;
+      }
+
+      return function () {
+        return globalState.unlisten(key, func);
+      };
+    }, [key]);
+
+    var setGlobalData = function setGlobalData(value) {
+      globalState.set(key, value);
+    };
+
+    return [data, setGlobalData];
+  }
 
   exports.Mutastate = Mutastate;
   exports.default = Mutastate;
   exports.singleton = singleton;
+  exports.useMutastate = useMutastate;
+  exports.withMutastate = withMutastate;
   exports.withMutastateCreator = withMutastateCreator;
 
   Object.defineProperty(exports, '__esModule', { value: true });

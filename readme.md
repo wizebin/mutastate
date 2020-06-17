@@ -104,6 +104,36 @@ console.log(mutastate.get('foghorn')) // returns leghorn
 
 ## Use with React
 
+*You can use react hooks like so:*
+
+```javascript
+import React from 'react';
+import { useMutastate } from 'mutastate';
+
+const randomName = () => ['jerry', 'bobby', 'carl'][Math.floor(Math.random() * 3)];
+
+function Assignment(props) {
+    [assignment, setAssignment] = useMutastate(['assignment', props.id]);
+
+    const updateAssignment = (data) => {
+        return setAssignment({ ...assignment, ...data });
+    }
+
+    return (
+        <div>
+            <div>{assignment.name}</div>
+            <div>{assignment.count}</div>
+            <div>{JSON.stringify(assignment.list)}</div>
+            <button onClick={() => updateAssignment({ count: assignment.count + 1 })}>Add To Count</button>
+            <button onClick={() => updateAssignment({ name: randomName() })}>Change Name</button>
+            <button onClick={() => updateAssignment({ list: assigment.list.concat(randomName()) })}>Add To List</button>
+        </div>
+    );
+}
+```
+
+*If you want to use traditional react class components you can use a higher order component like so:*
+
 This example demonstrates how to create a connected react component, this particular component listens for data in the default shard, under the key `['default', 'assignments', props.id]`. This means if the data at that key is updated, this component will receive an update including the new data.
 
 It is important to note that the common pattern of incoming props checking for component updating when using mutastate will not function correctly, unless you make a deep copy of your incoming props for comparison yourself. The data passed into your component will be mutated!
@@ -114,7 +144,7 @@ Also please note that the function is `withMutastateCreator` instead of `withMut
 
 ```javascript
 import React from 'react';
-import { withMutastateCreator } from 'mutastate';
+import { useMutastate } from 'mutastate';
 
 class Assignment extends React.Component {
     constructor(props) {
