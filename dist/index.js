@@ -2,10 +2,10 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('lodash.clone')) :
   typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'lodash.clone'], factory) :
   (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.clone));
-}(this, function (exports, objer, bluebird, clone) { 'use strict';
+}(this, (function (exports, objer, bluebird, clone) { 'use strict';
 
-  bluebird = bluebird && bluebird.hasOwnProperty('default') ? bluebird['default'] : bluebird;
-  clone = clone && clone.hasOwnProperty('default') ? clone['default'] : clone;
+  bluebird = bluebird && Object.prototype.hasOwnProperty.call(bluebird, 'default') ? bluebird['default'] : bluebird;
+  clone = clone && Object.prototype.hasOwnProperty.call(clone, 'default') ? clone['default'] : clone;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -48,12 +48,13 @@
     var keys = Object.keys(object);
 
     if (Object.getOwnPropertySymbols) {
-      keys.push.apply(keys, Object.getOwnPropertySymbols(object));
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
     }
 
-    if (enumerableOnly) keys = keys.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
     return keys;
   }
 
@@ -62,13 +63,13 @@
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -106,6 +107,19 @@
     };
 
     return _setPrototypeOf(o, p);
+  }
+
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   function _objectWithoutPropertiesLoose(source, excluded) {
@@ -160,8 +174,27 @@
     return _assertThisInitialized(self);
   }
 
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
   function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
 
   function _arrayWithHoles(arr) {
@@ -169,6 +202,7 @@
   }
 
   function _iterableToArrayLimit(arr, i) {
+    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
     var _arr = [];
     var _n = true;
     var _d = false;
@@ -194,13 +228,28 @@
     return _arr;
   }
 
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance");
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
-  var BaseAgent =
-  /*#__PURE__*/
-  function () {
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  var BaseAgent = /*#__PURE__*/function () {
     function BaseAgent(mutastate, onChange) {
       var _this = this;
 
@@ -449,17 +498,17 @@
     return BaseAgent;
   }();
 
-  var MutastateAgent =
-  /*#__PURE__*/
-  function (_BaseAgent) {
+  var MutastateAgent = /*#__PURE__*/function (_BaseAgent) {
     _inherits(MutastateAgent, _BaseAgent);
+
+    var _super = _createSuper(MutastateAgent);
 
     function MutastateAgent(mutastate, onChange) {
       var _this;
 
       _classCallCheck(this, MutastateAgent);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(MutastateAgent).call(this, mutastate, onChange));
+      _this = _super.call(this, mutastate, onChange);
       _this.mutastate = mutastate;
       _this.data = {};
       _this.onChange = onChange;
@@ -635,17 +684,17 @@
     return new Proxy(object, getHandler(onChange, []));
   });
 
-  var ProxyAgent =
-  /*#__PURE__*/
-  function (_BaseAgent) {
+  var ProxyAgent = /*#__PURE__*/function (_BaseAgent) {
     _inherits(ProxyAgent, _BaseAgent);
+
+    var _super = _createSuper(ProxyAgent);
 
     function ProxyAgent(mutastate, onChange) {
       var _this;
 
       _classCallCheck(this, ProxyAgent);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(ProxyAgent).call(this, mutastate, onChange));
+      _this = _super.call(this, mutastate, onChange);
 
       _defineProperty(_assertThisInitialized(_this), "proxyChange", function (data) {
         if (!_this.ignoreChange) {
@@ -687,9 +736,7 @@
    * Core mutastate class, this class stores data and informs listeners of changes
    */
 
-  var Mutastate =
-  /*#__PURE__*/
-  function () {
+  var Mutastate = /*#__PURE__*/function () {
     function Mutastate() {
       var _this = this;
 
@@ -1219,17 +1266,17 @@
       var _temp;
 
       var mutastateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : instance;
-      var ToForward = (_temp =
-      /*#__PURE__*/
-      function (_React$Component) {
+      var ToForward = (_temp = /*#__PURE__*/function (_React$Component) {
         _inherits(ToForward, _React$Component);
+
+        var _super = _createSuper(ToForward);
 
         function ToForward(props) {
           var _this;
 
           _classCallCheck(this, ToForward);
 
-          _this = _possibleConstructorReturn(this, _getPrototypeOf(ToForward).call(this, props));
+          _this = _super.call(this, props);
 
           _defineProperty(_assertThisInitialized(_this), "changeState", function () {
             return _this.setState(_this.state);
@@ -1263,7 +1310,7 @@
         return ToForward;
       }(React.Component), _temp);
       return React.forwardRef(function (props, ref) {
-        return React.createElement(ToForward, _objectSpread2({}, props, {
+        return React.createElement(ToForward, _objectSpread2(_objectSpread2({}, props), {}, {
           forwardedRef: ref
         }));
       });
@@ -1362,4 +1409,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
