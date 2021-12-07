@@ -1163,18 +1163,20 @@
             canSetEverything = _ref6$canSetEverythin === void 0 ? true : _ref6$canSetEverythin;
         var ignoreObject = {};
 
-        var _iterator = _createForOfIteratorHelper(ignore),
-            _step;
+        if (ignore) {
+          var _iterator = _createForOfIteratorHelper(ignore),
+              _step;
 
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var key = _step.value;
-            objer.set(ignoreObject, key, true);
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var key = _step.value;
+              objer.set(ignoreObject, key, true);
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
           }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
         }
 
         var replicator = {

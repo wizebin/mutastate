@@ -447,8 +447,10 @@ export default class Mutastate {
 
   replicate = ({ send, primary, ignore, sendInitial, canSetEverything = true }) => {
     const ignoreObject = {};
-    for (let key of ignore) {
-      set(ignoreObject, key, true);
+    if (ignore) {
+      for (let key of ignore) {
+        set(ignoreObject, key, true);
+      }
     }
     const replicator = { send, primary, ignore, id: ++this.nextReplicatorId, ignores: {}, ignoreEverything: false };
     this.replicators.push(replicator);
