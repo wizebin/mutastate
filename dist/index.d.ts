@@ -69,6 +69,7 @@ export class Mutastate {
     setEverything(data: any, meta: { noDefaults: boolean }): void;
     getDefaults(key: string|string[]): any;
     translate(inputKey: string|string[], outputKey: string|string[], translationFunction: TransformFunc, meta: { batch: boolean, throttleTime: number }): void;
+    replicate(config: { send: function, primary: boolean, ignore: string[], sendInitial: boolean, canSetEverything: boolean }): function;
 }
 
 export function singleton(): Mutastate;

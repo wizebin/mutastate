@@ -11,9 +11,11 @@ import ProxyAgent from './ProxyAgent';
 export default class Mutastate {
   constructor() {
     this.listenerObject = { subkeys: {} };
+    this.replicators = [];
     this.globalListeners = [];
     this.data = {};
     this.promise = getPromiseFunction();
+    this.nextReplicatorId = 0;
   }
 
   /**
@@ -441,5 +443,58 @@ export default class Mutastate {
     };
     const shouldThrottle = getTypeString(throttleTime) === 'number' && throttleTime > 0;
     this.listen(inputKey, { initialLoad: true, batch, callback: shouldThrottle ? throttle(callback, throttleTime) : callback });
+  }
+
+  replicate = ({ send, primary, ignore, sendInitial, canSetEverything = true }) => {
+    const ignoreObject = {};
+    for (let key of ignore) {
+      set(ignoreObject, key, true);
+    }
+    const replicator = { send, primary, ignore, id: ++this.nextReplicatorId, ignores: {}, ignoreEverything: false };
+    this.replicators.push(replicator);
+    const changeHook = (data) => {
+      if (get(replicator.ignores, data.key) === true) return false;
+      if (get(ignoreObject, data.key[0]) === true) return false;
+      if (replicator.ignoreEverything) return false;
+      replicator.send(data);
+      return true;
+    };
+    replicator.changeHook = changeHook;
+
+    this.addChangeHook(changeHook);
+
+    const receiver = (data) => {
+      set(replicator.ignores, data.key, true);
+      if (data.key.length === 0) {
+        if (canSetEverything) {
+          replicator.ignoreEverything = true;
+          this.setEverything(data.value);
+          replicator.ignoreEverything = false;
+        }
+      } else {
+        this.set(data.key, data.value);
+      }
+      assassinate(replicator.ignores, data.key);
+    }
+
+    if (sendInitial) {
+      changeHook({ key: [], value: this.getEverything() });
+    }
+
+    return receiver;
+  }
+
+  stopReplicating = (receiverFunction) => {
+    const replicator = this.replicators.find(replicator => replicator.receiver === receiverFunction);
+    if (replicator) {
+      this.removeChangeHook(replicator.changeHook);
+      this.replicators = this.replicators.filter(replicator => replicator.id !== replicator.id);
+    }
+  }
+
+  stopAllReplication = () => {
+    for (let replicator of this.replicators) {
+      this.stopReplicating(replicator.receiver);
+    }
   }
 }

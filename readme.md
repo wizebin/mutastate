@@ -59,6 +59,8 @@ console.log(mutastate.get('foghorn')) // returns leghorn
     * notify callback whenever any data changes, `({ key: [], value: any, meta: { defaultValue: true|undefined, setEverything: true|undefined }}) => {}` this is most useful for automated persistence functionality
 * `removeChangeHook(callback)`
     * stops notifying callback on any data change
+* `replicate({ send, primary, ignore, sendInitial, canSetEverything })`
+    * replicates mutastate to another instance across a network/ipc/rpc
 
 #### Mutastate Agent
 
@@ -168,6 +170,18 @@ class Assignment extends React.Component {
 }
 
 export default withMutastateCreator(React, { useProxy: true })(Assignment);
+```
+
+## Replication
+
+You can replicate mutastate to secondary instances, useful in circumstances where you don't have direct access to the same mutastate instance such as multi-window electron apps
+
+```javascript
+// start replication, the send function will get called whenever any data in our instance changes (but will ignore changes that came from other instances). In this case we use a fake sendIpcMessage function
+const receiver = singleton().replicate({ send: data => sendIpcMessage('state-sync', data) });
+
+// this fictitious listenForIpcMessages function shows how you can receive data from an outside source to update your own mutastate
+listenForIpcMessages('state-sync', (sender, data) => receiver(data));
 ```
 
 The use of `useProxy` will limit your browser availability due to use of the Proxy es6 feature:

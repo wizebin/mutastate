@@ -249,6 +249,63 @@
     throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it;
+
+    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+
+        var F = function () {};
+
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+
+    var normalCompletion = true,
+        didErr = false,
+        err;
+    return {
+      s: function () {
+        it = o[Symbol.iterator]();
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
+  }
+
   var BaseAgent = /*#__PURE__*/function () {
     function BaseAgent(mutastate, onChange) {
       var _this = this;
@@ -1097,12 +1154,119 @@
         });
       });
 
+      _defineProperty(this, "replicate", function (_ref6) {
+        var send = _ref6.send,
+            primary = _ref6.primary,
+            ignore = _ref6.ignore,
+            sendInitial = _ref6.sendInitial,
+            _ref6$canSetEverythin = _ref6.canSetEverything,
+            canSetEverything = _ref6$canSetEverythin === void 0 ? true : _ref6$canSetEverythin;
+        var ignoreObject = {};
+
+        var _iterator = _createForOfIteratorHelper(ignore),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var key = _step.value;
+            objer.set(ignoreObject, key, true);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        var replicator = {
+          send: send,
+          primary: primary,
+          ignore: ignore,
+          id: ++_this.nextReplicatorId,
+          ignores: {},
+          ignoreEverything: false
+        };
+
+        _this.replicators.push(replicator);
+
+        var changeHook = function changeHook(data) {
+          if (objer.get(replicator.ignores, data.key) === true) return false;
+          if (objer.get(ignoreObject, data.key[0]) === true) return false;
+          if (replicator.ignoreEverything) return false;
+          replicator.send(data);
+          return true;
+        };
+
+        replicator.changeHook = changeHook;
+
+        _this.addChangeHook(changeHook);
+
+        var receiver = function receiver(data) {
+          objer.set(replicator.ignores, data.key, true);
+
+          if (data.key.length === 0) {
+            if (canSetEverything) {
+              replicator.ignoreEverything = true;
+
+              _this.setEverything(data.value);
+
+              replicator.ignoreEverything = false;
+            }
+          } else {
+            _this.set(data.key, data.value);
+          }
+
+          objer.assassinate(replicator.ignores, data.key);
+        };
+
+        if (sendInitial) {
+          changeHook({
+            key: [],
+            value: _this.getEverything()
+          });
+        }
+
+        return receiver;
+      });
+
+      _defineProperty(this, "stopReplicating", function (receiverFunction) {
+        var replicator = _this.replicators.find(function (replicator) {
+          return replicator.receiver === receiverFunction;
+        });
+
+        if (replicator) {
+          _this.removeChangeHook(replicator.changeHook);
+
+          _this.replicators = _this.replicators.filter(function (replicator) {
+            return replicator.id !== replicator.id;
+          });
+        }
+      });
+
+      _defineProperty(this, "stopAllReplication", function () {
+        var _iterator2 = _createForOfIteratorHelper(_this.replicators),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var replicator = _step2.value;
+
+            _this.stopReplicating(replicator.receiver);
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      });
+
       this.listenerObject = {
         subkeys: {}
       };
+      this.replicators = [];
       this.globalListeners = [];
       this.data = {};
       this.promise = getPromiseFunction();
+      this.nextReplicatorId = 0;
     }
     /**
      * @method
