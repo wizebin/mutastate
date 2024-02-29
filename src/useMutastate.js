@@ -1,5 +1,5 @@
 import singleton from './singleton';
-import { deepEq } from 'objer';
+import { deepEq } from './utility/objer';
 import clone from 'lodash.clone';
 
 let React;

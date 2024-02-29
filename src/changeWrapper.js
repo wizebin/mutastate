@@ -1,4 +1,4 @@
-import { getObjectPath } from "objer";
+import { getObjectPath } from './utility/objer';
 
 // const handleGetCreator = () => (target, property, receiver) => {
 //   console.log('getting', property)

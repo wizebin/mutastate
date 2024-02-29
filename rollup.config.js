@@ -8,7 +8,6 @@ export default {
     name: 'mutastate',
   },
   external: [
-    'objer',
     'clone',
     'bluebird',
   ],

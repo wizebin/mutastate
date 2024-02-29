@@ -1,11 +1,27 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('objer'), require('bluebird'), require('lodash.clone')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'objer', 'bluebird', 'lodash.clone'], factory) :
-  (global = global || self, factory(global.mutastate = {}, global.objer, global.bluebird, global.clone));
-}(this, (function (exports, objer, bluebird, clone) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('bluebird'), require('lodash.clone')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'bluebird', 'lodash.clone'], factory) :
+  (global = global || self, factory(global.mutastate = {}, global.bluebird, global.clone$1));
+}(this, (function (exports, bluebird, clone$1) { 'use strict';
 
   bluebird = bluebird && Object.prototype.hasOwnProperty.call(bluebird, 'default') ? bluebird['default'] : bluebird;
-  clone = clone && Object.prototype.hasOwnProperty.call(clone, 'default') ? clone['default'] : clone;
+  clone$1 = clone$1 && Object.prototype.hasOwnProperty.call(clone$1, 'default') ? clone$1['default'] : clone$1;
+
+  function _typeof(obj) {
+    "@babel/helpers - typeof";
+
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -306,6 +322,324 @@
     };
   }
 
+  /**
+   * Objer module, interact with objects
+   * @module objer
+   */
+
+  /**
+   * Set value at an object subpath
+   * @param {Object} object
+   * @param {string|array} path
+   * @param {*} value
+   */
+  function set(object, path, value) {
+    var subObject = object;
+    var keys = getObjectPath(path);
+    if (keys.length === 0) return value; // We cannot modify the original value to be the new value no matter how hard we try
+
+    for (var keydex = 0; keydex < keys.length; keydex += 1) {
+      var key = keys[keydex];
+
+      if (key !== '') {
+        if (keydex !== keys.length - 1) {
+          if (subObject[key] === null || _typeof(subObject[key]) !== 'object') {
+            subObject[key] = {};
+          }
+
+          subObject = subObject[key];
+        } else {
+          subObject[key] = value;
+        }
+      }
+    }
+
+    return object;
+  }
+  /**
+   * Get array of keys in an object
+   * @param {Object} object
+   */
+
+  function keys(object) {
+    var stringType = getTypeString(object);
+
+    if (stringType === 'object' || stringType === 'array') {
+      if (typeof Object.keys !== 'undefined') return Object.keys(object);
+      var _keys = [];
+
+      for (var key in object) {
+        if (object.hasOwnProperty(key)) {
+          _keys.push(key);
+        }
+      }
+
+      return _keys;
+    }
+
+    return [];
+  }
+  function assassinate(source, path) {
+    var pathArray = getObjectPath(path);
+
+    if (pathArray.length > 0) {
+      var parentPath = pathArray.slice(0, pathArray.length - 1);
+
+      if (has(source, parentPath) || parentPath.length === 0) {
+        var original = get(source, parentPath);
+        var originalType = getTypeString(original);
+        var pathKey = pathArray[pathArray.length - 1];
+
+        if (originalType === 'object') {
+          delete original[pathKey];
+        } else if (originalType === 'array' && typeof pathKey === 'number') {
+          original.splice(pathKey, 1);
+        }
+      }
+    }
+
+    return source;
+  }
+  function clone(source) {
+    var stringType = getTypeString(source);
+
+    if (stringType === 'object') {
+      var sourceKeys = keys(source);
+      var result = {};
+
+      for (var keydex = 0; keydex < sourceKeys.length; keydex += 1) {
+        result[sourceKeys[keydex]] = clone(source[sourceKeys[keydex]]);
+      }
+
+      return result;
+    } else if (stringType === 'array') {
+      var length = source.length;
+      var _result = [];
+
+      for (var dex = 0; dex < length; dex += 1) {
+        _result.push(clone(source[dex]));
+      }
+
+      return _result;
+    }
+
+    return source;
+  }
+  /**
+   * Check if an object has a value at a path
+   * @param {Object} object
+   * @param {string|array} path
+   */
+
+  function has(object, path) {
+    var subObject = object;
+    var keys = getObjectPath(path);
+    if (keys.length === 0) return false;
+
+    for (var keydex = 0; keydex < keys.length; keydex += 1) {
+      var key = keys[keydex];
+      if (!hasRoot(subObject, key)) return false;
+      subObject = subObject[key];
+    }
+
+    return true;
+  }
+  /**
+   * Check if an object has a top level key, hasRoot({ a: 1 }, 'a'); is true, hasRoot({ a: { b: 1 } }, 'a.b'); is false
+   * @param {Object} object
+   * @param {string} key
+   */
+
+  function hasRoot(object, key) {
+    if (object !== null && _typeof(object) === 'object') {
+      return key in object;
+    }
+
+    return false;
+  }
+  /**
+   * Retrieve value from within an object or array
+   * @param {Object} object
+   * @param {string|array} path
+   * @param {*} [defaultValue]
+   */
+
+  function get(object, path) {
+    var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+    var subObject = object;
+    var keys = getObjectPath(path);
+
+    for (var keydex = 0; keydex < keys.length; keydex += 1) {
+      var key = keys[keydex];
+
+      if (key !== '') {
+        if (!hasRoot(subObject, key)) return defaultValue;
+        subObject = subObject[key];
+      }
+    }
+
+    return subObject;
+  }
+  /**
+   * Resolve a path to a path array 'a.b.c' returns ['a', 'b', 'c']
+   * @param {string|array} path
+   */
+
+  function getObjectPath(path) {
+    var inputType = getTypeString(path);
+    if (inputType === 'array') return path;
+
+    if (inputType !== 'string') {
+      if (inputType === 'number') return [path];
+      return [];
+    }
+
+    var inBrackets = false;
+    var partBegin = 0;
+    var split = false;
+    var exitBrackets = false;
+    var pathlen = path.length;
+    var parts = [];
+
+    for (var dex = 0; dex < pathlen + 1; dex += 1) {
+      var _char = path[dex];
+
+      if (inBrackets && !exitBrackets) {
+        if (_char === ']') {
+          exitBrackets = true;
+        }
+      } else if (_char === '.') {
+        split = true;
+      } else if (_char === '[') {
+        split = true;
+        inBrackets = true;
+      }
+
+      if (split || dex === pathlen) {
+        var nextPart = path.substr(partBegin, dex - partBegin - (exitBrackets ? 1 : 0));
+
+        if (inBrackets) {
+          var parsed = parseInt(nextPart, 10);
+
+          if (!isNaN(parsed)) {
+            nextPart = parsed;
+          }
+        }
+
+        parts.push(nextPart);
+        partBegin = dex + 1;
+        split = false;
+        if (exitBrackets) inBrackets = false;
+        exitBrackets = false;
+      }
+    }
+
+    return parts;
+  }
+  /**
+   * If this subkey doesn't exist, initialize it to defaultValue
+   * @param {Object} object
+   * @param {string|array} path
+   * @param {*} defaultValue
+   */
+
+  function assurePathExists(object, path) {
+    var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    var arrayPath = getObjectPath(path);
+    var currentObject = object;
+
+    for (var arraydex = 0; arraydex < arrayPath.length; arraydex += 1) {
+      var key = arrayPath[arraydex];
+
+      if (!hasRoot(currentObject, key)) {
+        // TODO: Address problems where key exists already and is not an array or object
+        var nextKey = arraydex === arrayPath.length - 1 ? null : arrayPath[arraydex + 1];
+
+        if (nextKey === null) {
+          currentObject[key] = defaultValue;
+        } else if (getTypeString(nextKey) === 'number') {
+          currentObject[key] = [];
+        } else {
+          currentObject[key] = {};
+        }
+      }
+
+      currentObject = currentObject[key];
+    }
+
+    return currentObject;
+  }
+  /**
+   * Return simplified type as a string. [] returns 'array' new Date() returns 'date'
+   * @param {*} data
+   */
+
+  function getTypeString(data) {
+    var stringType = _typeof(data);
+
+    if (stringType === 'object') {
+      if (data === null) return 'null';
+      var stringified = toString.apply(data);
+
+      if (stringified.length > 2 && stringified[0] === '[' && stringified[stringified.length - 1] === ']') {
+        var splits = stringified.substr(1, stringified.length - 2).split(' ');
+
+        if (splits.length > 1) {
+          return splits.slice(1).join(' ').toLowerCase();
+        }
+      }
+
+      return 'unknown';
+    }
+
+    if (stringType === 'number') {
+      if (isNaN(data)) return 'nan';
+    }
+
+    return stringType;
+  }
+  /**
+   * Check if both parameters are equal, check all nested keys of objects and arrays
+   * @param {*} obja
+   * @param {*} objb
+   */
+
+  function deepEq(left, right) {
+    var leftType = getTypeString(left);
+    var rightType = getTypeString(right);
+    if (leftType !== rightType) return false;
+    if (leftType === 'nan') return true;
+
+    if (leftType === 'object') {
+      if (left === right) return true; // if they are the same thing, don't check children
+
+      var leftKeys = keys(left).sort(); // unsorted could be unequal
+
+      var rightKeys = keys(right).sort();
+      if (!deepEq(leftKeys, rightKeys)) return false;
+
+      for (var keydex = 0; keydex < leftKeys.length; keydex += 1) {
+        if (!deepEq(left[leftKeys[keydex]], right[leftKeys[keydex]])) return false;
+      }
+
+      return true;
+    }
+
+    if (leftType === 'array') {
+      if (left === right) return true; // if they are the same thing, don't check children
+
+      if (left.length !== right.length) return false;
+
+      for (var dex = 0; dex < left.length; dex += 1) {
+        if (!deepEq(left[dex], right[dex])) return false;
+      }
+
+      return true;
+    }
+
+    return left === right;
+  }
+
   var BaseAgent = /*#__PURE__*/function () {
     function BaseAgent(mutastate, onChange) {
       var _this = this;
@@ -314,7 +648,7 @@
 
       _defineProperty(this, "getComposedState", function (initialData, key, value) {
         if (key instanceof Array && key.length === 0 || key === null) return value;
-        objer.set(initialData, key, value);
+        set(initialData, key, value);
         return initialData;
       });
 
@@ -336,16 +670,16 @@
       });
 
       _defineProperty(this, "setAlias", function (key, alias) {
-        objer.set(_this.aliasObject, alias, key);
-        objer.set(_this.reverseAliasObject, key, alias);
+        set(_this.aliasObject, alias, key);
+        set(_this.reverseAliasObject, key, alias);
       });
 
       _defineProperty(this, "clearAlias", function (key) {
-        var alias = objer.get(_this.reverseAliasObject, key);
+        var alias = get(_this.reverseAliasObject, key);
 
         if (alias) {
-          objer.assassinate(_this.reverseAliasObject, key);
-          objer.assassinate(_this.aliasObject, alias);
+          assassinate(_this.reverseAliasObject, key);
+          assassinate(_this.aliasObject, alias);
         }
       });
 
@@ -355,9 +689,9 @@
       });
 
       _defineProperty(this, "resolveKey", function (key) {
-        var keyArray = objer.getObjectPath(key);
+        var keyArray = getObjectPath(key);
         var firstKey = keyArray instanceof Array ? keyArray[0] : keyArray;
-        return objer.has(_this.aliasObject, firstKey) ? [].concat(objer.get(_this.aliasObject, firstKey)).concat(keyArray.slice(1)) : keyArray;
+        return has(_this.aliasObject, firstKey) ? [].concat(get(_this.aliasObject, firstKey)).concat(keyArray.slice(1)) : keyArray;
       });
 
       _defineProperty(this, "resolve", this.resolveKey);
@@ -370,7 +704,7 @@
             initialLoad = _ref2$initialLoad === void 0 ? true : _ref2$initialLoad,
             defaultValue = _ref2.defaultValue;
 
-        var keyArray = objer.getObjectPath(key);
+        var keyArray = getObjectPath(key);
         var modifiedListener = {
           alias: alias,
           transform: transform,
@@ -411,7 +745,7 @@
             initialLoad = _ref3$initialLoad === void 0 ? true : _ref3$initialLoad,
             defaultValue = _ref3.defaultValue;
 
-        var fullKey = objer.getObjectPath(key);
+        var fullKey = getObjectPath(key);
         var derivedAlias = alias ? alias : fullKey[fullKey.length - 1];
         return _this.listen(fullKey, {
           alias: derivedAlias,
@@ -442,15 +776,15 @@
         var listenFunc = flat ? _this.listenFlat : _this.listen;
         return _this.batchListen(function () {
           listeners.forEach(function (listener) {
-            var isString = objer.getTypeString(listener) === 'string';
-            var key = isString ? listener : objer.get(listener, 'key');
+            var isString = getTypeString(listener) === 'string';
+            var key = isString ? listener : get(listener, 'key');
             listenFunc(key, isString ? undefined : listener);
           });
         });
       });
 
       _defineProperty(this, "unlisten", function (key) {
-        var keyArray = objer.getObjectPath(key);
+        var keyArray = getObjectPath(key);
 
         var result = _this.mutastate.unlisten(keyArray, _this.handleChange);
 
@@ -638,8 +972,8 @@
   function getKeyFilledObject(key, value) {
     if (isBlankKey(key)) return value;
     var result = {};
-    objer.assurePathExists(result, key);
-    objer.set(result, key, value);
+    assurePathExists(result, key);
+    set(result, key, value);
     return result;
   }
 
@@ -697,7 +1031,7 @@
   // };
 
   function getHandler(onChange, keyInput) {
-    var key = objer.getObjectPath(keyInput);
+    var key = getObjectPath(keyInput);
     var handler = {
       get: function get(target, property, receiver) {
         var desc = Object.getOwnPropertyDescriptor(target, property);
@@ -769,7 +1103,7 @@
 
       _defineProperty(_assertThisInitialized(_this), "getComposedState", function (initialData, key, value) {
         if (key instanceof Array && key.length === 0 || key === null) return value;
-        objer.set(initialData, key, value);
+        set(initialData, key, value);
         return initialData;
       });
 
@@ -808,17 +1142,17 @@
       });
 
       _defineProperty(this, "getListenersAtPath", function (key) {
-        var keyArray = isBlankKey(key) ? ['default'] : objer.getObjectPath(key);
+        var keyArray = isBlankKey(key) ? ['default'] : getObjectPath(key);
         var currentListenObject = _this.listenerObject;
 
         for (var keydex = 0; keydex < keyArray.length - 1; keydex += 1) {
           // Go through all keys except the last, which is where out final request will go
           var subKey = keyArray[keydex];
-          currentListenObject = objer.assurePathExists(currentListenObject, ['subkeys', subKey], {});
+          currentListenObject = assurePathExists(currentListenObject, ['subkeys', subKey], {});
         }
 
         var finalKey = keyArray[keyArray.length - 1];
-        return objer.assurePathExists(currentListenObject, ['subkeys', finalKey, 'listeners'], []);
+        return assurePathExists(currentListenObject, ['subkeys', finalKey, 'listeners'], []);
       });
 
       _defineProperty(this, "addChangeHook", function (listener) {
@@ -881,13 +1215,13 @@
       _defineProperty(this, "unlistenBatch", function (batch, basePath) {
         var patharray = basePath || [];
         var subkeypath = (basePath || []).concat('subkeys');
-        var subKeys = objer.keys(objer.get(_this.listenerObject, subkeypath));
+        var subKeys = keys(get(_this.listenerObject, subkeypath));
 
         for (var keydex = 0; keydex < subKeys.length; keydex += 1) {
           _this.unlistenBatch(batch, subkeypath.concat([subKeys[keydex]]));
         }
 
-        var listeners = objer.get(_this.listenerObject, patharray.concat('listeners'));
+        var listeners = get(_this.listenerObject, patharray.concat('listeners'));
         var matchedListeners = (listeners || []).reduce(function (results, existingListener, dex) {
           if (existingListener.batch === batch) results.push(dex);
           return results;
@@ -903,16 +1237,16 @@
             callback = listener.callback,
             transform = listener.transform,
             defaultValue = listener.defaultValue;
-        var keyArray = objer.getObjectPath(key);
+        var keyArray = getObjectPath(key);
         var value = null;
 
-        if (objer.has(_this.data, keyArray)) {
-          value = objer.get(_this.data, keyArray);
+        if (has(_this.data, keyArray)) {
+          value = get(_this.data, keyArray);
         } else {
-          var clonedValue = objer.clone(defaultValue);
+          var clonedValue = clone(defaultValue);
 
           if (defaultValue !== undefined) {
-            objer.set(_this.data, keyArray, clonedValue);
+            set(_this.data, keyArray, clonedValue);
 
             _this.notifyGlobals(keyArray, clonedValue, {
               defaultValue: true
@@ -934,9 +1268,9 @@
         var currentKey = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
         var type = arguments.length > 2 ? arguments[2] : undefined;
         var result = [];
-        var currentListeners = objer.get(listenerObject, 'listeners') || [];
-        var subkeyObject = objer.get(listenerObject, 'subkeys') || {};
-        var subkeys = objer.keys(subkeyObject);
+        var currentListeners = get(listenerObject, 'listeners') || [];
+        var subkeyObject = get(listenerObject, 'subkeys') || {};
+        var subkeys = keys(subkeyObject);
 
         for (var listenerdex = 0; listenerdex < currentListeners.length; listenerdex += 1) {
           result.push({
@@ -957,25 +1291,25 @@
       _defineProperty(this, "getDeleteListeners", function (original, incoming, listenerObject) {
         var currentKey = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
         var result = [];
-        var originalType = objer.getTypeString(original);
+        var originalType = getTypeString(original);
 
         if (originalType === 'object' || originalType === 'array') {
-          var incomingType = objer.getTypeString(incoming);
+          var incomingType = getTypeString(incoming);
 
           if (incomingType !== originalType) {
             result = result.concat(_this.getAllChildListeners(listenerObject, currentKey, 'delete')); // Send delete notification to every child of the original key
           } else {
-            var originalKeys = objer.keys(original);
+            var originalKeys = keys(original);
 
-            if (objer.has(listenerObject, 'subkeys')) {
+            if (has(listenerObject, 'subkeys')) {
               for (var keydex = 0; keydex < originalKeys.length; keydex += 1) {
                 var originalKey = originalKeys[keydex];
 
-                if (objer.has(listenerObject.subkeys, originalKey)) {
-                  if (!objer.has(incoming, originalKey)) {
+                if (has(listenerObject.subkeys, originalKey)) {
+                  if (!has(incoming, originalKey)) {
                     result = result.concat(_this.getAllChildListeners(listenerObject.subkeys[originalKey], currentKey.concat(originalKey), 'delete'));
                   } else {
-                    result = result.concat(_this.getDeleteListeners(objer.get(original, originalKey), objer.get(incoming, originalKey), listenerObject.subkeys[originalKey], currentKey.concat(originalKey)));
+                    result = result.concat(_this.getDeleteListeners(get(original, originalKey), get(incoming, originalKey), listenerObject.subkeys[originalKey], currentKey.concat(originalKey)));
                   }
                 }
               }
@@ -999,7 +1333,7 @@
       });
 
       _defineProperty(this, "get", function (key) {
-        return objer.get(_this.data, key);
+        return get(_this.data, key);
       });
 
       _defineProperty(this, "set", function (key, value) {
@@ -1007,25 +1341,25 @@
             _ref$notify = _ref.notify,
             notify = _ref$notify === void 0 ? true : _ref$notify;
 
-        var keyArray = objer.getObjectPath(key);
+        var keyArray = getObjectPath(key);
 
         var listeners = _this.getRelevantListeners(keyArray, value); // Consider a pre-notify here
 
 
-        objer.set(_this.data, key, value);
+        set(_this.data, key, value);
         if (notify) _this.notify(listeners, keyArray, value);
       });
 
       _defineProperty(this, "delete", function (key) {
         _this.set(key, undefined);
 
-        objer.assassinate(_this.data, key);
+        assassinate(_this.data, key);
       });
 
       _defineProperty(this, "assign", function (key, value) {
-        var original = objer.get(_this.data, key);
-        var originalType = objer.getTypeString(original);
-        var incomingType = objer.getTypeString(value);
+        var original = get(_this.data, key);
+        var originalType = getTypeString(original);
+        var incomingType = getTypeString(value);
 
         if (originalType === 'object' && incomingType === 'object') {
           _this.set(key, Object.assign({}, original, value));
@@ -1039,9 +1373,9 @@
             _ref2$notify = _ref2.notify,
             notify = _ref2$notify === void 0 ? true : _ref2$notify;
 
-        var keyArray = objer.getObjectPath(key);
-        var original = objer.get(_this.data, keyArray);
-        var originalType = objer.getTypeString(original);
+        var keyArray = getObjectPath(key);
+        var original = get(_this.data, keyArray);
+        var originalType = getTypeString(original);
 
         if (originalType === 'array') {
           var extendedKey = keyArray.concat(original.length);
@@ -1066,9 +1400,9 @@
             _ref3$notify = _ref3.notify,
             notify = _ref3$notify === void 0 ? true : _ref3$notify;
 
-        var keyArray = objer.getObjectPath(key);
-        var original = objer.get(_this.data, keyArray);
-        var originalType = objer.getTypeString(original);
+        var keyArray = getObjectPath(key);
+        var original = get(_this.data, keyArray);
+        var originalType = getTypeString(original);
 
         if (originalType === 'array' && original.length > 0) {
           var extendedKey = keyArray.concat(original.length - 1);
@@ -1085,7 +1419,7 @@
       });
 
       _defineProperty(this, "has", function (key) {
-        return objer.has(_this.data, key);
+        return has(_this.data, key);
       });
 
       _defineProperty(this, "assure", function (key, defaultValue) {
@@ -1118,8 +1452,8 @@
         var listeners = _this.getAllChildListeners(_this.listenerObject, []);
 
         listeners.forEach(function (listener) {
-          if (objer.has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
-            objer.set(result, listener.key, listener.defaultValue);
+          if (has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
+            set(result, listener.key, listener.defaultValue);
           }
         });
         return result;
@@ -1133,7 +1467,7 @@
 
         var callback = function callback(input) {
           if (input.length > 0) {
-            var output = translationFunction(input[input.length - 1].value, objer.get(_this.data, inputKey));
+            var output = translationFunction(input[input.length - 1].value, get(_this.data, inputKey));
 
             if (output instanceof Promise) {
               output.then(function (result) {
@@ -1145,7 +1479,7 @@
           }
         };
 
-        var shouldThrottle = objer.getTypeString(throttleTime) === 'number' && throttleTime > 0;
+        var shouldThrottle = getTypeString(throttleTime) === 'number' && throttleTime > 0;
 
         _this.listen(inputKey, {
           initialLoad: true,
@@ -1170,7 +1504,7 @@
           try {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var key = _step.value;
-              objer.set(ignoreObject, key, true);
+              set(ignoreObject, key, true);
             }
           } catch (err) {
             _iterator.e(err);
@@ -1191,8 +1525,8 @@
         _this.replicators.push(replicator);
 
         var changeHook = function changeHook(data) {
-          if (objer.get(replicator.ignores, data.key) === true) return false;
-          if (objer.get(ignoreObject, data.key[0]) === true) return false;
+          if (get(replicator.ignores, data.key) === true) return false;
+          if (get(ignoreObject, data.key[0]) === true) return false;
           if (replicator.ignoreEverything) return false;
           replicator.send(data);
           return true;
@@ -1203,7 +1537,7 @@
         _this.addChangeHook(changeHook);
 
         var receiver = function receiver(data) {
-          objer.set(replicator.ignores, data.key, true);
+          set(replicator.ignores, data.key, true);
 
           if (data.key.length === 0) {
             if (canSetEverything) {
@@ -1217,7 +1551,7 @@
             _this.set(data.key, data.value);
           }
 
-          objer.assassinate(replicator.ignores, data.key);
+          assassinate(replicator.ignores, data.key);
         };
 
         if (sendInitial) {
@@ -1295,7 +1629,7 @@
 
         var result = [];
 
-        if (objer.has(sublistener, 'listeners')) {
+        if (has(sublistener, 'listeners')) {
           for (var listenerdex = 0; listenerdex < sublistener.listeners.length; listenerdex += 1) {
             var listener = sublistener.listeners[listenerdex];
 
@@ -1311,15 +1645,15 @@
           }
         }
 
-        var changetype = objer.getTypeString(change);
+        var changetype = getTypeString(change);
 
-        if (objer.has(sublistener, 'subkeys') && (changetype === 'array' || changetype === 'object')) {
-          var changeKeys = objer.keys(change);
+        if (has(sublistener, 'subkeys') && (changetype === 'array' || changetype === 'object')) {
+          var changeKeys = keys(change);
 
           for (var keydex = 0; keydex < changeKeys.length; keydex += 1) {
             var changeKey = changeKeys[keydex];
 
-            if (objer.has(sublistener.subkeys, changeKey)) {
+            if (has(sublistener.subkeys, changeKey)) {
               result = result.concat(this.getChangeListeners(change[changeKey], sublistener.subkeys[changeKey], key.concat(changeKey), originalChangeDepth, currentChangeDepth + 1));
             }
           }
@@ -1340,7 +1674,7 @@
         if (key.length === 0) return result;
 
         for (var keydex = 0; keydex < key.length; keydex += 1) {
-          if (objer.has(result, ['subkeys', key[keydex]])) {
+          if (has(result, ['subkeys', key[keydex]])) {
             result = result.subkeys[key[keydex]];
           } else {
             return null;
@@ -1358,9 +1692,9 @@
     }, {
       key: "getRelevantListeners",
       value: function getRelevantListeners(key, value) {
-        var keyArray = objer.getObjectPath(key);
+        var keyArray = getObjectPath(key);
         var changeListeners = this.getChangeListeners(getKeyFilledObject(keyArray, value), this.listenerObject, [], keyArray.length);
-        var original = objer.get(this.data, keyArray);
+        var original = get(this.data, keyArray);
         var deleteListeners = this.getDeleteListeners(original, value, this.getListenerObjectAtKey(keyArray), keyArray);
         return changeListeners.concat(deleteListeners);
       }
@@ -1533,7 +1867,7 @@
         globalState = _listenerParams$globa === void 0 ? singleton() : _listenerParams$globa;
     var startingValue = globalState.has(key) ? globalState.get(key) : defaultValue;
 
-    var _useState = useState(clone(startingValue)),
+    var _useState = useState(clone$1(startingValue)),
         _useState2 = _slicedToArray(_useState, 2),
         data = _useState2[0],
         setData = _useState2[1];
@@ -1541,7 +1875,7 @@
     var refKey = useRef(key);
     useEffect(function () {
       var func = function func() {
-        return setData(clone(globalState.get(key)));
+        return setData(clone$1(globalState.get(key)));
       };
 
       globalState.listen(key, {
@@ -1549,7 +1883,7 @@
         defaultValue: defaultValue
       });
 
-      if (!objer.deepEq(refKey.current, key)) {
+      if (!deepEq(refKey.current, key)) {
         func();
         refKey.current = key;
       }

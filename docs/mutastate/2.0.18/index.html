@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Mutastate.html">Mutastate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#addChangeHook">addChangeHook</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getAgent">getAgent</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getAllChildListeners">getAllChildListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getChangeListeners">getChangeListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getDeleteListeners">getDeleteListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getForListener">getForListener</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getListenerObjectAtKey">getListenerObjectAtKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#getRelevantListeners">getRelevantListeners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#listen">listen</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#notify">notify</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#unlisten">unlisten</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Mutastate.html#unlistenBatch">unlistenBatch</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-objer.html">objer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.assurePathExists">assurePathExists</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.deepEq">deepEq</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.firstKey">firstKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.firstValue">firstValue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.getObjectPath">getObjectPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.getStringPathForArray">getStringPathForArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.getTypeString">getTypeString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.has">has</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.hasRoot">hasRoot</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.keys">keys</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.lastKey">lastKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.lastValue">lastValue</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.omit">omit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.partition">partition</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.pick">pick</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.shallowDiff">shallowDiff</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.values">values</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-objer.html#.yank">yank</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#useMutastate">useMutastate</a></span></li>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h2>Description</h2>
+<p>Mutastate is designed to manage state and send notifications to listeners when state changes.</p>
+<h2>install</h2>
+<p><code>npm install --save mutastate</code></p>
+<h2>Api</h2>
+<p>importables</p>
+<pre class="prettyprint source lang-javascript"><code>import Mutastate, {
+    withMutastateCreator,
+} from 'mutastate';
+</code></pre>
+<h4>Mutastate (default import)</h4>
+<p>The mutastate class, this class is responsible for maintaining state and sending notifications to listeners</p>
+<pre class="prettyprint source lang-javascript"><code>import Mutastate from 'mutastate';
+const mutastate = new Mutastate();
+mutastate.set('foghorn', 'leghorn');
+console.log(mutastate.get('foghorn')) // returns leghorn
+</code></pre>
+<p><em>Functions</em></p>
+<ul>
+<li><code>getAgent(onChangeFunction)</code>
+<ul>
+<li>Get a new mutastate agent attached to this instance of mutastate</li>
+</ul>
+</li>
+<li><code>getProxyAgent(onChangeFunction)</code>
+<ul>
+<li>Get a new proxy enabled mutastate agent attached to this instance</li>
+</ul>
+</li>
+<li><code>listen(key, listener = { callback: () =&gt; {}}, alias: null, batch: null, transform: null, defaultValue: undefined })</code>
+<ul>
+<li>listen for changes, notify callback when they occur, defaultValue will directly affect the current data if nothing exists! use batch for easy batch unlistening</li>
+</ul>
+</li>
+<li><code>unlisten(key, callback)</code>
+<ul>
+<li>Unlisten from a single key with a single known callback function</li>
+</ul>
+</li>
+<li><code>unlistenBatch(batch, basePath)</code>
+<ul>
+<li>Unlisten from all associated triggers for one given batch which was passed into listen</li>
+</ul>
+</li>
+<li><code>getForListener(key, listener, keyChange)</code>
+<ul>
+<li>Get data for a given key and listener, this is used by agents to get initial data, and internally to get relevant data upon updating</li>
+</ul>
+</li>
+<li><code>get(key)</code>
+<ul>
+<li>Get data at a single key, key can be a string with delimiters or an array 'a.b.c[0]' is equivalent to ['a', 'b', 'c', 0]</li>
+</ul>
+</li>
+<li><code>set(key, value, options)</code>
+<ul>
+<li>Set data.key to value, key can be complex as in get()</li>
+</ul>
+</li>
+<li><code>delete(key)</code>
+<ul>
+<li>Remove data.key, key can be complex as in get()</li>
+</ul>
+</li>
+<li><code>assign(key, value)</code>
+<ul>
+<li>Merge value into data.key object, key can be complex as in get()</li>
+</ul>
+</li>
+<li><code>push(key, value, options)</code>
+<ul>
+<li>Add value to the end of the array at data.key, key can be complex as in get()</li>
+</ul>
+</li>
+<li><code>pop(key, options)</code>
+<ul>
+<li>Remove final value from the end of the array at data.key, key can be complex as in get()</li>
+</ul>
+</li>
+<li><code>has(key)</code>
+<ul>
+<li>If the key exists at data.key, return true, otherwise return false, key can be complex as in get()</li>
+</ul>
+</li>
+<li><code>getEverything()</code>
+<ul>
+<li>return all data for all shards</li>
+</ul>
+</li>
+<li><code>setEverything(data)</code>
+<ul>
+<li>update all data for all shards</li>
+</ul>
+</li>
+<li><code>addChangeHook(callback)</code>
+<ul>
+<li>notify callback whenever any data changes, <code>({ key: [], value: any, meta: { defaultValue: true|undefined, setEverything: true|undefined }}) =&gt; {}</code> this is most useful for automated persistence functionality</li>
+</ul>
+</li>
+<li><code>removeChangeHook(callback)</code>
+<ul>
+<li>stops notifying callback on any data change</li>
+</ul>
+</li>
+<li><code>replicate({ send, primary, ignore, sendInitial, canSetEverything })</code>
+<ul>
+<li>replicates mutastate to another instance across a network/ipc/rpc</li>
+</ul>
+</li>
+</ul>
+<h4>Mutastate Agent</h4>
+<p><em>functions</em></p>
+<ul>
+<li><code>new MutastateAgent(mutastateInstance, callbackFunction)</code> or <code>mutastateInstance.getAgent(callbackFunction)</code>
+<ul>
+<li>Connect to the mutastateInstance and execute callbackFunction when data changes.</li>
+</ul>
+</li>
+<li><code>listen(key, { alias, transform, initialLoad = true, defaultValue } = {})</code>
+<ul>
+<li>Listen for changes at key in mutastate, then call <code>callbackFunction</code> from the constructor</li>
+</ul>
+</li>
+<li><code>listenFlat(key, { alias, transform, initialLoad = true, defaultValue } = {})</code>
+<ul>
+<li>Listen for data at key, automatically set alias to the last key section. ['a', 'b', 'c'] sets the alias to 'c'</li>
+</ul>
+</li>
+<li><code>batchListen(childFunction)</code>
+<ul>
+<li>Execute a lambda, during the lambda execution don't send callback information, after the lambda execute the callback</li>
+</ul>
+</li>
+<li><code>multiListen(listeners, { flat = true } = {})</code>
+<ul>
+<li>Same as listen or listenFlat, but include a { key } in the listener</li>
+</ul>
+</li>
+<li><code>get(key)</code>
+<ul>
+<li>Get data at key from mutastate</li>
+</ul>
+</li>
+<li><code>set(key, value)</code>
+<ul>
+<li>Set data at key in mutastate</li>
+</ul>
+</li>
+<li><code>delete(key)</code>
+<ul>
+<li>Delete data at key in mutastate</li>
+</ul>
+</li>
+<li><code>assign(baseKey, value)</code>
+<ul>
+<li>Perform an Object.assign() on the object that is at the baseKey in mutastate</li>
+</ul>
+</li>
+<li><code>push(baseKey, value)</code>
+<ul>
+<li>Push into an array found at baseKey in mutastate</li>
+</ul>
+</li>
+<li><code>pop(key)</code>
+<ul>
+<li>Remove the last item in an array found at key</li>
+</ul>
+</li>
+<li><code>has(key)</code>
+<ul>
+<li>Detect if mutastate contains data at this key</li>
+</ul>
+</li>
+<li><code>assure(key, defaultValue)</code>
+<ul>
+<li>If <code>has</code> fails on this <code>key</code>, use <code>set</code> at that <code>key</code> with <code>defaultValue</code></li>
+</ul>
+</li>
+<li><code>getEverything()</code>
+<ul>
+<li>Return all of mutastate</li>
+</ul>
+</li>
+<li><code>setEverything(data)</code>
+<ul>
+<li>Overwrite all data in mutastate</li>
+</ul>
+</li>
+<li><code>getAgentData()</code>
+<ul>
+<li>Get current agent data (including aliased data)</li>
+</ul>
+</li>
+<li><code>pause()</code>
+<ul>
+<li>Pause callback (data will still flow to the agent unless you manually unlisten)</li>
+</ul>
+</li>
+<li><code>resume()</code>
+<ul>
+<li>Resume callbacks, you may want to manually re-target information found in getAgentData after resuming</li>
+</ul>
+</li>
+<li><code>resolve(aliasedKey)</code>
+<ul>
+<li>Resolve an alias to the full mutastate path. <code>agent.listen('a.b.c', { alias: 'bobby' });</code> then <code>agent.resolve('bobby')</code> will return <code>['a', 'b', 'c']</code></li>
+</ul>
+</li>
+</ul>
+<h2>Use with React</h2>
+<p><em>You can use react hooks like so:</em></p>
+<pre class="prettyprint source lang-javascript"><code>import React from 'react';
+import { useMutastate } from 'mutastate';
+
+const randomName = () => ['jerry', 'bobby', 'carl'][Math.floor(Math.random() * 3)];
+
+function Assignment(props) {
+    [assignment, setAssignment] = useMutastate(['assignment', props.id]);
+
+    const updateAssignment = (data) => {
+        return setAssignment({ ...assignment, ...data });
+    }
+
+    return (
+        &lt;div>
+            &lt;div>{assignment.name}&lt;/div>
+            &lt;div>{assignment.count}&lt;/div>
+            &lt;div>{JSON.stringify(assignment.list)}&lt;/div>
+            &lt;button onClick={() => updateAssignment({ count: assignment.count + 1 })}>Add To Count&lt;/button>
+            &lt;button onClick={() => updateAssignment({ name: randomName() })}>Change Name&lt;/button>
+            &lt;button onClick={() => updateAssignment({ list: assigment.list.concat(randomName()) })}>Add To List&lt;/button>
+        &lt;/div>
+    );
+}
+</code></pre>
+<p><em>If you want to use traditional react class components you can use a higher order component like so:</em></p>
+<p>This example demonstrates how to create a connected react component, this particular component listens for data in the default shard, under the key <code>['default', 'assignments', props.id]</code>. This means if the data at that key is updated, this component will receive an update including the new data.</p>
+<p>It is important to note that the common pattern of incoming props checking for component updating when using mutastate will not function correctly, unless you make a deep copy of your incoming props for comparison yourself. The data passed into your component will be mutated!</p>
+<p>Indicating <code>{ useProxy: true }</code> will allow you to modify the data directly (only simple data, objects, arrays, strings, numbers, no custom classes or functions) as we do in this example (see <code>assignment.count += 1</code>). The data will not, in fact, be modified; the modification will be captured and converted into function calls to the current mutastate. (the previous <code>assignment.count += 1</code> becomes <code>mutastate.set('default.assignments[1].count', assignment.count + 1)</code>)</p>
+<p>Also please note that the function is <code>withMutastateCreator</code> instead of <code>withMutastate</code>, this is to avoid the ambiguity of having a separate repository for react, this is subject to change in a major version far in the future, currently if you want a <code>withMutastate</code> function you can create one by executing: <code>const withMutastate = withMutastateCreator(React, { instance: yourMutastateInstance, useProxy: true });</code>;</p>
+<pre class="prettyprint source lang-javascript"><code>import React from 'react';
+import { useMutastate } from 'mutastate';
+
+class Assignment extends React.Component {
+    constructor(props) {
+        super(props);
+        props.agent.listen(['default', 'assignments', props.id], { alias: 'assignment', defaultValue: { name: 'john', count: 0, list: [] } });
+    }
+    render() {
+        const { assignment } = this.props.data;
+
+        return (
+            &lt;div>
+                &lt;div>{assignment.name}&lt;/div>
+                &lt;div>{assignment.count}&lt;/div>
+                &lt;div>{JSON.stringify(assignment.list)}&lt;/div>
+                &lt;button onClick={() => assignment.count += 1}>Add To Count&lt;/button>
+                &lt;button onClick={() => assignment.name = ['a', 'b', 'c'][Math.floor(Math.random() * 3)]}>Change Name&lt;/button>
+                &lt;button onClick={() => assignment.list.push('another')}>Add To List&lt;/button>
+            &lt;/div>
+        );
+    }
+}
+
+export default withMutastateCreator(React, { useProxy: true })(Assignment);
+</code></pre>
+<h2>Replication</h2>
+<p>You can replicate mutastate to secondary instances, useful in circumstances where you don't have direct access to the same mutastate instance such as multi-window electron apps</p>
+<pre class="prettyprint source lang-javascript"><code>// start replication, the send function will get called whenever any data in our instance changes (but will ignore changes that came from other instances). In this case we use a fake sendIpcMessage function
+const receiver = singleton().replicate({ send: data => sendIpcMessage('state-sync', data) });
+
+// this fictitious listenForIpcMessages function shows how you can receive data from an outside source to update your own mutastate
+listenForIpcMessages('state-sync', (sender, data) => receiver(data));
+</code></pre>
+<p>The use of <code>useProxy</code> will limit your browser availability due to use of the Proxy es6 feature:</p>
+<ul>
+<li>No internet explorer</li>
+<li>No opera mini</li>
+<li>Edge 17</li>
+<li>Firefox 18</li>
+<li>Chrome 49</li>
+<li>Safari 10</li>
+<li>Samsung mobile 5</li>
+<li>Chrome android 69</li>
+<li>UC android 11.8</li>
+</ul>
+<p>If you must avoid <code>useProxy</code>, the following mutastate methods are available:</p>
+<ul>
+<li><code>get(key)</code></li>
+<li><code>set(key, value)</code></li>
+<li><code>delete(key)</code></li>
+<li><code>assign(key, value)</code></li>
+<li><code>push(key, value)</code></li>
+<li><code>pop(key, value)</code></li>
+<li><code>has(key)</code></li>
+<li><code>getEverything(key)</code></li>
+<li><code>setEverything(key)</code></li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Wed Feb 28 2024 19:16:27 GMT-0500 (Eastern Standard Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

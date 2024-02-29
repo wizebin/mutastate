@@ -1,4 +1,4 @@
-import { set, has, get, assassinate, getObjectPath, getTypeString } from 'objer';
+import { set, has, get, assassinate, getObjectPath, getTypeString } from './utility/objer';
 
 export default class BaseAgent {
   constructor(mutastate, onChange) {

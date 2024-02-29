@@ -1,4 +1,4 @@
-import { assurePathExists, set } from 'objer';
+import { assurePathExists, set } from './utility/objer';
 import { isBlankKey } from './utility/blankKey';
 
 export function findIndex(array, callback, context) {

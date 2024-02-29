@@ -4,7 +4,7 @@
  * this allows us to listen to a deeply nested key and change the resulting data easily
  */
 
-import { set } from 'objer';
+import { set } from './utility/objer';
 import changeWrapper from './changeWrapper';
 import BaseAgent from './BaseAgent';
 

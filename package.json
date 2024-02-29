@@ -1,6 +1,6 @@
 {
   "name": "mutastate",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "Mutable state management",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -49,7 +49,6 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "clone": "^2.1.1",
-    "lodash.clone": "^4.5.0",
-    "objer": "^1.0.46"
+    "lodash.clone": "^4.5.0"
   }
 }
