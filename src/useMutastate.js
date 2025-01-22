@@ -14,7 +14,7 @@ const { useState, useEffect, useRef } = React;
 /**
  *
  * @param {string} key
- * @param {{ defaultValue: any, globalState: Mutastate }} listenerParams
+ * @param {{ defaultValue: any, globalState: Mutastate }} [listenerParams]
  */
 export function useMutastate(key, listenerParams = {}) {
   const { defaultValue, globalState = singleton() } = listenerParams;

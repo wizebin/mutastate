@@ -72,4 +72,4 @@ export class Mutastate {
 }
 
 export function singleton(): Mutastate;
-export function useMutastate(key: string|string[], options: { defaultValue: any, globalState: Mutastate }): [any, (value: any) => void];
+export function useMutastate(key: string|string[], options?: { defaultValue?: any, globalState?: Mutastate }): [any, (value: any) => void];

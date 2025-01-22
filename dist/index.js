@@ -1857,7 +1857,7 @@
   /**
    *
    * @param {string} key
-   * @param {{ defaultValue: any, globalState: Mutastate }} listenerParams
+   * @param {{ defaultValue: any, globalState: Mutastate }} [listenerParams]
    */
 
   function useMutastate(key) {
