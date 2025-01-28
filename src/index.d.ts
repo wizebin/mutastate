@@ -17,18 +17,18 @@ type MutastateInitializer = {
 
 class MutastateAgent {
     constructor(AgentCallback)
-    listen(string, ListenOptions): Object;
+    listen(string, options?: ListenOptions): Object;
     resolveKey(key: KeyType): string;
     listenFlat(key: KeyType, ListenOptions): Object;
     batchListen(childFunction: BatchFunc): Object;
-    multiListen(listeners: MultiListenerInput, { flat: boolean });
+    multiListen(listeners: MultiListenerInput, config?: { flat: boolean });
     cleanup(): void;
     get(key: KeyType): any;
-    set(key: KeyType, value: any, options: SetOptionType): void;
+    set(key: KeyType, value: any, options?: SetOptionType): void;
     delete(key: KeyType): void;
     assign(key: KeyType, value: any): any;
-    push(key: KeyType, value: any, options: SetOptionType): void;
-    pop(key: KeyType, options: SetOptionType): any;
+    push(key: KeyType, value: any, options?: SetOptionType): void;
+    pop(key: KeyType, options?: SetOptionType): any;
     has(key: KeyType): boolean;
     assure(key: KeyType, defaultValue: any): any;
     getEverything(): Object;
@@ -46,7 +46,7 @@ export class Mutastate {
     getListenersAtPath(): AgentCallback[];
     addChangeHook(AgentCallback): void;
     removeChangeHook(AgentCallback): number;
-    listen(key: string, listener: { callback: AgentCallback, alias: string|string[], batch: string, transform: TransformFunc, defaultValue: any });
+    listen(key: string, listener: { callback: AgentCallback, alias?: string|string[], batch?: string, transform?: TransformFunc, defaultValue?: any });
     unlisten(key: string, callback: AgentCallback);
     unlistenBatch(batch: string, basePath: string|string[]);
     getForListener(key: string|string[], listener: AgentCallback);
@@ -58,17 +58,17 @@ export class Mutastate {
     // notify() // internal
     // notifyGlobals() // internal
     get(key: string|string[]): any;
-    set(key: string|string[], value: any, meta: { notify: boolean }): void;
+    set(key: string|string[], value: any, meta?: { notify: boolean }): void;
     delete(key: string|string[]): void;
     assign(key: string|string[], value: any): void;
-    push(key: string|string[], value: any, meta: { notify: boolean }): boolean;
-    pop(key: string|string[], meta: { notify: boolean }): boolean;
+    push(key: string|string[], value: any, meta?: { notify: boolean }): boolean;
+    pop(key: string|string[], meta?: { notify: boolean }): boolean;
     has(key: string|string[]): boolean;
     assure(key: string|string[], defaultValue: any): any;
     getEverything(): any;
-    setEverything(data: any, meta: { noDefaults: boolean }): void;
+    setEverything(data: any, meta?: { noDefaults: boolean }): void;
     getDefaults(key: string|string[]): any;
-    translate(inputKey: string|string[], outputKey: string|string[], translationFunction: TransformFunc, meta: { batch: boolean, throttleTime: number }): void;
+    translate(inputKey: string|string[], outputKey: string|string[], translationFunction: TransformFunc, meta?: { batch: boolean, throttleTime: number }): void;
 }
 
 export function singleton(): Mutastate;
