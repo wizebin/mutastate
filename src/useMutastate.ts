@@ -25,15 +25,15 @@ const { useState, useEffect, useRef } = React;
  * @param {Object} listenerParams - Options for the listener
  * @param {any} listenerParams.defaultValue - Default value if key doesn't exist
  * @param {Mutastate} listenerParams.globalState - Mutastate instance to use (singleton by default)
- * @returns {[any, (value: any) => void]} Value and setter tuple, similar to useState
+ * @returns {[any, (value: any | ((prevValue: any) => any)) => void]} Value and setter tuple, similar to useState
  */
 export function useMutastate<T = any>(
-  key: KeyType, 
-  listenerParams: { 
-    defaultValue?: T; 
-    globalState?: Mutastate 
+  key: KeyType,
+  listenerParams: {
+    defaultValue?: T;
+    globalState?: Mutastate
   } = {}
-): [T, (value: T) => void] {
+): [T, (value: T | ((prevValue: T) => T)) => void] {
   const { defaultValue, globalState = singleton() } = listenerParams;
   const startingValue = globalState.has(key) ? globalState.get(key) as T : defaultValue;
   // @ts-ignore - React types
@@ -50,8 +50,14 @@ export function useMutastate<T = any>(
     return () => globalState.unlisten(key, func);
   }, [key]);
 
-  const setGlobalData = (value: T): void => {
-    globalState.set(key, value);
+  const setGlobalData = (value: T | ((prevValue: T) => T)): void => {
+    if (typeof value === 'function') {
+      const currentValue = globalState.get(key) as T;
+      const newValue = (value as (prevValue: T) => T)(currentValue);
+      globalState.set(key, newValue);
+    } else {
+      globalState.set(key, value);
+    }
   }
 
   return [data, setGlobalData];
