@@ -1,0 +1,13 @@
+export declare function getTypeString(input: any): string;
+export declare function shallowClone(input: any): any;
+export declare function clone(input: any): any;
+export declare function getObjectPath(pathin: string | string[]): string[];
+export declare function getObjectAtPath(base: Record<string, any>, pathin: string | string[]): any;
+export declare function get<T = any>(object: Record<string, any>, path: string | string[], defaultValue?: T): T;
+export declare function has(object: Record<string, any>, path: string | string[]): boolean;
+export declare function keys(object: Record<string, any>): string[];
+export declare function objectAssign(object: Record<string, any>, path: string | string[], value: any): Record<string, any>;
+export declare function set(object: Record<string, any>, path: string | string[], value: any): Record<string, any>;
+export declare function assurePathExists<T = any>(object: Record<string, any>, path: string | string[], defaultValue: T): T;
+export declare function assassinate(object: Record<string, any>, path: string | string[]): void;
+export declare function deepEq(a: any, b: any): boolean;

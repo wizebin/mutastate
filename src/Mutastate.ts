@@ -4,12 +4,32 @@ import { assurePathExists, getObjectPath, has, get, getTypeString, keys, set, as
 import { isBlankKey } from './utility/blankKey';
 import getPromiseFunction from './utility/promise';
 import ProxyAgent from './ProxyAgent';
+import {
+  AgentCallback,
+  KeyType,
+  ListenOptions,
+  ListenerData,
+  ListenerObject,
+  MutastateInitializer,
+  NotifyData,
+  ChangeData,
+  ReplicatorConfig,
+  Replicator,
+  TransformFunc
+} from './types';
 
 /**
  * Core mutastate class, this class stores data and informs listeners of changes
  */
 export default class Mutastate {
-  constructor() {
+  private listenerObject: ListenerObject;
+  private replicators: Replicator[];
+  private globalListeners: Array<(data: ChangeData) => void>;
+  private data: Record<string, any>;
+  private promise: typeof Promise;
+  private nextReplicatorId: number;
+
+  constructor(options: MutastateInitializer = {}) {
     this.listenerObject = { subkeys: {} };
     this.replicators = [];
     this.globalListeners = [];
@@ -24,11 +44,11 @@ export default class Mutastate {
    * An agent is a listener with alias and transform capabilities
    * @param {function} onChange
    */
-  getAgent = (onChange) => {
+  getAgent = (onChange?: AgentCallback): MutastateAgent => {
     return new MutastateAgent(this, onChange);
   }
 
-  getProxyAgent = (onChange) => {
+  getProxyAgent = (onChange?: AgentCallback): ProxyAgent => {
     return new ProxyAgent(this, onChange);
   }
 
@@ -38,10 +58,10 @@ export default class Mutastate {
    * @description
    * Retrieve a list of relevant listeners given a change at a key;
    */
-  getListenersAtPath = (key) => {
+  getListenersAtPath = (key: KeyType): ListenOptions[] => {
     const keyArray = isBlankKey(key) ? ['default'] : getObjectPath(key);
 
-    let currentListenObject = this.listenerObject;
+    let currentListenObject: ListenerObject = this.listenerObject;
     for (let keydex = 0; keydex < keyArray.length - 1; keydex += 1) { // Go through all keys except the last, which is where out final request will go
       const subKey = keyArray[keydex];
       currentListenObject = assurePathExists(currentListenObject, ['subkeys', subKey], {});
@@ -55,12 +75,12 @@ export default class Mutastate {
    * @description Listen for any change
    * @param {function} listener
    */
-  addChangeHook = (listener) => {
+  addChangeHook = (listener: (data: ChangeData) => void): void => {
     this.removeChangeHook(listener);
     this.globalListeners.push(listener);
   }
 
-  removeChangeHook = (listener) => {
+  removeChangeHook = (listener: (data: ChangeData) => void): number => {
     let removed = 0;
     for (let dex = this.globalListeners.length - 1; dex >= 0; dex -= 1) {
       if (this.globalListeners[dex] === listener) {
@@ -76,9 +96,9 @@ export default class Mutastate {
    * @description
    * Add a path listener, dedupes by callback function, careful with anonymous functions!
    */
-  listen = (key, listener = { callback: () => {}, alias: null, batch: null, transform: null, defaultValue: undefined }) => {
+  listen = <T = any>(key: KeyType, listener: ListenOptions<T>): boolean => {
     const listeners = this.getListenersAtPath(key);
-    const matchedListeners = listeners.reduce((results, existingListener, dex) => {
+    const matchedListeners = listeners.reduce<number[]>((results, existingListener, dex) => {
       if (existingListener.callback === listener.callback) results.push(dex);
       return results;
     }, []);
@@ -87,7 +107,7 @@ export default class Mutastate {
       listeners.splice(matchedListeners[dex], 1);
     }
 
-    listeners.push(listener);
+    listeners.push(listener as ListenOptions);
     return true;
   }
 
@@ -96,10 +116,10 @@ export default class Mutastate {
    * @description
    * Unlisten by callback, careful with anonymous functions!
    */
-  unlisten = (key, callback) => {
+  unlisten = (key: KeyType, callback: AgentCallback): void => {
     const listeners = this.getListenersAtPath(key);
 
-    const matchedListeners = listeners.reduce((results, existingListener, dex) => {
+    const matchedListeners = listeners.reduce<number[]>((results, existingListener, dex) => {
       if (existingListener.callback === callback) results.push(dex);
       return results;
     }, []);
@@ -114,17 +134,17 @@ export default class Mutastate {
    * @description
    * Unlisten by the batch parameter passed into the options of the listen function
    */
-  unlistenBatch = (batch, basePath) => {
-    const patharray = (basePath || []);
-    const subkeypath = (basePath || []).concat('subkeys');
+  unlistenBatch = (batch: string | any, basePath?: string | string[]): void => {
+    const patharray = Array.isArray(basePath) ? basePath : (basePath ? [basePath] : []);
+    const subkeypath = [...patharray, 'subkeys'];
     const subKeys = keys(get(this.listenerObject, subkeypath));
     for (let keydex = 0; keydex < subKeys.length; keydex += 1) {
-      this.unlistenBatch(batch, subkeypath.concat([subKeys[keydex]]));
+      this.unlistenBatch(batch, [...subkeypath, subKeys[keydex]]);
     }
 
-    const listeners = get(this.listenerObject, patharray.concat('listeners'));
+    const listeners = get(this.listenerObject, [...patharray, 'listeners']);
 
-    const matchedListeners = (listeners || []).reduce((results, existingListener, dex) => {
+    const matchedListeners = (listeners || []).reduce((results: number[], existingListener, dex) => {
       if (existingListener.batch === batch) results.push(dex);
       return results;
     }, []);
@@ -139,10 +159,10 @@ export default class Mutastate {
    * @description
    * Get data for a particular listener, apply transformation to the value
    */
-  getForListener = (key, listener) => {
+  getForListener(key: KeyType, listener: ListenOptions): NotifyData {
     const { alias, callback, transform, defaultValue } = listener;
     const keyArray = getObjectPath(key);
-    let value = null;
+    let value: any = null;
 
     if (has(this.data, keyArray)) {
       value = get(this.data, keyArray);
@@ -155,7 +175,12 @@ export default class Mutastate {
       value = clonedValue;
     }
 
-    return { alias, callback, key: keyArray, value: transform ? transform(value) : value };
+    return { 
+      alias, 
+      callback, 
+      key: keyArray, 
+      value: transform ? (transform as TransformFunc)(value) : value 
+    };
   }
 
   /**
@@ -163,8 +188,8 @@ export default class Mutastate {
    * @description
    * Get a full list of listeners under a subkey
    */
-  getAllChildListeners = (listenerObject, currentKey = [], type) => {
-    let result = [];
+  getAllChildListeners = (listenerObject: ListenerObject, currentKey: string[] = [], type: 'change' | 'delete'): ListenerData[] => {
+    let result: ListenerData[] = [];
     const currentListeners = get(listenerObject, 'listeners') || [];
     const subkeyObject = get(listenerObject, 'subkeys') || {};
     const subkeys = keys(subkeyObject);
@@ -184,8 +209,8 @@ export default class Mutastate {
    * recurse original against incoming for changed keys, if original type is an object or array and incoming type is not the same
    * pass all child listeners. If incoming and original are both either objects or arrays, recurse the children using this function.
    */
-  getDeleteListeners = (original, incoming, listenerObject, currentKey = []) => {
-    let result = [];
+  getDeleteListeners = (original: any, incoming: any, listenerObject: ListenerObject, currentKey: string[] = []): ListenerData[] => {
+    let result: ListenerData[] = [];
     const originalType = getTypeString(original);
     if (originalType === 'object' || originalType === 'array') {
       const incomingType = getTypeString(incoming);
@@ -217,9 +242,9 @@ export default class Mutastate {
    * given a change, notify all parents of the relevant key, and for every subkey of the incoming data notify listeners
    * this function does not notify any listers of removed data, getDeleteListeners fulfills that role
    */
-  getChangeListeners(change, sublistener, key = [], originalChangeDepth = 0, currentChangeDepth = 0) {
+  getChangeListeners(change: any, sublistener: ListenerObject, key: string[] = [], originalChangeDepth = 0, currentChangeDepth = 0): ListenerData[] {
     const changeRelativity = originalChangeDepth - currentChangeDepth; // Parent change > 0, child change < 0, currentChange == 0
-    let result = [];
+    let result: ListenerData[] = [];
     if (has(sublistener, 'listeners')) {
       for (let listenerdex = 0; listenerdex < sublistener.listeners.length; listenerdex += 1) {
         const listener = sublistener.listeners[listenerdex];
@@ -250,7 +275,7 @@ export default class Mutastate {
    * @description
    * Listeners are nested by a pattern of subkeys.key.subkeys.otherkey, this function turns ['key', 'otherkey'] into the expected array
    */
-  getListenerObjectAtKey(key) {
+  getListenerObjectAtKey(key: string[]): ListenerObject | null {
     let result = this.listenerObject;
     if (key.length === 0) return result;
     for (let keydex = 0; keydex < key.length; keydex += 1) {
@@ -268,7 +293,7 @@ export default class Mutastate {
    * @description
    * Concatenate change and delete listeners for a given change
    */
-  getRelevantListeners(key, value) {
+  getRelevantListeners(key: KeyType, value: any): ListenerData[] {
     const keyArray = getObjectPath(key);
     const changeListeners = this.getChangeListeners(getKeyFilledObject(keyArray, value), this.listenerObject, [], keyArray.length);
     const original = get(this.data, keyArray);
@@ -282,8 +307,8 @@ export default class Mutastate {
    * @description
    * Execute notify callbacks for a batch in format [{ listener, key }]
    */
-  notify(notifyBatch, keyArray, value) {
-    const callbackBatches = [];
+  notify(notifyBatch: ListenerData[], keyArray: string[], value: any): void {
+    const callbackBatches: Array<{ callback: AgentCallback, changes: NotifyData[] }> = [];
     for (let keydex = 0; keydex < notifyBatch.length; keydex += 1) {
       const keyChange = notifyBatch[keydex];
       const listenerIndex = findIndex(callbackBatches, callbackBatch => callbackBatch.callback === keyChange.listener.callback);
@@ -305,19 +330,18 @@ export default class Mutastate {
     this.notifyGlobals(keyArray, value);
   }
 
-  notifyGlobals = (keyArray, value, meta) => {
+  notifyGlobals = (keyArray: string[], value: any, meta?: Record<string, any>): void => {
     for (let dex = 0; dex < this.globalListeners.length; dex += 1) {
-      const passData = { key: keyArray, value };
-      if (meta) passData.meta = meta;
+      const passData: ChangeData = { key: keyArray, value, meta: meta || {} };
       this.globalListeners[dex](passData);
     }
   }
 
-  get = (key) => {
+  get(key: KeyType): any {
     return get(this.data, key);
   }
 
-  set = (key, value, { notify = true } = {}) => {
+  set(key: KeyType, value: any, { notify = true } = {}): void {
     const keyArray = getObjectPath(key);
     const listeners = this.getRelevantListeners(keyArray, value);
     // Consider a pre-notify here
@@ -325,12 +349,12 @@ export default class Mutastate {
     if (notify) this.notify(listeners, keyArray, value);
   }
 
-  delete = (key) => {
+  delete(key: KeyType): void {
     this.set(key, undefined);
     assassinate(this.data, key);
   }
 
-  assign = (key, value) => {
+  assign(key: KeyType, value: Record<string, any>): void {
     const original = get(this.data, key);
     const originalType = getTypeString(original);
     const incomingType = getTypeString(value);
@@ -342,15 +366,16 @@ export default class Mutastate {
     }
   }
 
-  push = (key, value, { notify = true } = {}) => {
+  push(key: KeyType, value: any, { notify = true } = {}): boolean {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
     if (originalType === 'array') {
-      const extendedKey = keyArray.concat(original.length);
+      const array = original as Array<any>;
+      const extendedKey = [...keyArray, array.length.toString()];
       const listeners = this.getRelevantListeners(extendedKey, value);
       // Consider a pre-notify here
-      original.push(value);
+      array.push(value);
       if (notify) this.notify(listeners, extendedKey, value);
       return true;
     } else if (originalType === 'undefined' || originalType === 'null') {
@@ -360,80 +385,63 @@ export default class Mutastate {
     return false;
   }
 
-  pop = (key, { notify = true } = {}) => {
+  pop(key: KeyType, { notify = true } = {}): boolean {
     const keyArray = getObjectPath(key);
     const original = get(this.data, keyArray);
     const originalType = getTypeString(original);
     if (originalType === 'array' && original.length > 0) {
-      const extendedKey = keyArray.concat(original.length - 1);
+      const array = original as Array<any>;
+      const extendedKey = [...keyArray, (array.length - 1).toString()];
       const listeners = this.getRelevantListeners(extendedKey, undefined);
       // Consider a pre-notify here
-      original.pop();
-      if (notify) this.notify(listeners, extendedKey);
+      array.pop();
+      if (notify) this.notify(listeners, extendedKey, undefined);
       return true;
     }
     return false;
   }
 
-  has = (key) => has(this.data, key);
+  has(key: KeyType): boolean {
+    return has(this.data, key);
+  }
 
-  assure = (key, defaultValue) => {
+  assure(key: KeyType, defaultValue: any): any {
     if (!this.has(key)) this.set(key, defaultValue);
     return this.get(key);
   }
 
-  // Complication: must notify all array keys of updates due to key changes
-  // unshift = (key, value) => {
-  //   const keyArray = getObjectPath(key);
-  //   const original = get(this.data, keyArray);
-  //   const originalType = getTypeString(original);
-  //   if (originalType === 'array') {
-  //     const extendedKey = keyArray.concat(0);
-  //     const listeners = this.getRelevantListeners(extendedKey, value);
-  //     // Consider a pre-notify here
-  //     original.unshift(value);
-  //     if (notify) this.notify(listeners);
-  //   }
-  // }
-
-  // shift = (key) => {
-  //   const keyArray = getObjectPath(key);
-  //   const original = get(this.data, keyArray);
-  //   const originalType = getTypeString(original);
-  //   if (originalType === 'array' && original.length > 0) {
-  //     const extendedKey = keyArray.concat(0);
-  //     const listeners = this.getRelevantListeners(extendedKey, undefined);
-  //     // Consider a pre-notify here
-  //     original.shift();
-  //     if (notify) this.notify(listeners);
-  //   }
-  // }
-
-  getEverything = () => this.data;
-  setEverything = (data, { noDefaults = false } = {}) => {
+  getEverything(): Record<string, any> {
+    return this.data;
+  }
+  
+  setEverything(data: Record<string, any>, { noDefaults = false } = {}): void {
     const defaultedData = noDefaults ? data : Object.assign(this.getDefaults(), data || {});
     const listeners = this.getRelevantListeners([], defaultedData);
     this.data = defaultedData;
     this.notify(listeners, [], defaultedData);
-  };
+  }
 
-  getDefaults = (subkey = []) => {
+  getDefaults(subkey: string[] = []): Record<string, any> {
     if (!this.listenerObject) return {};
     const result = {};
-    const listeners = this.getAllChildListeners(this.listenerObject, []);
+    const listeners = this.getAllChildListeners(this.listenerObject, [], 'change');
     listeners.forEach(listener => {
-      if (has(listener, 'defaultValue') && listener.defaultValue !== undefined) {
-        set(result, listener.key, listener.defaultValue);
+      if (listener.listener.defaultValue !== undefined) {
+        set(result, listener.key.join('.'), listener.listener.defaultValue);
       }
     });
     return result;
   }
 
-  // TODO: deduplicate translations!!
-  translate = (inputKey, outputKey, translationFunction, { batch, throttleTime = null } = {}) => {
-    const callback = (input) => {
+  translate(
+    inputKey: KeyType, 
+    outputKey: KeyType, 
+    translationFunction: TransformFunc, 
+    { batch, throttleTime = null }: { batch?: string | any, throttleTime?: number } = {}
+  ): void {
+    const callback = (input: NotifyData[]): void => {
       if (input.length > 0) {
-        const output = translationFunction(input[input.length - 1].value, get(this.data, inputKey));
+        const output = translationFunction(input[input.length - 1].value);
         if (output instanceof Promise) {
           output.then(result => this.set(outputKey, result));
         } else {
@@ -442,19 +450,31 @@ export default class Mutastate {
       }
     };
     const shouldThrottle = getTypeString(throttleTime) === 'number' && throttleTime > 0;
-    this.listen(inputKey, { initialLoad: true, batch, callback: shouldThrottle ? throttle(callback, throttleTime) : callback });
+    this.listen(inputKey, { 
+      initialLoad: true, 
+      batch, 
+      callback: shouldThrottle ? throttle(callback, throttleTime) : callback 
+    });
   }
 
-  replicate = ({ send, primary, ignore, sendInitial, canSetEverything = true }) => {
+  replicate(config: ReplicatorConfig): (data: ChangeData) => void {
+    const { send, primary, ignore, sendInitial, canSetEverything = true } = config;
     const ignoreObject = {};
     if (ignore) {
       for (let key of ignore) {
         set(ignoreObject, key, true);
       }
     }
-    const replicator = { send, primary, ignore, id: ++this.nextReplicatorId, ignores: {}, ignoreEverything: false };
+    const replicator: Replicator = { 
+      send, 
+      primary, 
+      ignore, 
+      id: ++this.nextReplicatorId, 
+      ignores: {}, 
+      ignoreEverything: false 
+    };
     this.replicators.push(replicator);
-    const changeHook = (data) => {
+    const changeHook = (data: ChangeData): boolean => {
       if (get(replicator.ignores, data.key) === true) return false;
       if (get(ignoreObject, data.key[0]) === true) return false;
       if (replicator.ignoreEverything) return false;
@@ -465,7 +485,7 @@ export default class Mutastate {
 
     this.addChangeHook(changeHook);
 
-    const receiver = (data) => {
+    const receiver = (data: ChangeData): void => {
       set(replicator.ignores, data.key, true);
       if (data.key.length === 0) {
         if (canSetEverything) {
@@ -477,26 +497,30 @@ export default class Mutastate {
         this.set(data.key, data.value);
       }
       assassinate(replicator.ignores, data.key);
-    }
+    };
+    
+    replicator.receiver = receiver;
 
     if (sendInitial) {
-      changeHook({ key: [], value: this.getEverything() });
+      changeHook({ key: [], value: this.getEverything(), meta: {} });
     }
 
     return receiver;
   }
 
-  stopReplicating = (receiverFunction) => {
+  stopReplicating(receiverFunction: (data: ChangeData) => void): void {
     const replicator = this.replicators.find(replicator => replicator.receiver === receiverFunction);
-    if (replicator) {
+    if (replicator && replicator.changeHook) {
       this.removeChangeHook(replicator.changeHook);
-      this.replicators = this.replicators.filter(replicator => replicator.id !== replicator.id);
+      this.replicators = this.replicators.filter(current => current.id !== replicator.id);
     }
   }
 
-  stopAllReplication = () => {
+  stopAllReplication(): void {
     for (let replicator of this.replicators) {
-      this.stopReplicating(replicator.receiver);
+      if (replicator.receiver) {
+        this.stopReplicating(replicator.receiver);
+      }
     }
   }
 }

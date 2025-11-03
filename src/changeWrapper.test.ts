@@ -2,9 +2,9 @@ import changeWrapper from './changeWrapper';
 
 describe('changeWrapper', () => {
   it('wraps basic changes', () => {
-    let a = {};
+    let a: Record<string, any> = {};
     let hasChanged = false;
-    const b = changeWrapper(a, (value) => { hasChanged = true });
+    const b = changeWrapper(a, () => { hasChanged = true });
     expect(hasChanged).toEqual(false);
     a.b = 6;
     expect(hasChanged).toEqual(false);
@@ -12,15 +12,14 @@ describe('changeWrapper', () => {
     expect(hasChanged).toEqual(true);
   });
   it('wraps deletes', () => {
-    let a = { b: '5' };
-    let hasChanged = false;
+    let a: Record<string, any> = { b: '5' };
     let change = null;
     const proxd = changeWrapper(a, (value) => { change = value });
     delete(proxd.b);
     expect(change).toEqual({ key: ['b'], type: 'delete' });
   });
   it('wraps subobjects', () => {
-    let original = { b: '5' };
+    let original: Record<string, any> = { b: '5' };
     let change = null;
     const proxd = changeWrapper(original, (data) => { change = data });
     proxd.c = { q: 'r' };
@@ -34,12 +33,12 @@ describe('changeWrapper', () => {
   });
   it('wraps arrays', () => {
     let original = [1];
-    let change = []
+    let change: any[] = [];
     let proxd = changeWrapper(original, (data) => { change.push(data) });
     proxd.push(5);
     expect(change).toEqual([{key: ['1'], type: 'set', value: 5 }]);
-    change = []
+    change = [];
     proxd.pop();
     expect(change).toEqual([{key: ['1'], type: 'delete' }]);
   });
-})
+});

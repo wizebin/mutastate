@@ -6,7 +6,7 @@ describe('Blank Key', () => {
       expect(isBlankKey([])).toEqual(true);
       expect(isBlankKey(new Array())).toEqual(true);
       expect(isBlankKey(null)).toEqual(true);
-      expect(isBlankKey([1, 2, 3])).toEqual(false);
+      expect(isBlankKey(['1', '2', '3'])).toEqual(false);
     });
   });
 });
