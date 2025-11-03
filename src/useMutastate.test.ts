@@ -115,4 +115,27 @@ describe('useMutastate', () => {
 
     expect(globalState.get('newKey')).toBe(10);
   });
+
+  it('should maintain stable setter reference across renders', () => {
+    globalState.set('stable', 0);
+
+    const { result, rerender } = renderHook(() =>
+      useMutastate<number>('stable', { globalState })
+    );
+
+    const firstSetter = result.current[1];
+
+    // Trigger a state update to cause re-render
+    act(() => {
+      result.current[1](1);
+    });
+
+    // Force re-render
+    rerender();
+
+    const secondSetter = result.current[1];
+
+    // Setter reference should remain the same
+    expect(firstSetter).toBe(secondSetter);
+  });
 });

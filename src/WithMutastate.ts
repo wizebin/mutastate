@@ -2,12 +2,43 @@ import singleton from './singleton';
 import Mutastate from './Mutastate';
 import { KeyType, MultiListenerInput } from './types';
 
-let React: any;
-try {
-  React = require('react');
-} catch (err) {
-  const errorFunc = () => { throw new Error('REACT IS NOT AVAILABLE, WithMutastate IS NOT AVAILABLE WITHOUT REACT') };
-  React = { Component: class Component {}, createElement: errorFunc };
+let reactModule: any = null;
+let reactLoadAttempted = false;
+
+function getReact() {
+  if (reactLoadAttempted) {
+    return reactModule;
+  }
+
+  reactLoadAttempted = true;
+
+  try {
+    // Try CommonJS require for Node/UMD environments
+    if (typeof require !== 'undefined') {
+      reactModule = require('react');
+      return reactModule;
+    }
+  } catch (err) {
+    // Require failed or not available
+  }
+
+  // For ES module environments, check if React is available globally
+  if (typeof window !== 'undefined' && (window as any).React) {
+    reactModule = (window as any).React;
+    return reactModule;
+  }
+
+  // For environments like Vite, React might be available but not yet loaded
+  // In this case, the module will fail when used, which is expected
+  return null;
+}
+
+function ensureReact() {
+  const React = getReact();
+  if (!React) {
+    throw new Error('REACT IS NOT AVAILABLE, WithMutastate IS NOT AVAILABLE WITHOUT REACT');
+  }
+  return React;
 }
 
 type WithMutastateOptions<P = any> = {
@@ -17,13 +48,15 @@ type WithMutastateOptions<P = any> = {
 };
 
 export function withMutastateCreator<P = any, S = any>(options: WithMutastateOptions<P> = {}) {
-  return function withMutastate(WrappedComponent: React.ComponentType<P>) {
-    const { 
-      listeners = [], 
-      listenersFlat = false, 
-      globalState = singleton() 
+  return function withMutastate(WrappedComponent: any) {
+    const React = ensureReact();
+
+    const {
+      listeners = [],
+      listenersFlat = false,
+      globalState = singleton()
     } = options;
-    
+
     class WithMutastate extends React.Component<P, S> {
       agent: any;
       state: any = {};

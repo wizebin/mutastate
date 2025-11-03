@@ -4,20 +4,49 @@ import clone from 'lodash.clone';
 import { KeyType } from './types';
 import Mutastate from './Mutastate';
 
-let React: {
-  useState: any;
-  useEffect: any;
-  useRef: any;
-};
+let reactModule: any = null;
+let reactLoadAttempted = false;
 
-try {
-  React = require('react');
-} catch (err) {
-  const errorFunc = () => { throw new Error('REACT IS NOT AVAILABLE, useMutastate IS NOT AVAILABLE WITHOUT REACT') };
-  React = { useState: errorFunc, useEffect: errorFunc, useRef: errorFunc };
+function getReact() {
+  if (reactLoadAttempted) {
+    return reactModule;
+  }
+
+  reactLoadAttempted = true;
+
+  try {
+    // Try CommonJS require for Node/UMD environments
+    if (typeof require !== 'undefined') {
+      reactModule = require('react');
+      return reactModule;
+    }
+  } catch (err) {
+    // Require failed or not available
+  }
+
+  // For ES module environments, check if React is available globally
+  if (typeof window !== 'undefined' && (window as any).React) {
+    reactModule = (window as any).React;
+    return reactModule;
+  }
+
+  // For environments like Vite, React might be available but not yet loaded
+  // In this case, the module will fail when used, which is expected
+  return null;
 }
 
-const { useState, useEffect, useRef } = React;
+function ensureReactHooks() {
+  const React = getReact();
+  if (!React) {
+    throw new Error('REACT IS NOT AVAILABLE, useMutastate IS NOT AVAILABLE WITHOUT REACT');
+  }
+  return {
+    useState: React.useState,
+    useEffect: React.useEffect,
+    useRef: React.useRef,
+    useCallback: React.useCallback
+  };
+}
 
 /**
  * React hook for mutastate
@@ -34,6 +63,8 @@ export function useMutastate<T = any>(
     globalState?: Mutastate
   } = {}
 ): [T, (value: T | ((prevValue: T) => T)) => void] {
+  const { useState, useEffect, useRef, useCallback } = ensureReactHooks();
+
   const { defaultValue, globalState = singleton() } = listenerParams;
   const startingValue = globalState.has(key) ? globalState.get(key) as T : defaultValue;
   // @ts-ignore - React types
@@ -48,17 +79,17 @@ export function useMutastate<T = any>(
       refKey.current = key;
     }
     return () => globalState.unlisten(key, func);
-  }, [key]);
+  }, [key, defaultValue, globalState]);
 
-  const setGlobalData = (value: T | ((prevValue: T) => T)): void => {
+  const setGlobalData = useCallback((value: T | ((prevValue: T) => T)): void => {
     if (typeof value === 'function') {
-      const currentValue = globalState.get(key) as T;
+      const currentValue = globalState.has(key) ? globalState.get(key) as T : defaultValue;
       const newValue = (value as (prevValue: T) => T)(currentValue);
       globalState.set(key, newValue);
     } else {
       globalState.set(key, value);
     }
-  }
+  }, [key, defaultValue, globalState]);
 
   return [data, setGlobalData];
 }

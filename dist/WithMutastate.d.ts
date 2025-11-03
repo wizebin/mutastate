@@ -5,7 +5,7 @@ type WithMutastateOptions<P = any> = {
     listenersFlat?: boolean;
     globalState?: Mutastate;
 };
-export declare function withMutastateCreator<P = any, S = any>(options?: WithMutastateOptions<P>): (WrappedComponent: React.ComponentType<P>) => {
+export declare function withMutastateCreator<P = any, S = any>(options?: WithMutastateOptions<P>): (WrappedComponent: any) => {
     new (props: P): {
         [x: string]: any;
         agent: any;
@@ -21,7 +21,7 @@ export declare function withMutastateCreator<P = any, S = any>(options?: WithMut
     };
     [x: string]: any;
 };
-export declare const withMutastate: (WrappedComponent: import("react").ComponentType<any>) => {
+export declare const withMutastate: (WrappedComponent: any) => {
     new (props: any): {
         [x: string]: any;
         agent: any;

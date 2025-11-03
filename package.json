@@ -1,9 +1,22 @@
 {
   "name": "mutastate",
-  "version": "2.0.24",
+  "version": "3.0.24",
   "description": "Mutable state management",
   "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
   "typings": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./react": {
+      "import": "./dist/react.esm.js",
+      "require": "./dist/react.js",
+      "types": "./dist/react.d.ts"
+    }
+  },
   "files": [
     "/dist"
   ],

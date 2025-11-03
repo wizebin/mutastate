@@ -2,6 +2,10 @@
 
 Mutastate is designed to manage state and send notifications to listeners when state changes.
 
+## 3.0.0 Migration Notes
+
+If you use react hooks you must now import from 'mutastate/react' instead of 'mutastate'. This allows us to keep the library's dependency on react optional, allowing projects that don't use react to still successfully run without react.
+
 ## install
 
 `npm install --save mutastate`

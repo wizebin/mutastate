@@ -1,10 +1,10 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('lodash.clone')) :
     typeof define === 'function' && define.amd ? define(['exports', 'lodash.clone'], factory) :
-    (global = global || self, factory(global.mutastate = {}, global.clone$1));
-}(this, (function (exports, clone$1) { 'use strict';
+    (global = global || self, factory(global.mutastate = {}, global.cloneLib));
+}(this, (function (exports, cloneLib) { 'use strict';
 
-    clone$1 = clone$1 && Object.prototype.hasOwnProperty.call(clone$1, 'default') ? clone$1['default'] : clone$1;
+    cloneLib = cloneLib && Object.prototype.hasOwnProperty.call(cloneLib, 'default') ? cloneLib['default'] : cloneLib;
 
     /******************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -80,7 +80,7 @@
       return _typeof(input);
     }
     function clone(input) {
-      return clone$1(input);
+      return cloneLib(input);
     }
     function getObjectPath(pathin) {
       if (pathin === undefined) return [];
@@ -184,28 +184,6 @@
       if (currentOb === undefined || currentOb === null) return;
       var finalkey = thekeys[thekeys.length - 1];
       if (finalkey) delete currentOb[finalkey];
-    }
-    function deepEq(a, b) {
-      if (a === b) return true;
-      if (a === null || b === null) return false;
-      if (a === undefined || b === undefined) return false;
-      if (_typeof(a) !== _typeof(b)) return false;
-      if (Array.isArray(a) && Array.isArray(b)) {
-        if (a.length !== b.length) return false;
-        for (var dex = 0; dex < a.length; dex += 1) {
-          if (!deepEq(a[dex], b[dex])) return false;
-        }
-        return true;
-      }
-      if (_typeof(a) === 'object' && _typeof(b) === 'object') {
-        var akeys = Object.keys(a);
-        var bkeys = Object.keys(b);
-        if (akeys.length !== bkeys.length) return false;
-        return akeys.every(function (key) {
-          return deepEq(a[key], b[key]);
-        });
-      }
-      return false;
     }
 
     var BaseAgent = /** @class */function () {
@@ -1335,140 +1313,6 @@
       return mutastateInstance;
     }
 
-    var React;
-    try {
-      React = require('react');
-    } catch (err) {
-      var errorFunc = function errorFunc() {
-        throw new Error('REACT IS NOT AVAILABLE, WithMutastate IS NOT AVAILABLE WITHOUT REACT');
-      };
-      React = {
-        Component: (/** @class */function () {
-          function Component() {}
-          return Component;
-        }()),
-        createElement: errorFunc
-      };
-    }
-    function withMutastateCreator(options) {
-      if (options === void 0) {
-        options = {};
-      }
-      return function withMutastate(WrappedComponent) {
-        var _a = options.listeners,
-          listeners = _a === void 0 ? [] : _a,
-          _b = options.listenersFlat,
-          listenersFlat = _b === void 0 ? false : _b,
-          _c = options.globalState,
-          globalState = _c === void 0 ? singleton() : _c;
-        var WithMutastate = /** @class */function (_super) {
-          __extends(WithMutastate, _super);
-          function WithMutastate(props) {
-            var _this = _super.call(this, props) || this;
-            _this.state = {};
-            _this.agent = globalState.getAgent(_this.onMutastateChange.bind(_this));
-            _this.updateListeners(props);
-            return _this;
-          }
-          WithMutastate.prototype.componentWillUnmount = function () {
-            this.agent.cleanup();
-          };
-          WithMutastate.prototype.componentDidUpdate = function (prevProps) {
-            if (typeof listeners === 'function') {
-              var nextListeners = listeners(this.props);
-              var prevListeners = listeners(prevProps);
-              if (JSON.stringify(nextListeners) !== JSON.stringify(prevListeners)) {
-                this.updateListeners(this.props);
-              }
-            }
-          };
-          WithMutastate.prototype.updateListeners = function (props) {
-            var resolvedListeners = typeof listeners === 'function' ? listeners(props) : listeners;
-            this.agent.multiListen(resolvedListeners, {
-              flat: listenersFlat
-            });
-          };
-          WithMutastate.prototype.onMutastateChange = function (changes) {
-            var newState = {};
-            for (var _i = 0, changes_1 = changes; _i < changes_1.length; _i++) {
-              var change = changes_1[_i];
-              if (typeof change.key === 'string') {
-                newState[change.key] = change.value;
-              }
-            }
-            this.setState(newState);
-          };
-          WithMutastate.prototype.render = function () {
-            return React.createElement(WrappedComponent, __assign(__assign(__assign({}, this.props), this.state), {
-              mutastate: this.agent
-            }));
-          };
-          return WithMutastate;
-        }(React.Component);
-        return WithMutastate;
-      };
-    }
-    var withMutastate = withMutastateCreator();
-
-    var React$1;
-    try {
-      React$1 = require('react');
-    } catch (err) {
-      var errorFunc$1 = function errorFunc() {
-        throw new Error('REACT IS NOT AVAILABLE, useMutastate IS NOT AVAILABLE WITHOUT REACT');
-      };
-      React$1 = {
-        useState: errorFunc$1,
-        useEffect: errorFunc$1,
-        useRef: errorFunc$1
-      };
-    }
-    var useState = React$1.useState,
-      useEffect = React$1.useEffect,
-      useRef = React$1.useRef;
-    /**
-     * React hook for mutastate
-     * @param {KeyType} key - Key to listen to
-     * @param {Object} listenerParams - Options for the listener
-     * @param {any} listenerParams.defaultValue - Default value if key doesn't exist
-     * @param {Mutastate} listenerParams.globalState - Mutastate instance to use (singleton by default)
-     * @returns {[any, (value: any) => void]} Value and setter tuple, similar to useState
-     */
-    function useMutastate(key, listenerParams) {
-      if (listenerParams === void 0) {
-        listenerParams = {};
-      }
-      var defaultValue = listenerParams.defaultValue,
-        _a = listenerParams.globalState,
-        globalState = _a === void 0 ? singleton() : _a;
-      var startingValue = globalState.has(key) ? globalState.get(key) : defaultValue;
-      // @ts-ignore - React types
-      var _b = useState(clone$1(startingValue)),
-        data = _b[0],
-        setData = _b[1];
-      var refKey = useRef(key);
-      useEffect(function () {
-        var func = function func() {
-          return setData(clone$1(globalState.get(key)));
-        };
-        globalState.listen(key, {
-          callback: func,
-          defaultValue: defaultValue
-        });
-        if (!deepEq(refKey.current, key)) {
-          func();
-          refKey.current = key;
-        }
-        return function () {
-          return globalState.unlisten(key, func);
-        };
-      }, [key]);
-      var setGlobalData = function setGlobalData(value) {
-        globalState.set(key, value);
-      };
-      return [data, setGlobalData];
-    }
-
     /**
      * Helper to wrap changes with a callback
      */
@@ -1541,9 +1385,6 @@
     exports.changeWrapper = changeWrapper;
     exports.default = Mutastate;
     exports.singleton = singleton;
-    exports.useMutastate = useMutastate;
-    exports.withMutastate = withMutastate;
-    exports.withMutastateCreator = withMutastateCreator;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
